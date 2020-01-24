@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name carte-radio)(type KiCad)(uri /home/felixzero/robot/carte-radio)(options "")(descr ""))
+)
