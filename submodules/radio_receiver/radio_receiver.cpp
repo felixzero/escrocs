@@ -1,6 +1,6 @@
 #include <SPI.h>
 
-#include "radio.h"
+#include "radio_receiver.h"
 
 #define SS_PIN 10
 #define INTERRUPT_PIN 2

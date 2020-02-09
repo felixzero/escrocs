@@ -81,9 +81,9 @@ static const uint8_t COMMON_RF_PARAMETERS[] = {
     0x2F, 0x01, /* Sync bytes */
     0x30, 0x02,
     0x31, 0x03,
-    0x99,0x90, /* Bandwidth configuration */
-    0x9A,0x90, /* Bandwidth configuration */
-    0xEF,0x00, /* Continuous Dagc in normal mode */
+    0x99, 0x90, /* Bandwidth configuration */
+    0x9A, 0x90, /* Bandwidth configuration */
+    0xEF, 0x00, /* Continuous Dagc in normal mode */
 };
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
