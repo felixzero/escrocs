@@ -1,8 +1,5 @@
 #pragma once
 
-#define TARGET_SPEED 20 // in ticks/s
-#define ACCELERATION_DISTANCE 400 // in tick
-
 #define AXLES_WIDTH 291000 // in um
 #define MOTOR_ENC_TICKS_PER_TURN 360 // in ticks
 #define MOTOR_FWD_MOTION_PER_TICK (628319 / MOTOR_ENC_TICKS_PER_TURN) // (2*pi*10cm) in um/tick

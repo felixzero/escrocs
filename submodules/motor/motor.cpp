@@ -24,6 +24,9 @@ static int motion_mode = IDLE_MODE;
 static long target_position = 0;
 static long initial_enc1, initial_enc2;
 
+static const long TARGET_SPEED[] = { 0, 50, 50 }; // in ticks/s
+static const long ACCELERATION_DISTANCE[] = { 0, 200, 200 }; // in tick
+
 // Sent a R/W register over the I2C bus
 inline void _send_motor_command(char reg, char value)
 {
@@ -108,7 +111,7 @@ void poll_motor_regulation()
 
   // Reduce speed if target almost reached
   long distance_to_target = target_position - motion;
-  long target_speed = (min(abs(target_position - motion), abs(motion)) * TARGET_SPEED / ACCELERATION_DISTANCE + 1) * SIGN(distance_to_target);
+  long target_speed = (min(min(abs(target_position - motion), abs(motion)), ACCELERATION_DISTANCE[motion_mode]) * TARGET_SPEED[motion_mode] / ACCELERATION_DISTANCE[motion_mode] + 1) * SIGN(distance_to_target);
 
   Serial.println(distance_to_target);
 
