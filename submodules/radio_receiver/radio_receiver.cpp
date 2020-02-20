@@ -1,57 +1,54 @@
 #include <SPI.h>
+#include <Arduino.h>
 
 #include "radio_receiver.h"
+#include "pinout.h"
 
-#define SS_PIN 10
-#define INTERRUPT_PIN 2
+RadioReceiver Radio;
 
-static radio_payload_t radio_payload;
-
-
-static void write_register(uint8_t reg, uint8_t value)
+void RadioReceiver::writeRegister(uint8_t reg, uint8_t value)
 {
-  digitalWrite(SS_PIN, LOW);
+  digitalWrite(PIN_SPI_SS, LOW);
   SPI.transfer(reg | 0x80);
   SPI.transfer(value);
-  digitalWrite(SS_PIN, HIGH);
+  digitalWrite(PIN_SPI_SS, HIGH);
 }
 
-
-static uint8_t read_register(uint8_t reg)
+uint8_t RadioReceiver::readRegister(uint8_t reg)
 {
   uint8_t output;
   
-  digitalWrite(SS_PIN, LOW);
+  digitalWrite(PIN_SPI_SS, LOW);
   SPI.transfer(reg & 0x7F);
   output = SPI.transfer(0x00);
-  digitalWrite(SS_PIN, HIGH);
+  digitalWrite(PIN_SPI_SS, HIGH);
 
   return output;
 }
 
-
-static void radio_interrupt_handler(void)
+void RadioReceiver::interruptHandler()
 {
-  char *payload_ptr = (char*)&radio_payload;
+  char *payloadPtr = (char*)&Radio.radioPayload;
   for (int i = 0; i < PAYLOAD_LENGTH; i++) {
-    payload_ptr[i] = read_register(0x00);
+    payloadPtr[i] = Radio.readRegister(0x00);
   }
 }
 
-
-void initialize_radio_receiver(void)
+void RadioReceiver::begin()
 {
-  radio_payload.flags = 0x00;
+  radioPayload.flags = 0x00;
   
-  pinMode(SS_PIN, OUTPUT);
+  pinMode(PIN_SPI_SS, OUTPUT);
   SPI.begin();
 
   // Configure radio through SPI
   for (int i = 0; i < ARRAY_SIZE(COMMON_RF_PARAMETERS); i += 2)
-    write_register(COMMON_RF_PARAMETERS[i], COMMON_RF_PARAMETERS[i + 1]);
+    writeRegister(COMMON_RF_PARAMETERS[i], COMMON_RF_PARAMETERS[i + 1]);
   
-  attachInterrupt(digitalPinToInterrupt(INTERRUPT_PIN), radio_interrupt_handler, RISING);
+  attachInterrupt(digitalPinToInterrupt(PIN_RADIO_INT), &RadioReceiver::interruptHandler, RISING);
 
   // Put radio in listen mode
-  write_register(0x01, 0x10);
+  writeRegister(0x01, 0x10);
 }
+
+

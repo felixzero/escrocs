@@ -11,8 +11,8 @@
 #define PIN_ECHO_RR      7
 
 /* Thoses are covered by PCINT0 */
-#define PIN_SERVOS_BLANK 8
-#define PIN_SERVOS_XLAT  9
+#define PIN_SERVOS_XLAT  8
+#define PIN_SERVOS_BLANK 9
 #define PIN_SPI_SS       10
 #define PIN_SPI_MOSI     11
 #define PIN_SPI_MISO     12

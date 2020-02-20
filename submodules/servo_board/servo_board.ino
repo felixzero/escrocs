@@ -4,6 +4,8 @@
 
 void setup()
 {
+  Serial.begin(9600);
+  
   Servos.begin();
   delay(500);
 }

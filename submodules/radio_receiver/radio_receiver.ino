@@ -1,3 +1,5 @@
+#include <SPI.h>
+
 #include "radio_receiver.h"
 
 void setup()
@@ -6,13 +8,13 @@ void setup()
   Serial.println("Radio demo for duino");
   delay(10);
 
-  initialize_radio_receiver();
+  Radio.begin();
 }
 
 
 void loop()
 {
   Serial.print("Flags: ");
-  Serial.println(radio_payload.flags);
+  Serial.println(Radio.payload().flags);
   delay(500);
 }
