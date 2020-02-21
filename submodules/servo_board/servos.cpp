@@ -53,7 +53,7 @@ void ServoBoard::begin()
 
 void ServoBoard::write(byte channel, int value)
 {
-  channelValues[channel] = NO_PULSE_VALUE - SERVO_MIN_WIDTH - (value + 127) * (SERVO_MAX_WIDTH - SERVO_MIN_WIDTH) / 256;
+  channelValues[channel] = NO_PULSE_VALUE - SERVO_MIN_WIDTH - ((word)value + 127) * (SERVO_MAX_WIDTH - SERVO_MIN_WIDTH) / 256;
   resendSerialData();  
 }
 
