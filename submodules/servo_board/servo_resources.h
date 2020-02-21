@@ -17,7 +17,5 @@
 
 
 // Syntaxic sugar
-#define servo_flag_raise() Servos.write(SERVO_FLAG, 184)
-#define servo_flag_lower() Servos.write(SERVO_FLAG, 40)
-
-
+#define servo_flag_raise() Servos.write(SERVO_FLAG, 255)
+#define servo_flag_lower() Servos.write(SERVO_FLAG, 0)

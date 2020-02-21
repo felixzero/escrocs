@@ -11,16 +11,12 @@ public:
   void begin();
   
   // Set value for a specific servo channel
-  void write(byte channel, byte value);
+  void write(byte channel, int value);
 
 private:
   void resendSerialData();
-  static word servoTo12bits(byte servoValue);
   
-  byte channelValues[NUMBER_OF_SERVO_CHANNELS] = { 127 };
+  word channelValues[NUMBER_OF_SERVO_CHANNELS];
 };
 
 extern ServoBoard Servos;
-
-
-
