@@ -11,7 +11,7 @@ public:
   void begin();
   
   // Set value for a specific servo channel
-  void write(byte channel, int value);
+  void writeMicroseconds(byte channel, int value);
 
 private:
   void resendSerialData();

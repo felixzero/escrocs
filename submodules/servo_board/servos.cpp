@@ -6,8 +6,8 @@
 // All values with /8 prescaler: clock at 2MHz
 #define GSCLK_PERIOD 10 // 5us
 #define PWM_PERIOD 20480 // 48.8Hz
-#define SERVO_MIN_WIDTH 200 // 1 ms
-#define SERVO_MAX_WIDTH 400 // 2 ms
+#define SERVO_MAX_WIDTH_CLOCK 400 // 2 ms
+#define SERVO_MAX_WIDTH_MICROSECONDS 2000
 #define NO_PULSE_VALUE (byte(12) - 1)
 
 ServoBoard Servos;
@@ -51,10 +51,10 @@ void ServoBoard::begin()
   resendSerialData();
 }
 
-void ServoBoard::write(byte channel, int value)
+void ServoBoard::writeMicroseconds(byte channel, int value)
 {
-  channelValues[channel] = NO_PULSE_VALUE - SERVO_MIN_WIDTH - ((word)value + 127) * (SERVO_MAX_WIDTH - SERVO_MIN_WIDTH) / 256;
-  resendSerialData();  
+  channelValues[channel] = NO_PULSE_VALUE - value * SERVO_MAX_WIDTH_CLOCK / SERVO_MAX_WIDTH_MICROSECONDS;
+  resendSerialData(); 
 }
 
 void ServoBoard::resendSerialData()
