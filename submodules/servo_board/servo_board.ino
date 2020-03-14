@@ -1,12 +1,14 @@
 #include <SPI.h>
 
 #include "servos.h"
+#include "servo_resources.h"
 
 void setup()
 {
   Serial.begin(9600);
   
   Servos.begin();
+  servo_flag_lower();
   delay(500);
 }
 
