@@ -22,6 +22,6 @@
 //#define PIN_NC          A0
 //#define PIN_NC          A1
 //#define PIN_NC          A2
-//#define PIN_NC          A3
+#define PIN_STARTER     A3
 #define PIN_I2C_SDA     A4
 #define PIN_I2C_SCL     A5

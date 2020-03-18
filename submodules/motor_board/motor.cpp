@@ -23,7 +23,7 @@
 #define SIGN(x) ((x > 0) ? 1 : -1)
 
 #define FEEDBACK 400
-#define TARGET_SPEED 50 // in ticks/s
+#define TARGET_SPEED 30 // in ticks/s
 #define ACCELERATION_DISTANCE 200 // in tick
 
 MotorControl Motor;

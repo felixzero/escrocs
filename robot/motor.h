@@ -1,1 +1,1 @@
-../submodules/motor/motor.h
+../submodules/motor_board/motor.h
