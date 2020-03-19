@@ -132,9 +132,15 @@ void MotorControl::pollRegulation()
 
 void MotorControl::stopMotion()
 {
+  previousMotionMode = motionMode;
   motionMode = Idle;
   sendCommand(MOTOR_I2C_SPEED1, 0);
   sendCommand(MOTOR_I2C_SPEED2, 0);
+}
+
+void MotorControl::resumeMotion()
+{
+  motionMode = previousMotionMode;
 }
 
 bool MotorControl::isIdle()

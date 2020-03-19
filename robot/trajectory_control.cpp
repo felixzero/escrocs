@@ -1,5 +1,6 @@
 #include "trajectory_control.h"
 #include "motor.h"
+#include "ultrasound.h"
 
 #include <math.h>
 #include <Arduino.h>
@@ -13,6 +14,7 @@ void TrajectoryControl::begin(int initialX, int initialY, int initialTheta)
   _currentTheta = initialTheta;
 
   Motor.begin();
+  UltraSounds.begin();
 }
 
 void TrajectoryControl::moveTo(int destinationX, int destinationY, int destinationTheta)
@@ -40,10 +42,7 @@ void TrajectoryControl::rotate(int angle)
 {
   Motor.setTarget(MotorControl::Turning, -angle);
 
-  while (!Motor.isIdle()) {
-    Motor.pollRegulation();
-    delay(20);
-  }
+  controlLoop();
 
   _currentTheta += angle;
   _currentTheta %= 360;
@@ -53,13 +52,43 @@ void TrajectoryControl::moveForward(int distance)
 {
   Motor.setTarget(MotorControl::Forward, distance);
 
-  while (!Motor.isIdle()) {
-    Motor.pollRegulation();
-    delay(20);
-  }
+  controlLoop();
 
   _currentX += DEG_COS(distance, _currentTheta);
   _currentY += DEG_SIN(distance, _currentTheta);
+}
+
+void TrajectoryControl::controlLoop()
+{
+  while (true) {
+    unsigned long pulseTime = millis();
+    
+    UltraSounds.pulse(ULTRASOUND_FRONT);
+
+    while ((millis() - pulseTime) < MIN_PULSE_DELAY) {
+      Motor.pollRegulation();
+      if (Motor.isIdle()) {
+        return;
+      }
+
+      if (!IS_DISTANCE_SAFE(UltraSounds.read(ULTRASOUND_FL)) || !IS_DISTANCE_SAFE(UltraSounds.read(ULTRASOUND_FR))) {
+          Motor.stopMotion();
+          waitForFreePath();
+          Motor.resumeMotion();
+        }
+    }
+  }
+}
+
+void TrajectoryControl::waitForFreePath()
+{
+  while (true) {
+    UltraSounds.pulse(ULTRASOUND_FRONT);
+    delay(MIN_PULSE_DELAY);
+    if (IS_DISTANCE_SAFE(UltraSounds.read(ULTRASOUND_FL)) && IS_DISTANCE_SAFE(UltraSounds.read(ULTRASOUND_FR))) {
+      break;
+    }
+  }
 }
 
 inline int TrajectoryControl::DEG_ATAN2(int y, int x)
@@ -80,4 +109,12 @@ inline int TrajectoryControl::DEG_SIN(int r, int theta)
 inline int TrajectoryControl::INT_DISTANCE(int x, int y)
 {
   return (int)(sqrt(((double)x * x + (double)y * y)));
+}
+
+inline bool TrajectoryControl::IS_DISTANCE_SAFE(int distance)
+{
+  if (distance < 0) {
+    return true;
+  }
+  return (distance >= DANGER_DISTANCE);
 }

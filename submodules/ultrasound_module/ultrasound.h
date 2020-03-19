@@ -11,6 +11,8 @@
 
 #define NUMBER_ECHO 4
 
+#define MIN_PULSE_DELAY 80 // ms
+
 class UltraSoundDetection
 { 
 public:
@@ -36,7 +38,3 @@ public: // but actually private, only ISR must call this
 };
 
 extern UltraSoundDetection UltraSounds;
-
-
-
-

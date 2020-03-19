@@ -15,6 +15,8 @@
 #define GREEN_CHANNEL_Y (FIELD_Y - 515)
 #define RED_CHANNEL_Y (FIELD_Y - 1090)
 
+#define DANGER_DISTANCE  300
+
 
 #define UNCHANGED -1
 #define DONTCARE  -2
@@ -39,10 +41,14 @@ public:
   int getCurrentTheta() const { return _currentTheta; }
 
 private:
+  void controlLoop();
+  void waitForFreePath();
+
   static inline int DEG_ATAN2(int y, int x);
   static inline int DEG_COS(int r, int theta);
   static inline int DEG_SIN(int r, int theta);
   static inline int INT_DISTANCE(int x, int y);
+  static inline bool IS_DISTANCE_SAFE(int distance);
 
   int _currentX = -1, _currentY = -1, _currentTheta = -1;
 };
