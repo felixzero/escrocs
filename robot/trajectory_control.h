@@ -4,6 +4,7 @@
 
 // Robot dimensions
 #define ROBOT_SIDE                 240
+#define ROBOT_HALF_SIDE            120
 #define WHEEL_SAFETY_DISTANCE       50
 #define CUP_ENTRANCE_OFFSET_EDGE    70
 #define CUP_ENTRANCE_DEPTH         100
@@ -12,8 +13,8 @@
 // Field dimensions
 #define FIELD_X              3000
 #define FIELD_Y              2000
-#define GREEN_CHANNEL_Y (FIELD_Y - 515)
-#define RED_CHANNEL_Y (FIELD_Y - 1090)
+#define GREEN_CHANNEL_Y 515
+#define RED_CHANNEL_Y 1085
 
 #define DANGER_DISTANCE  300
 
