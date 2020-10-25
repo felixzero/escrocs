@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Arduino.h>
+
 #define NUMBER_OF_SERVO_CHANNELS 16
 
 // API for the TLC5940 custom board

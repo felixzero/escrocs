@@ -3,7 +3,8 @@
 // Everything in mm
 
 // Robot dimensions
-#define ROBOT_SIDE                 240
+#define ROBOT_HALF_SIDE            120
+#define ROBOT_SIDE                 (ROBOT_HALF_SIDE * 2)
 #define WHEEL_SAFETY_DISTANCE       50
 #define CUP_ENTRANCE_OFFSET_EDGE    70
 #define CUP_ENTRANCE_DEPTH         100
@@ -12,8 +13,8 @@
 // Field dimensions
 #define FIELD_X              3000
 #define FIELD_Y              2000
-#define GREEN_CHANNEL_Y (FIELD_Y - 515)
-#define RED_CHANNEL_Y (FIELD_Y - 1090)
+#define GREEN_CHANNEL_Y       515
+#define RED_CHANNEL_Y        1085
 
 #define DANGER_DISTANCE  300
 
@@ -33,7 +34,8 @@ public:
 
   // Relative moves
   void rotate(int angle);
-  void moveForward(int distance);
+  void translate(int distance);
+  void translateWithoutCheck(int distance);
 
   // Position getters
   int getCurrentX() const { return _currentX; }
@@ -41,7 +43,7 @@ public:
   int getCurrentTheta() const { return _currentTheta; }
 
 private:
-  void controlLoop();
+  void controlLoop(bool checkForCollisions = true);
   void waitForFreePath();
 
   static inline int DEG_ATAN2(int y, int x);

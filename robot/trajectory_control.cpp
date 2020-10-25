@@ -27,10 +27,7 @@ void TrajectoryControl::moveTo(int destinationX, int destinationY, int destinati
   rotate((angleDifference <= 180) ? angleDifference : angleDifference - 360);
 
   int distance = INT_DISTANCE(destinationX - _currentX, destinationY - _currentY);
-  moveForward(distance);
-
-      
-  return;
+  translate(distance);
 
   if (destinationTheta != DONTCARE) {
     angleDifference = (destinationTheta - _currentTheta + 360) % 360;
@@ -40,7 +37,7 @@ void TrajectoryControl::moveTo(int destinationX, int destinationY, int destinati
 
 void TrajectoryControl::rotate(int angle)
 {
-  Motor.setTarget(MotorControl::Turning, -angle);
+  Motor.setTarget(MotorControl::Turning, angle);
 
   controlLoop();
 
@@ -48,7 +45,7 @@ void TrajectoryControl::rotate(int angle)
   _currentTheta %= 360;
 }
 
-void TrajectoryControl::moveForward(int distance)
+void TrajectoryControl::translate(int distance)
 {
   Motor.setTarget(MotorControl::Forward, distance);
 
@@ -58,7 +55,17 @@ void TrajectoryControl::moveForward(int distance)
   _currentY += DEG_SIN(distance, _currentTheta);
 }
 
-void TrajectoryControl::controlLoop()
+void TrajectoryControl::translateWithoutCheck(int distance)
+{
+  Motor.setTarget(MotorControl::Forward, distance);
+
+  controlLoop(false);
+
+  _currentX += DEG_COS(distance, _currentTheta);
+  _currentY += DEG_SIN(distance, _currentTheta);
+}
+
+void TrajectoryControl::controlLoop(bool checkForCollisions)
 {
   while (true) {
     unsigned long pulseTime = millis();
@@ -71,7 +78,7 @@ void TrajectoryControl::controlLoop()
         return;
       }
 
-      if (!IS_DISTANCE_SAFE(UltraSounds.read(ULTRASOUND_FL)) || !IS_DISTANCE_SAFE(UltraSounds.read(ULTRASOUND_FR))) {
+      if (checkForCollisions && (!IS_DISTANCE_SAFE(UltraSounds.read(ULTRASOUND_FL)) || !IS_DISTANCE_SAFE(UltraSounds.read(ULTRASOUND_FR)))) {
           Motor.stopMotion();
           waitForFreePath();
           Motor.resumeMotion();
