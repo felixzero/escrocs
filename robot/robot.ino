@@ -11,7 +11,7 @@
 void setup()
 {
   Serial.begin(9600);
-  Trajectory.begin(ROBOT_HALF_SIDE, (GREEN_CHANNEL_Y + RED_CHANNEL_Y) / 2, 0, TrajectoryControl::TeamSide::Right);
+  Trajectory.begin(ROBOT_HALF_SIDE, (GREEN_CHANNEL_Y + RED_CHANNEL_Y) / 2, 0, TrajectoryControl::TeamSide::Left);
   initializeServoSystems();
 
   //waitForStartSignal();
@@ -33,9 +33,15 @@ void waitForStartSignal()
 void initializeServoSystems()
 {
   Servos.begin();
+  delay(500);
   SERVO_FLAG_LOWER();
+  delay(500);
   SERVO_FLIPPER_LEFT_CLOSE();
+  delay(500);
   SERVO_FLIPPER_RIGHT_CLOSE();
+  delay(500);
+  SERVO_ARM_RETRACT();
+  delay(500);
 }
 
 void initialFixedRoutine()
@@ -53,9 +59,9 @@ void initialFixedRoutine()
   Trajectory.translate(-SAFE_RELEASE_DISTANCE);
   SERVO_FLIPPER_LEFT_CLOSE();
   // Green buoy now safe
-  Trajectory.rotate(-120);
+  Trajectory.rotate(-125);
   Trajectory.translate(-270);
-  Trajectory.rotate(30);
+  Trajectory.rotate(35);
   // Rear of the robot towards lighthouse
   Trajectory.translateWithoutCheck(-106);
   // Lighthouse now activated
@@ -73,10 +79,11 @@ void initialFixedRoutine()
   // Now done with the red buoys
   Trajectory.moveTo(UNCHANGED, 1450, DONTCARE);
   // Now approaching the windsocks
-  Trajectory.moveTo(ROBOT_HALF_SIDE + FRONT_MARGIN, 1850, 180); // movement 12, approach
-  // 140, 1800, 180
-  // deploy the arm, warning! the arm should be on the other side of the robot if we start on the right of the table! we need to pay attention to this!
-  Trajectory.translate(-660); // movement 13
-  // 800, 1800, 180
-  // undeploy the arm
+  Trajectory.translateWithoutCheck(FIELD_Y - ROBOT_HALF_SIDE - 50 - 1450);
+  Trajectory.rotate(90);
+  Trajectory.translateWithoutCheck(280);
+  // Now doing rear motion
+  SERVO_ARM_DEPLOY();
+  Trajectory.translateWithoutCheck(-600);
+  SERVO_ARM_RETRACT();
 }

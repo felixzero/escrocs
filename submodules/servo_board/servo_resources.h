@@ -26,3 +26,6 @@
 
 #define SERVO_FLIPPER_RIGHT_OPEN() Servos.writeMicroseconds(SERVO_FLIPPER_RIGHT, 2000)
 #define SERVO_FLIPPER_RIGHT_CLOSE() Servos.writeMicroseconds(SERVO_FLIPPER_RIGHT, 1000)
+
+#define SERVO_ARM_DEPLOY() { Servos.smoothWriteMicroseconds(SERVO_ARM_LEFT, 2000, 3000); Servos.smoothWriteMicroseconds(SERVO_ARM_RIGHT, 1000, 3000); }
+#define SERVO_ARM_RETRACT() { Servos.smoothWriteMicroseconds(SERVO_ARM_LEFT, 1000, 3000); Servos.smoothWriteMicroseconds(SERVO_ARM_RIGHT, 2000, 3000); }
