@@ -14,7 +14,7 @@ void setup()
   Trajectory.begin(ROBOT_HALF_SIDE, (GREEN_CHANNEL_Y + RED_CHANNEL_Y) / 2, 0, TrajectoryControl::TeamSide::Left);
   initializeServoSystems();
 
-  //waitForStartSignal();
+  waitForStartSignal();
   initialFixedRoutine();
 }
 
