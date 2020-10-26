@@ -25,7 +25,18 @@
 class TrajectoryControl
 {
 public:
-  void begin(int initialX, int initialY, int initialTheta);
+  enum class CollisionCheckType {
+    Front,
+    Rear,
+    None
+  };
+
+  enum class TeamSide {
+    Left,
+    Right
+  };
+
+  void begin(int initialX, int initialY, int initialTheta, TeamSide side);
 
   // Absolute moves
   void moveTo(int destinationX, int destinationY, int destinationTheta);
@@ -43,16 +54,19 @@ public:
   int getCurrentTheta() const { return _currentTheta; }
 
 private:
-  void controlLoop(bool checkForCollisions = true);
+  void controlLoop(CollisionCheckType checkForCollisions);
   void waitForFreePath();
+  void setupUltrasoundResources(CollisionCheckType checkForCollisions, int& left, int& right);
 
   static inline int DEG_ATAN2(int y, int x);
   static inline int DEG_COS(int r, int theta);
   static inline int DEG_SIN(int r, int theta);
   static inline int INT_DISTANCE(int x, int y);
+  static inline int MODULO_ANGLE(int theta);
   static inline bool IS_DISTANCE_SAFE(int distance);
 
   int _currentX = -1, _currentY = -1, _currentTheta = -1;
+  TeamSide _side = TeamSide::Left;
 };
 
 extern TrajectoryControl Trajectory;

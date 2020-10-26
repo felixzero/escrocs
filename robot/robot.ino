@@ -11,12 +11,8 @@
 void setup()
 {
   Serial.begin(9600);
-  Trajectory.begin(ROBOT_HALF_SIDE, (GREEN_CHANNEL_Y + RED_CHANNEL_Y) / 2, 0);
-  Servos.begin();
-
-  SERVO_FLAG_LOWER();
-  SERVO_FLIPPER_LEFT_CLOSE();
-  SERVO_FLIPPER_RIGHT_CLOSE();
+  Trajectory.begin(ROBOT_HALF_SIDE, (GREEN_CHANNEL_Y + RED_CHANNEL_Y) / 2, 0, TrajectoryControl::TeamSide::Right);
+  initializeServoSystems();
 
   //waitForStartSignal();
   initialFixedRoutine();
@@ -32,6 +28,14 @@ void waitForStartSignal()
   pinMode(PIN_STARTER, INPUT_PULLUP);
   delay(500);
   while (digitalRead(PIN_STARTER) == LOW);
+}
+
+void initializeServoSystems()
+{
+  Servos.begin();
+  SERVO_FLAG_LOWER();
+  SERVO_FLIPPER_LEFT_CLOSE();
+  SERVO_FLIPPER_RIGHT_CLOSE();
 }
 
 void initialFixedRoutine()
@@ -53,9 +57,9 @@ void initialFixedRoutine()
   Trajectory.translate(-270);
   Trajectory.rotate(30);
   // Rear of the robot towards lighthouse
-  Trajectory.translateWithoutCheck(-101);
+  Trajectory.translateWithoutCheck(-106);
   // Lighthouse now activated
-  Trajectory.translate(101);
+  Trajectory.translate(106);
   // Now away from lighthouse
   Trajectory.moveTo(SAFE_EDGE_PORT_X + 100, 1140, 180);
   // Ready to deposit the two red buoys and capture another green one
