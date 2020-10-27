@@ -14,7 +14,6 @@ public:
   
   // Set value for a specific servo channel
   void writeMicroseconds(byte channel, int value);
-  void smoothWriteMicroseconds(byte channel, int value, int rampTime);
 
 private:
   void resendSerialData();

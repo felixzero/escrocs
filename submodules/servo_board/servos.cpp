@@ -57,16 +57,6 @@ void ServoBoard::writeMicroseconds(byte channel, int value)
   resendSerialData(); 
 }
 
-void ServoBoard::smoothWriteMicroseconds(byte channel, int value, int rampTime)
-{
-  int currentValue = channelValues[channel];
-  for (int intermediateValue = currentValue; intermediateValue <= value; intermediateValue += (value - currentValue) / 10)
-  {
-    writeMicroseconds(channel, intermediateValue);
-    delay(rampTime / 10);
-  }
-}
-
 void ServoBoard::resendSerialData()
 {  
   // Send servo data values by packets of 12 bits

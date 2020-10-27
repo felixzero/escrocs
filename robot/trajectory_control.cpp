@@ -7,12 +7,13 @@
 
 TrajectoryControl Trajectory;
 
-void TrajectoryControl::begin(int initialX, int initialY, int initialTheta, TeamSide side)
+void TrajectoryControl::begin(int initialX, int initialY, int initialTheta, TeamSide side, timerCallback_t timerCallback)
 {
   _currentX = initialX;
   _currentY = initialY;
   _currentTheta = initialTheta;
   _side = side;
+  _timerCallback = timerCallback;
 
   Motor.begin();
   UltraSounds.begin();
@@ -24,15 +25,15 @@ void TrajectoryControl::moveTo(int destinationX, int destinationY, int destinati
   destinationY = (destinationY == UNCHANGED) ? _currentY : destinationY;
   destinationTheta = (destinationTheta == UNCHANGED) ? _currentTheta : destinationTheta;
 
-  int trajectoryAngle = DEG_ATAN2(destinationY - _currentY, destinationX - _currentX);
-  int angleDifference = MODULO_ANGLE(trajectoryAngle - _currentTheta);  
+  int trajectoryAngle = degAtan2(destinationY - _currentY, destinationX - _currentX);
+  int angleDifference = moduloAngle(trajectoryAngle - _currentTheta);  
   rotate((angleDifference <= 180) ? angleDifference : angleDifference - 360);
 
-  int distance = INT_DISTANCE(destinationX - _currentX, destinationY - _currentY);
+  int distance = intDistance(destinationX - _currentX, destinationY - _currentY);
   translate(distance);
 
   if (destinationTheta != DONTCARE) {
-    angleDifference = MODULO_ANGLE(destinationTheta - _currentTheta);
+    angleDifference = moduloAngle(destinationTheta - _currentTheta);
     rotate((angleDifference <= 180) ? angleDifference : angleDifference - 360);
   }
 }
@@ -45,7 +46,7 @@ void TrajectoryControl::rotate(int angle)
   controlLoop(CollisionCheckType::None);
 
   _currentTheta += angle;
-  _currentTheta = MODULO_ANGLE(_currentTheta);
+  _currentTheta = moduloAngle(_currentTheta);
 }
 
 void TrajectoryControl::translate(int distance)
@@ -54,8 +55,8 @@ void TrajectoryControl::translate(int distance)
 
   controlLoop(distance >= 0 ? CollisionCheckType::Front : CollisionCheckType::Rear);
 
-  _currentX += DEG_COS(distance, _currentTheta);
-  _currentY += DEG_SIN(distance, _currentTheta);
+  _currentX += degCos(distance, _currentTheta);
+  _currentY += degSin(distance, _currentTheta);
 }
 
 void TrajectoryControl::translateWithoutCheck(int distance)
@@ -64,8 +65,8 @@ void TrajectoryControl::translateWithoutCheck(int distance)
 
   controlLoop(CollisionCheckType::None);
 
-  _currentX += DEG_COS(distance, _currentTheta);
-  _currentY += DEG_SIN(distance, _currentTheta);
+  _currentX += degCos(distance, _currentTheta);
+  _currentY += degSin(distance, _currentTheta);
 }
 
 void TrajectoryControl::controlLoop(CollisionCheckType checkForCollisions)
@@ -84,7 +85,9 @@ void TrajectoryControl::controlLoop(CollisionCheckType checkForCollisions)
         return;
       }
 
-      if ((checkForCollisions != CollisionCheckType::None) && (!IS_DISTANCE_SAFE(UltraSounds.read(ultrasoundLeft)) || !IS_DISTANCE_SAFE(UltraSounds.read(ultrasoundRight)))) {
+      checkTimerAndEndProgramIfNeeded();
+
+      if ((checkForCollisions != CollisionCheckType::None) && (!isDistanceSafe(UltraSounds.read(ultrasoundLeft)) || !isDistanceSafe(UltraSounds.read(ultrasoundRight)))) {
           Motor.stopMotion();
           waitForFreePath();
           Motor.resumeMotion();
@@ -111,43 +114,55 @@ void TrajectoryControl::setupUltrasoundResources(CollisionCheckType checkForColl
 void TrajectoryControl::waitForFreePath()
 {
   while (true) {
+    checkTimerAndEndProgramIfNeeded();
+    
     UltraSounds.pulse(ULTRASOUND_FRONT);
     delay(MIN_PULSE_DELAY);
-    if (IS_DISTANCE_SAFE(UltraSounds.read(ULTRASOUND_FL)) && IS_DISTANCE_SAFE(UltraSounds.read(ULTRASOUND_FR))) {
+    if (isDistanceSafe(UltraSounds.read(ULTRASOUND_FL)) && isDistanceSafe(UltraSounds.read(ULTRASOUND_FR))) {
       break;
     }
   }
 }
 
-inline int TrajectoryControl::DEG_ATAN2(int y, int x)
+void TrajectoryControl::checkTimerAndEndProgramIfNeeded()
+{
+  if (!_timerCallback()) {
+    Motor.stopMotion();
+    while (true) {
+      delay(10000);
+    }
+  }
+}
+
+inline int TrajectoryControl::degAtan2(int y, int x)
 {
   return (int)(360 + atan2((double)y, (double)x) * 45 / atan(1.0));
 }
 
-inline int TrajectoryControl::DEG_COS(int r, int theta)
+inline int TrajectoryControl::degCos(int r, int theta)
 {
   return (int)(r * cos((double)theta * atan(1.0) / 45));
 }
 
-inline int TrajectoryControl::DEG_SIN(int r, int theta)
+inline int TrajectoryControl::degSin(int r, int theta)
 {
   return (int)(r * sin((double)theta * atan(1.0) / 45));
 }
 
 
-inline int TrajectoryControl::MODULO_ANGLE(int theta)
+inline int TrajectoryControl::moduloAngle(int theta)
 {
   while (theta < 0) { theta += 360; }
   while (theta > 360) { theta -= 360; }
   return theta;
 }
 
-inline int TrajectoryControl::INT_DISTANCE(int x, int y)
+inline int TrajectoryControl::intDistance(int x, int y)
 {
   return (int)(sqrt(((double)x * x + (double)y * y)));
 }
 
-inline bool TrajectoryControl::IS_DISTANCE_SAFE(int distance)
+inline bool TrajectoryControl::isDistanceSafe(int distance)
 {
   return (distance < 0) || (distance >= DANGER_DISTANCE);
 }

@@ -8,10 +8,12 @@
 #define SAFE_RELEASE_DISTANCE 200
 #define SAFE_EDGE_PORT_X 700
 
+static unsigned long gameStartTime = 0;
+
 void setup()
 {
   Serial.begin(9600);
-  Trajectory.begin(ROBOT_HALF_SIDE, (GREEN_CHANNEL_Y + RED_CHANNEL_Y) / 2, 0, TrajectoryControl::TeamSide::Left);
+  Trajectory.begin(ROBOT_HALF_SIDE, (GREEN_CHANNEL_Y + RED_CHANNEL_Y) / 2, 0, TrajectoryControl::TeamSide::Left, timerCallback);
   initializeServoSystems();
 
   waitForStartSignal();
@@ -28,6 +30,8 @@ void waitForStartSignal()
   pinMode(PIN_STARTER, INPUT_PULLUP);
   delay(500);
   while (digitalRead(PIN_STARTER) == LOW);
+
+  gameStartTime = millis();
 }
 
 void initializeServoSystems()
@@ -35,13 +39,8 @@ void initializeServoSystems()
   Servos.begin();
   delay(500);
   SERVO_FLAG_LOWER();
-  delay(500);
   SERVO_FLIPPER_LEFT_CLOSE();
-  delay(500);
   SERVO_FLIPPER_RIGHT_CLOSE();
-  delay(500);
-  SERVO_ARM_RETRACT();
-  delay(500);
 }
 
 void initialFixedRoutine()
@@ -49,7 +48,7 @@ void initialFixedRoutine()
   // At rest in the middle of the port
   Trajectory.moveTo(SAFE_EDGE_PORT_X, (GREEN_CHANNEL_Y + RED_CHANNEL_Y) / 2, DONTCARE);
   // At the exist of the port
-  Trajectory.moveTo(UNCHANGED, 455, 180);
+  Trajectory.moveTo(UNCHANGED, 470, 180);
   // Ready to capture the two northern buoys
   SERVO_FLIPPER_LEFT_OPEN();
   SERVO_FLIPPER_RIGHT_OPEN();
@@ -63,11 +62,11 @@ void initialFixedRoutine()
   Trajectory.translate(-270);
   Trajectory.rotate(35);
   // Rear of the robot towards lighthouse
-  Trajectory.translateWithoutCheck(-106);
+  Trajectory.translateWithoutCheck(-126);
   // Lighthouse now activated
-  Trajectory.translate(106);
+  Trajectory.translate(126);
   // Now away from lighthouse
-  Trajectory.moveTo(SAFE_EDGE_PORT_X + 100, 1140, 180);
+  Trajectory.moveTo(SAFE_EDGE_PORT_X + 100, 1160, 180);
   // Ready to deposit the two red buoys and capture another green one
   SERVO_FLIPPER_LEFT_OPEN();
   SERVO_FLIPPER_RIGHT_OPEN();
@@ -80,10 +79,28 @@ void initialFixedRoutine()
   Trajectory.moveTo(UNCHANGED, 1450, DONTCARE);
   // Now approaching the windsocks
   Trajectory.translateWithoutCheck(FIELD_Y - ROBOT_HALF_SIDE - 50 - 1450);
-  Trajectory.rotate(90);
-  Trajectory.translateWithoutCheck(280);
+  Trajectory.rotate(-90);
+  Trajectory.translateWithoutCheck(-280);
+  Trajectory.rotate(180);
   // Now doing rear motion
-  SERVO_ARM_DEPLOY();
-  Trajectory.translateWithoutCheck(-600);
-  SERVO_ARM_RETRACT();
+  Trajectory.translateWithoutCheck(-550);
+  // Windsocks are now flipped
+  Trajectory.moveTo(UNCHANGED, 470, 180);
+  SERVO_FLIPPER_LEFT_OPEN();
+  Trajectory.moveTo(ROBOT_HALF_SIDE + EPSILON + 100, UNCHANGED, DONTCARE);
+  Trajectory.translate(-SAFE_RELEASE_DISTANCE);
+  SERVO_FLIPPER_LEFT_CLOSE();
+  // Last buoy now set
+}
+
+bool timerCallback()
+{
+  unsigned long elapsedTime = millis() - gameStartTime;
+
+  if (elapsedTime > 85000) {
+    SERVO_FLAG_RAISE();
+  }
+
+  // One second of margin of error
+  return (elapsedTime < 89000);
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Arduino.h>
+
 // Everything in mm
 
 // Robot dimensions
@@ -22,6 +24,8 @@
 #define UNCHANGED -1
 #define DONTCARE  -2
 
+typedef bool (*timerCallback_t)(void);
+
 class TrajectoryControl
 {
 public:
@@ -36,7 +40,7 @@ public:
     Right
   };
 
-  void begin(int initialX, int initialY, int initialTheta, TeamSide side);
+  void begin(int initialX, int initialY, int initialTheta, TeamSide side, timerCallback_t timerCallback);
 
   // Absolute moves
   void moveTo(int destinationX, int destinationY, int destinationTheta);
@@ -57,16 +61,18 @@ private:
   void controlLoop(CollisionCheckType checkForCollisions);
   void waitForFreePath();
   void setupUltrasoundResources(CollisionCheckType checkForCollisions, int& left, int& right);
+  void checkTimerAndEndProgramIfNeeded();
 
-  static inline int DEG_ATAN2(int y, int x);
-  static inline int DEG_COS(int r, int theta);
-  static inline int DEG_SIN(int r, int theta);
-  static inline int INT_DISTANCE(int x, int y);
-  static inline int MODULO_ANGLE(int theta);
-  static inline bool IS_DISTANCE_SAFE(int distance);
+  static inline int degAtan2(int y, int x);
+  static inline int degCos(int r, int theta);
+  static inline int degSin(int r, int theta);
+  static inline int intDistance(int x, int y);
+  static inline int moduloAngle(int theta);
+  static inline bool isDistanceSafe(int distance);
 
   int _currentX = -1, _currentY = -1, _currentTheta = -1;
   TeamSide _side = TeamSide::Left;
+  timerCallback_t _timerCallback;
 };
 
 extern TrajectoryControl Trajectory;

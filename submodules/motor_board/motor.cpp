@@ -24,7 +24,7 @@
 
 #define FEEDBACK 300
 #define TARGET_SPEED 30 // in ticks/s
-#define ACCELERATION_DISTANCE 100 // in tick
+#define ACCELERATION_DISTANCE 150 // in tick
 
 MotorControl Motor;
 
