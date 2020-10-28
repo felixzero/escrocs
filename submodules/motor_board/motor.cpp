@@ -24,7 +24,7 @@
 
 #define FEEDBACK 300
 #define TARGET_SPEED 30 // in ticks/s
-#define ACCELERATION_DISTANCE 250 // in tick
+#define ACCELERATION_DISTANCE 200 // in tick
 #define MIN_SPEED_TO_MOVE_ROBOT 2
 
 MotorControl Motor;

@@ -63,9 +63,9 @@ void initialFixedRoutine()
   Trajectory.translateWithoutCheck(-270);
   Trajectory.rotate(35);
   // Rear of the robot towards lighthouse
-  Trajectory.translateWithoutCheck(-121);
+  Trajectory.translateWithoutCheck(-125);
   // Lighthouse now activated
-  Trajectory.translate(121);
+  Trajectory.translate(125);
   // Now away from lighthouse
   Trajectory.moveTo(SAFE_EDGE_PORT_X + 100, 1160, 180);
   // Ready to deposit the two red buoys and capture another green one
@@ -80,9 +80,16 @@ void initialFixedRoutine()
   Trajectory.moveTo(UNCHANGED, 470, 180);
   correctedServoFlipperLeftOpen();
   Trajectory.moveTo(ROBOT_HALF_SIDE + EPSILON + 150, UNCHANGED, DONTCARE);
+  Trajectory.translate(-SAFE_RELEASE_DISTANCE);
+  // Green buoy saved
+  // x = 510; y = 470; theta = 180
+  Trajectory.moveTo(1050, 430, DONTCARE);
+  correctedServoFlipperLeftClose();
+  Trajectory.rotate(180);
+  correctedServoFlipperLeftOpen();
+  Trajectory.moveTo(ROBOT_HALF_SIDE + EPSILON + 200, 470, DONTCARE);
   Trajectory.translate(-SAFE_RELEASE_DISTANCE + 100);
   correctedServoFlipperLeftClose();
-  // Green buoy saved
 
   Trajectory.doNothing();
 }
