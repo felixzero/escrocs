@@ -22,6 +22,7 @@ private:
   long initialEnc1, initialEnc2;
   long lastTargetSpeed = 0;
   long lastError = 0;
+  long lastCorrectionSpeed = 0;
 };
 
 extern MotorControl Motor;

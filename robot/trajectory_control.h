@@ -46,6 +46,7 @@ public:
   void moveTo(int destinationX, int destinationY, int destinationTheta);
   void moveTo(int destinationX, int destinationY) { moveTo(destinationX, destinationY, DONTCARE); }
   void rotateToAngle(int destinationTheta) { moveTo(UNCHANGED, UNCHANGED, destinationTheta); }
+  void doNothing();
 
   // Relative moves
   void rotate(int angle);

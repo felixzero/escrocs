@@ -38,6 +38,14 @@ void TrajectoryControl::moveTo(int destinationX, int destinationY, int destinati
   }
 }
 
+void TrajectoryControl::doNothing()
+{
+    while (true) {
+    checkTimerAndEndProgramIfNeeded();
+    delay(MIN_PULSE_DELAY);
+  }
+}
+
 void TrajectoryControl::rotate(int angle)
 {
   int teamSideCorrectedAngle = (_side == TeamSide::Left ? angle : -angle);

@@ -6,6 +6,7 @@ void setup()
 {
   Serial.begin(9600);
   Motor.begin();
+  delay(1000);
 }
 
 void debugTurning()

@@ -3,7 +3,7 @@
 
 #include "motor.h"
 
-#define AXLES_WIDTH 291000 // in um
+#define AXLES_WIDTH 294800 // in um
 #define MOTOR_ENC_TICKS_PER_TURN 360 // in ticks
 #define MOTOR_FWD_MOTION_PER_TICK (628319 / MOTOR_ENC_TICKS_PER_TURN) // (2*pi*10cm) in um/tick
 #define MOTOR_ROTATION_PER_TICK (57296 * MOTOR_FWD_MOTION_PER_TICK / AXLES_WIDTH) // in millideg/tick
@@ -24,7 +24,8 @@
 
 #define FEEDBACK 300
 #define TARGET_SPEED 30 // in ticks/s
-#define ACCELERATION_DISTANCE 150 // in tick
+#define ACCELERATION_DISTANCE 250 // in tick
+#define MIN_SPEED_TO_MOVE_ROBOT 2
 
 MotorControl Motor;
 
@@ -108,10 +109,14 @@ void MotorControl::pollRegulation()
 
   // Reduce speed if target almost reached
   long distanceToTarget = targetPosition - motion;
-  long targetSpeed = (min(min(abs(targetPosition - motion), abs(motion)), ACCELERATION_DISTANCE) * TARGET_SPEED / ACCELERATION_DISTANCE + 1) * SIGN(distanceToTarget);
+
+
+  long distanceToStartOrEnd = min(abs(targetPosition - motion), abs(motion));
+  long profileSpeed = min(distanceToStartOrEnd, ACCELERATION_DISTANCE) * TARGET_SPEED / ACCELERATION_DISTANCE;
+  long targetSpeed = max(profileSpeed, MIN_SPEED_TO_MOVE_ROBOT) * SIGN(distanceToTarget);
 
   // Stop motor if target reached and speed is low
-  if ((distanceToTarget == 0) && (abs(lastTargetSpeed) <= 1) && (lastError <= (1024 / FEEDBACK))) {
+  if ((distanceToTarget == 0) && (abs(lastTargetSpeed) <= MIN_SPEED_TO_MOVE_ROBOT) && (abs(lastCorrectionSpeed) <= MIN_SPEED_TO_MOVE_ROBOT)) {
     stopMotion();
     return;
   }
@@ -119,6 +124,7 @@ void MotorControl::pollRegulation()
   long correctionSpeed = error * FEEDBACK / 1024;
   lastTargetSpeed = targetSpeed;
   lastError = error;
+  lastCorrectionSpeed = correctionSpeed;
 
   // Send speed target
   if (motionMode == Forward) {
