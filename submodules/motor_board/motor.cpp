@@ -27,6 +27,8 @@
 #define ACCELERATION_DISTANCE 200 // in tick
 #define MIN_SPEED_TO_MOVE_ROBOT 2
 
+#define MAX_CYCLES_STUCK  500 // ms
+
 MotorControl Motor;
 
 // Sent a R/W register over the I2C bus
@@ -72,6 +74,8 @@ void MotorControl::setRawTarget(MotorControl::Mode mode, long rawPos)
 {
   motionMode = mode;
   targetPosition = rawPos;
+  cyclesStuck = 0;
+  lastMotion = 0;
 
   // Save encoder positions
   initialEnc1 = readRegister(MOTOR_I2C_ENC1A, 4);
@@ -92,20 +96,12 @@ void MotorControl::pollRegulation()
   // Read encoder positions
   long enc1 = readRegister(MOTOR_I2C_ENC1A, 4);
   long enc2 = readRegister(MOTOR_I2C_ENC2A, 4);
-  
-  long motion, error;
 
   if (motionMode == Idle)
     return;
 
-  // Calculate desired motion and error
-  if (motionMode == Forward) {
-    motion = (enc1 - initialEnc1) + (enc2 - initialEnc2);
-    error = (enc1 - initialEnc1) - (enc2 - initialEnc2);
-  } else if (motionMode == Turning) {
-    motion = (enc1 - initialEnc1) - (enc2 - initialEnc2);
-    error = (enc1 - initialEnc1) + (enc2 - initialEnc2);
-  }
+  long motion = motionFromEnc(enc1, enc2);
+  long error = errorFromEnc(enc1, enc2);
 
   // Reduce speed if target almost reached
   long distanceToTarget = targetPosition - motion;
@@ -120,11 +116,23 @@ void MotorControl::pollRegulation()
     stopMotion();
     return;
   }
+
+  // Stop motion if robot is stuck
+  if (motion == lastMotion) {
+    cyclesStuck++;
+  } else {
+    cyclesStuck = 0;
+  }
+  if (cyclesStuck >= MAX_CYCLES_STUCK) {
+    stopMotion();
+    return;
+  }
   
   long correctionSpeed = error * FEEDBACK / 1024;
   lastTargetSpeed = targetSpeed;
   lastError = error;
   lastCorrectionSpeed = correctionSpeed;
+  lastMotion = motion;
 
   // Send speed target
   if (motionMode == Forward) {
@@ -152,4 +160,22 @@ void MotorControl::resumeMotion()
 bool MotorControl::isIdle()
 {
   return (motionMode == Idle);
+}
+
+inline long MotorControl::motionFromEnc(long enc1, long enc2)
+{
+  if (motionMode == Forward) {
+    return (enc1 - initialEnc1) + (enc2 - initialEnc2);
+  } else if (motionMode == Turning) {
+    return (enc1 - initialEnc1) - (enc2 - initialEnc2);
+  }
+}
+
+inline long MotorControl::errorFromEnc(long enc1, long enc2)
+{
+  if (motionMode == Forward) {
+    return (enc1 - initialEnc1) - (enc2 - initialEnc2);
+  } else if (motionMode == Turning) {
+    return (enc1 - initialEnc1) + (enc2 - initialEnc2);
+  }
 }

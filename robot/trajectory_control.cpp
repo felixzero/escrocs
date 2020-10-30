@@ -99,7 +99,9 @@ void TrajectoryControl::controlLoop(CollisionCheckType checkForCollisions)
           Motor.stopMotion();
           waitForFreePath();
           Motor.resumeMotion();
-        }
+      }
+
+      delay(1);
     }
   }
 }

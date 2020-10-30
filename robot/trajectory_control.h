@@ -20,7 +20,6 @@
 
 #define DANGER_DISTANCE  300
 
-
 #define UNCHANGED -1
 #define DONTCARE  -2
 

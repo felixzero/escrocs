@@ -16,6 +16,8 @@ public:
 private:
   inline void sendCommand(char reg, char value);
   inline long readRegister(char reg, char regSize);
+  inline long motionFromEnc(long enc1, long enc2);
+  inline long errorFromEnc(long enc1, long enc2);
 
   Mode motionMode = Idle, previousMotionMode;
   long targetPosition = 0;
@@ -23,6 +25,9 @@ private:
   long lastTargetSpeed = 0;
   long lastError = 0;
   long lastCorrectionSpeed = 0;
+  long lastMotion = 0;
+  long motionWhenStuck = 0;
+  int cyclesStuck = 0;
 };
 
 extern MotorControl Motor;

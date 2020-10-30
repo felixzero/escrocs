@@ -9,7 +9,7 @@
 #define SAFE_EDGE_PORT_X 700
 
 static unsigned long gameStartTime = 0;
-static TrajectoryControl::TeamSide teamSide = TrajectoryControl::TeamSide::Right;
+static TrajectoryControl::TeamSide teamSide = TrajectoryControl::TeamSide::Left;
 
 void setup()
 {
@@ -63,7 +63,7 @@ void initialFixedRoutine()
   Trajectory.translateWithoutCheck(-270);
   Trajectory.rotate(35);
   // Rear of the robot towards lighthouse
-  Trajectory.translateWithoutCheck(-125);
+  Trajectory.translateWithoutCheck(-150);
   // Lighthouse now activated
   Trajectory.translate(125);
   // Now away from lighthouse
@@ -87,7 +87,7 @@ void initialFixedRoutine()
   correctedServoFlipperLeftClose();
   Trajectory.rotate(180);
   correctedServoFlipperLeftOpen();
-  Trajectory.moveTo(ROBOT_HALF_SIDE + EPSILON + 200, 470, DONTCARE);
+  Trajectory.moveTo(ROBOT_HALF_SIDE + EPSILON + 200, 410, DONTCARE);
   Trajectory.translate(-SAFE_RELEASE_DISTANCE + 100);
   correctedServoFlipperLeftClose();
 
