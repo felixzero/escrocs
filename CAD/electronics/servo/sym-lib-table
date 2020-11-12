@@ -1,4 +1,0 @@
-(sym_lib_table
-  (lib (name magneto-ultrasound)(type Legacy)(uri /home/felixzero/escrocs/CAD/electronics/servo/magneto-ultrasound.lib)(options "")(descr ""))
-  (lib (name servo-rescue)(type Legacy)(uri ${KIPRJMOD}/servo-rescue.lib)(options "")(descr ""))
-)

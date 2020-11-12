@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source /home/felixzero/escrocs/CAD/electronics/lighthouse/lighthouse.sch)
-    (date "lun. 02 nov. 2020 22:00:19")
+    (date "ven. 06 nov. 2020 22:32:22")
     (tool "Eeschema 5.1.5+dfsg1-2build2")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
@@ -38,7 +38,7 @@
       (tstamp 5FA07A2A))
     (comp (ref SW1)
       (value "Tilt switch")
-      (footprint Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P15.24mm_Horizontal)
+      (footprint "lighthouse:Mercury tilt switch")
       (datasheet ~)
       (libsource (lib Switch) (part SW_DIP_x01) (description "1x DIP Switch, Single Pole Single Throw (SPST) switch, small symbol"))
       (sheetpath (names /) (tstamps /))
@@ -66,7 +66,7 @@
       (tstamp 5FA1C13D))
     (comp (ref Q1)
       (value Q_NPN_Darlington_EBC)
-      (footprint Package_TO_SOT_THT:TO-92L)
+      (footprint Package_TO_SOT_THT:TO-92L_Inline_Wide)
       (datasheet ~)
       (libsource (lib Device) (part Q_NPN_Darlington_EBC) (description "NPN Darlington transistor, emitter/base/collector"))
       (sheetpath (names /) (tstamps /))

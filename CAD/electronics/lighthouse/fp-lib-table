@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name lighthouse)(type KiCad)(uri ${KIPRJMOD}/lighthouse.pretty)(options "")(descr ""))
+)

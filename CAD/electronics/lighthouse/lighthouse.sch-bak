@@ -52,7 +52,7 @@ U 1 1 5FA08DEA
 P 1850 2050
 F 0 "SW1" H 1850 2317 50  0000 C CNN
 F 1 "Tilt switch" H 1850 2226 50  0000 C CNN
-F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal" H 1850 2050 50  0001 C CNN
+F 2 "lighthouse:Mercury tilt switch" H 1850 2050 50  0001 C CNN
 F 3 "~" H 1850 2050 50  0001 C CNN
 	1    1850 2050
 	1    0    0    -1  
