@@ -15,7 +15,7 @@ void setup()
 void loop()
 {
   for (int i = 1000; i < 2000; i += 30) {
-      Servos.writeMicroseconds(1, i);
+      Servos.writeMicroseconds(6, i);
       delay(100);
   }
 }
