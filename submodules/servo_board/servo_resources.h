@@ -3,14 +3,11 @@
 #include "servos.h"
 
 // Resource usage for the servo board channels
-#define SERVO_FLIPPER_RIGHT 1
-#define SERVO_FLIPPER_LEFT  2
-#define SERVO_FLAG          3
-//#define SERVO_ARM_LEFT      4
-//#define SERVO_ARM_RIGHT     5
-//#define SERVO_NC 6
-//#define SERVO_NC 7
-//#define SERVO_NC 8
+#define SERVO_FLIPPER_RIGHT 4
+#define SERVO_FLIPPER_LEFT  5
+#define SERVO_FLAG          6
+//#define SERVO_ARM_LEFT      7
+//#define SERVO_ARM_RIGHT     8
 //#define SERVO_NC 9
 //#define SERVO_NC 10
 //#define SERVO_NC 11
