@@ -826,9 +826,9 @@ Text GLabel 4600 2000 0    50   Input ~ 0
 MOTOR_E2
 Text GLabel 4600 4350 0    50   Input ~ 0
 MOTOR_E3
-Text GLabel 1550 3800 0    50   Input ~ 0
-MOTOR_E1
 Text GLabel 1550 3900 0    50   Input ~ 0
+MOTOR_E1
+Text GLabel 1550 3800 0    50   Input ~ 0
 MOTOR_E2
 Text GLabel 1550 3100 0    50   Input ~ 0
 MOTOR_E3
