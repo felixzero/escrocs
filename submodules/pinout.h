@@ -5,10 +5,15 @@
 #define PIN_SERIAL_TX    1
 #define PIN_RADIO_INT    2
 #define PIN_SERVOS_GSCLK 3
+/* Standard US module */
 #define PIN_ECHO_FL      4
 #define PIN_ECHO_FR      5
 #define PIN_ECHO_RL      6
 #define PIN_ECHO_RR      7
+/* tri US module */
+#define PIN_ECHO_FRONT    4
+#define PIN_ECHO_120      5
+#define PIN_ECHO_240      6
 
 /* Thoses are covered by PCINT0 */
 #define PIN_SERVOS_XLAT  8
