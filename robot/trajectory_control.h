@@ -18,7 +18,7 @@
 #define GREEN_CHANNEL_Y       515
 #define RED_CHANNEL_Y        1085
 
-#define DANGER_DISTANCE  300
+#define DANGER_DISTANCE  450
 
 #define UNCHANGED -1
 #define DONTCARE  -2
