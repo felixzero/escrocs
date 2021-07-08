@@ -62,9 +62,6 @@ void initializeServoSystems()
 
 void initialFixedRoutine()
 {
-  pickSequence();
-  return;
-  
   // At rest in the middle of the port
   Trajectory.moveTo(SAFE_EDGE_PORT_X, (GREEN_CHANNEL_Y + RED_CHANNEL_Y) / 2, DONTCARE);
   // At the exist of the port
@@ -98,7 +95,7 @@ void initialFixedRoutine()
   // Now done with the red buoys
   Trajectory.moveTo(UNCHANGED, 470, 180);
   correctedServoFlipperLeftOpen();
-  Trajectory.moveTo(ROBOT_HALF_SIDE + EPSILON + 150, UNCHANGED, DONTCARE);
+  Trajectory.moveTo(ROBOT_HALF_SIDE + EPSILON + 130, UNCHANGED, DONTCARE);
   Trajectory.translate(-SAFE_RELEASE_DISTANCE);
   // Green buoy saved
   // x = 510; y = 470; theta = 180
@@ -106,7 +103,7 @@ void initialFixedRoutine()
   correctedServoFlipperLeftClose();
   Trajectory.rotate(180);
   correctedServoFlipperLeftOpen();
-  Trajectory.moveTo(ROBOT_HALF_SIDE + EPSILON + 200, 410, DONTCARE);
+  Trajectory.moveTo(ROBOT_HALF_SIDE + EPSILON + 160, 470, DONTCARE);
   Trajectory.translate(-SAFE_RELEASE_DISTANCE + 100);
   correctedServoFlipperLeftClose();
 

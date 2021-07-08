@@ -22,11 +22,9 @@
 
 #define SIGN(x) ((x > 0) ? 1 : -1)
 
-#define FEEDBACK 500
-#define FEEDBACK_GAMMA 0.6
-#define TARGET_SPEED 70 // in ticks/s
-#define ACCELERATION_DISTANCE_START 300 // in tick
-#define ACCELERATION_DISTANCE_END 1200 // in tick
+#define FEEDBACK 300
+#define TARGET_SPEED 30 // in ticks/s
+#define ACCELERATION_DISTANCE 200 // in tick
 #define MIN_SPEED_TO_MOVE_ROBOT 2
 
 #define MAX_CYCLES_STUCK  500 // ms
@@ -109,9 +107,8 @@ void MotorControl::pollRegulation()
   long distanceToTarget = targetPosition - motion;
 
 
-  long distanceToStartOrEnd = min(abs(targetPosition - motion) * 256 / ACCELERATION_DISTANCE_END, abs(motion) * 256 / ACCELERATION_DISTANCE_START);
-  distanceToStartOrEnd = pow((float)distanceToStartOrEnd / 256, FEEDBACK_GAMMA) * 256;
-  long profileSpeed = min(distanceToStartOrEnd, 256) * TARGET_SPEED / 256;
+  long distanceToStartOrEnd = min(abs(targetPosition - motion), abs(motion));
+  long profileSpeed = min(distanceToStartOrEnd, ACCELERATION_DISTANCE) * TARGET_SPEED / ACCELERATION_DISTANCE;
   long targetSpeed = max(profileSpeed, MIN_SPEED_TO_MOVE_ROBOT) * SIGN(distanceToTarget);
 
   // Stop motor if target reached and speed is low
