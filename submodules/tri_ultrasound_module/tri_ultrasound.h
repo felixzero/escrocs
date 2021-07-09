@@ -7,9 +7,15 @@
 #define ULTRASOUND_RIGHT  _BV(2)
 #define ULTRASOUND_LEFT   _BV(3)
 
-#define NUMBER_ECHO 4
+#define PIN_ECHO_FRONT    A0
+#define PIN_ECHO_120      A1
+#define PIN_ECHO_240      A5
+
+#define NUMBER_ECHO 3
 
 #define MIN_PULSE_DELAY 80 // ms
+
+#define SPEED_OF_SOUND 343
 
 class UltraSoundDetection
 { 
