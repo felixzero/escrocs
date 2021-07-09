@@ -63,7 +63,7 @@ void TrajectoryControl::linearSpeedConsign(int speed, int direction)
 void TrajectoryControl::rotate(int angularSpeed, Rotation rot, int duration)
 {
   Rotation actualRot = rot;
-  if (_side == TeamSide::Left)
+  /*if (_side == TeamSide::Left)
   {
     if (rot == Rotation::Clockwise)
     {
@@ -73,7 +73,7 @@ void TrajectoryControl::rotate(int angularSpeed, Rotation rot, int duration)
     {
       actualRot = Rotation::Clockwise;
     }
-  }
+  }*/
   int speedConsign = angularSpeed * (actualRot == Rotation::Clockwise ? 1 : -1);
   
   sendSpeedConsigns(speedConsign, speedConsign, speedConsign);
@@ -137,7 +137,8 @@ void TrajectoryControl::controlLoop(CollisionCheckType checkForCollisions, int d
   //setupUltrasoundResources(checkForCollisions, sonar);
   int loopBegin = millis();
 
-  bool slowed = false;
+//TODO: reset to false once the motor board allows discrete speeds
+  bool slowed = true;
 
   int timeWaiting = 0;
 
@@ -341,7 +342,7 @@ void TrajectoryControl::generalSpeedConsign(int linSpeed, int direction, int ang
 {
   Rotation actualRot = rot;
   //TODO: check base side
-  if (_side == TeamSide::Left)
+  /*if (_side == TeamSide::Left)
   {
     if (rot == Rotation::Clockwise)
     {
@@ -351,7 +352,7 @@ void TrajectoryControl::generalSpeedConsign(int linSpeed, int direction, int ang
     {
       actualRot = Rotation::Clockwise;
     }
-  }
+  }*/
   int rotSpeed = angSpeed / ROBOT_RADIUS * (actualRot == Rotation::Clockwise ? -1 : 1);
   int mot1 = linSpeed * cos(WHEEL_1_DIRECTION - direction) + rotSpeed;
   int mot2 = linSpeed * cos(WHEEL_2_DIRECTION - direction) + rotSpeed;
