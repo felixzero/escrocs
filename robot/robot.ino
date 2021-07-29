@@ -17,7 +17,7 @@ void setup()
   Serial.begin(9600);
 
   setSide();
-  Trajectory.begin(ROBOT_HALF_SIDE, (GREEN_CHANNEL_Y + RED_CHANNEL_Y) / 2, 0, teamSide, timerCallback);
+  Trajectory.begin(400 - ROBOT_HALF_SIDE - 30, GREEN_CHANNEL_Y + ROBOT_HALF_SIDE, 90, teamSide, timerCallback);
   initializeServoSystems();
 
   waitForStartSignal();
@@ -62,6 +62,10 @@ void initializeServoSystems()
 
 void initialFixedRoutine()
 {
+  // Rajout
+  delay(1000);
+  Trajectory.moveTo(UNCHANGED, (GREEN_CHANNEL_Y + RED_CHANNEL_Y) / 2, 0);
+  
   // At rest in the middle of the port
   Trajectory.moveTo(SAFE_EDGE_PORT_X, (GREEN_CHANNEL_Y + RED_CHANNEL_Y) / 2, DONTCARE);
   // At the exist of the port
@@ -114,7 +118,7 @@ bool timerCallback()
 {
   unsigned long elapsedTime = millis() - gameStartTime;
 
-  if (elapsedTime > 95000) {
+  if (elapsedTime > 97000) {
     SERVO_FLAG_RAISE();
   }
 
