@@ -3,8 +3,7 @@
 
 #include <Arduino.h>
 
-#define SPEED_OF_SOUND 343
-static char pins[] = { PIN_ECHO_FRONT, PIN_ECHO_120, PIN_ECHO_240 };
+static int pins[] = { PIN_ECHO_FRONT, PIN_ECHO_120, PIN_ECHO_240, 0 };
 
 UltraSoundDetection UltraSounds;
 
@@ -15,9 +14,11 @@ void UltraSoundDetection::setupForInterrupt(char pin)
     PCICR  |= bit(digitalPinToPCICRbit(pin));
 }
 
-ISR (PCINT2_vect)
+ISR (PCINT1_vect)
 {
   int newStatus;
+
+  Serial.print("1 ffefeefeffe> ");
 
   for (int i = 0; i < NUMBER_ECHO; ++i) {
     newStatus = digitalRead(pins[i]);
@@ -46,15 +47,25 @@ void UltraSoundDetection::begin()
 void UltraSoundDetection::pulse(byte modules)
 {
   for (int i = 0; i < NUMBER_ECHO; ++i) {
+    
+  Serial.println("Printing A0");
+  digitalWrite(A0, HIGH);
+  Serial.println("Printing A1");
+  digitalWrite(A1, HIGH);
+  Serial.println("Printing A5");
+  digitalWrite(A5, HIGH);
+
     /* Skip unselected modules */
     if (!(_BV(i) & modules))
       continue;
-
+      
+    PCICR  = 0;
     pinMode(pins[i], OUTPUT);
     digitalWrite(pins[i], HIGH);
     delayMicroseconds(10);
     digitalWrite(pins[i], LOW);
     pinMode(pins[i], INPUT);
+    setupForInterrupt(pins[i]);
     echoStatus[i] = Begin;
   }
 }
