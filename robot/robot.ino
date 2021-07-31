@@ -1,3 +1,4 @@
+
 #include "trajectory_control.h"
 #include "pinout.h"
 #include "servo_resources.h"
@@ -14,7 +15,9 @@ static TrajectoryControl::TeamSide teamSide = TrajectoryControl::TeamSide::Left;
 void setup()
 {
   Serial.begin(9600);
-  Trajectory.begin(ROBOT_HALF_SIDE, (GREEN_CHANNEL_Y + RED_CHANNEL_Y) / 2, 0, teamSide, timerCallback);
+
+  setSide();
+  Trajectory.begin(400 - ROBOT_HALF_SIDE - 30, GREEN_CHANNEL_Y + ROBOT_HALF_SIDE, 90, teamSide, timerCallback);
   initializeServoSystems();
 
   waitForStartSignal();
@@ -24,6 +27,13 @@ void setup()
 void loop()
 {
   // Nothing to loop
+}
+
+void setSide()
+{
+  pinMode(PIN_SIDE_SWITCH, INPUT_PULLUP);
+  delay(100);
+  teamSide = digitalRead(PIN_SIDE_SWITCH) == HIGH ? TrajectoryControl::TeamSide::Left : TrajectoryControl::TeamSide::Right;
 }
 
 void waitForStartSignal()
@@ -42,10 +52,20 @@ void initializeServoSystems()
   SERVO_FLAG_LOWER();
   SERVO_FLIPPER_LEFT_CLOSE();
   SERVO_FLIPPER_RIGHT_CLOSE();
+  SERVO_ARM_RAISE(ARM_LEFT);
+  SERVO_ARM_RAISE(ARM_MIDDLE);
+  SERVO_ARM_RAISE(ARM_RIGHT);
+  SERVO_PINCET_OPEN(ARM_LEFT);
+  SERVO_PINCET_OPEN(ARM_MIDDLE);
+  SERVO_PINCET_OPEN(ARM_RIGHT);
 }
 
 void initialFixedRoutine()
 {
+  // Rajout
+  delay(1000);
+  Trajectory.moveTo(UNCHANGED, (GREEN_CHANNEL_Y + RED_CHANNEL_Y) / 2, 0);
+  
   // At rest in the middle of the port
   Trajectory.moveTo(SAFE_EDGE_PORT_X, (GREEN_CHANNEL_Y + RED_CHANNEL_Y) / 2, DONTCARE);
   // At the exist of the port
@@ -79,7 +99,7 @@ void initialFixedRoutine()
   // Now done with the red buoys
   Trajectory.moveTo(UNCHANGED, 470, 180);
   correctedServoFlipperLeftOpen();
-  Trajectory.moveTo(ROBOT_HALF_SIDE + EPSILON + 150, UNCHANGED, DONTCARE);
+  Trajectory.moveTo(ROBOT_HALF_SIDE + EPSILON + 130, UNCHANGED, DONTCARE);
   Trajectory.translate(-SAFE_RELEASE_DISTANCE);
   // Green buoy saved
   // x = 510; y = 470; theta = 180
@@ -87,7 +107,7 @@ void initialFixedRoutine()
   correctedServoFlipperLeftClose();
   Trajectory.rotate(180);
   correctedServoFlipperLeftOpen();
-  Trajectory.moveTo(ROBOT_HALF_SIDE + EPSILON + 200, 410, DONTCARE);
+  Trajectory.moveTo(ROBOT_HALF_SIDE + EPSILON + 160, 470, DONTCARE);
   Trajectory.translate(-SAFE_RELEASE_DISTANCE + 100);
   correctedServoFlipperLeftClose();
 
@@ -98,7 +118,7 @@ bool timerCallback()
 {
   unsigned long elapsedTime = millis() - gameStartTime;
 
-  if (elapsedTime > 95000) {
+  if (elapsedTime > 97000) {
     SERVO_FLAG_RAISE();
   }
 
