@@ -1,6 +1,6 @@
-#include <Arduino.h>
-
 #include "holonomic_feedback.h"
+
+#include <Arduino.h>
 
 void setup() {
     init_holonomic_feedback(0.0, 0.0, 0.0);

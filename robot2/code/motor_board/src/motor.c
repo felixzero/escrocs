@@ -1,7 +1,8 @@
-#include <Arduino.h>
-
 #include "motor.h"
 #include "motor_isr.h"
+
+#include <avr/io.h>
+#include <Arduino.h>
 
 #define _C1A_REG new_buffer->portd_values
 #define _C1A_FLAG 0b00100000u
@@ -42,24 +43,24 @@ void init_motors()
     pinMode(10, OUTPUT);
 }
 
-void write_motor_speed(float speed1, float speed2, float speed3)
+void write_motor_speed(motor_speed_t speed1, motor_speed_t speed2, motor_speed_t speed3)
 {
     volatile struct motor_pwm_data *new_buffer = idle_pwm_buffer();
 
     uint8_t timings[3];
-    timings[0] = (uint8_t)(255 - min(1.0, fabs(speed1)) * MAX_ALLOWED_VALUE);
-    timings[1] = (uint8_t)(255 - min(1.0, fabs(speed2)) * MAX_ALLOWED_VALUE);
-    timings[2] = (uint8_t)(255 - min(1.0, fabs(speed3)) * MAX_ALLOWED_VALUE);
+    timings[0] = (uint8_t)(255 - min(MAX_ALLOWED_VALUE, abs(speed1) >> 7));
+    timings[1] = (uint8_t)(255 - min(MAX_ALLOWED_VALUE, abs(speed2) >> 7));
+    timings[2] = (uint8_t)(255 - min(MAX_ALLOWED_VALUE, abs(speed3) >> 7));
 
     volatile uint8_t *regs[3];
-    regs[0] = (speed1 > 0.0) ? _C1A_REG : _C1B_REG;
-    regs[1] = (speed2 > 0.0) ? _C2A_REG : _C2B_REG;
-    regs[2] = (speed3 > 0.0) ? _C3A_REG : _C3B_REG;
+    regs[0] = (speed1 > 0) ? _C1A_REG : _C1B_REG;
+    regs[1] = (speed2 > 0) ? _C2A_REG : _C2B_REG;
+    regs[2] = (speed3 > 0) ? _C3A_REG : _C3B_REG;
 
     uint8_t flags[3];
-    flags[0] = (speed1 > 0.0) ? _C1A_FLAG : _C1B_FLAG;
-    flags[1] = (speed2 > 0.0) ? _C2A_FLAG : _C2B_FLAG;
-    flags[2] = (speed3 > 0.0) ? _C3A_FLAG : _C3B_FLAG;
+    flags[0] = (speed1 > 0) ? _C1A_FLAG : _C1B_FLAG;
+    flags[1] = (speed2 > 0) ? _C2A_FLAG : _C2B_FLAG;
+    flags[2] = (speed3 > 0) ? _C3A_FLAG : _C3B_FLAG;
 
     // Values at t=0: everything is high
     new_buffer->channel_values[0] = 0;

@@ -1,6 +1,9 @@
 #include "encoder.h"
 #include "encoder_isr.h"
 
+#include <avr/io.h>
+#include <Arduino.h>
+
 const uint8_t pinout[3][2] = {
     {4, 7},
     {11, 12},
@@ -27,7 +30,7 @@ void init_encoders()
     interrupts();
 }
 
-void read_encoders(int16_t *channel1, int16_t *channel2, int16_t *channel3)
+void read_encoders(encoder_t *channel1, encoder_t *channel2, encoder_t *channel3)
 {
    *channel1 = hall_count_1;
    *channel2 = hall_count_2;

@@ -1,6 +1,6 @@
 (export (version D)
   (design
-    (source /home/felixzero/holobot_esp32_design/holobot/holobot.sch)
+    (source /home/felixzero/motor_board_esp32_design/motor_board/motor_board.sch)
     (date "jeu. 05 août 2021 22:21:31")
     (tool "Eeschema 5.1.9+dfsg1-1")
     (sheet (number 1) (name /) (tstamps /)
@@ -9,7 +9,7 @@
         (company)
         (rev 0.1.0)
         (date 2021-08-05)
-        (source holobot.sch)
+        (source motor_board.sch)
         (comment (number 1) (value ""))
         (comment (number 2) (value ""))
         (comment (number 3) (value ""))

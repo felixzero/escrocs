@@ -1,12 +1,14 @@
 #pragma once
 
-#include <Arduino.h>
+#include <inttypes.h>
+
+typedef int16_t motor_speed_t;
 
 /// To be called at program initialization
 void init_motors();
 
 /**
  * Write the voltage value for each motor
- * @param speed: in range [-1.0, 1.0]; negative is CW
+ * @param speed: negative is CW
  */
-void write_motor_speed(float speed1, float speed2, float speed3);
+void write_motor_speed(motor_speed_t speed1, motor_speed_t speed2, motor_speed_t speed3);

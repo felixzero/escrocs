@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Arduino.h>
+#include <inttypes.h>
 
-extern "C" volatile uint16_t hall_count_1;
-extern "C" volatile uint16_t hall_count_2;
-extern "C" volatile uint16_t hall_count_3;
+volatile uint16_t hall_count_1;
+volatile uint16_t hall_count_2;
+volatile uint16_t hall_count_3;
