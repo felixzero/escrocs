@@ -24,8 +24,8 @@
 #define PIN_SPI_SCK      13
 
 /* Those are covered by PCINT1 */
-//#define PIN_NC          A0
-//#define PIN_NC          A1
+//#define PIN_NC        A0
+#define PIN_NORTH_SOUTH A1
 #define PIN_SIDE_SWITCH A2
 #define PIN_STARTER     A3
 #define PIN_I2C_SDA     A4

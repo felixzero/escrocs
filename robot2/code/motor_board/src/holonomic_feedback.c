@@ -12,7 +12,8 @@ static position_t target_x = 0, target_y = 0, target_theta = 0;
 static float parameter_p = 0.001, parameter_i = 0.0, parameter_d = 0.0;
 static char is_running = 0;
 
-static void encoder_delta_to_position(int16_t channel1, int16_t channel2, int16_t channel3, position_t *x, position_t *y, position_t *theta);
+static void encoder_delta_to_position(int16_t channel1, int16_t channel2, int16_t channel3, \
+    position_t *x, position_t *y, position_t *theta);
 static void position_setpoint_to_motor(position_t x_setpoint, position_t y_setpoint, position_t theta_setpoint, \
     motor_speed_t *channel1, motor_speed_t *channel2, motor_speed_t *channel3);
 
@@ -24,6 +25,9 @@ void init_holonomic_feedback(position_t initial_x, position_t initial_y, positio
     x = initial_x;
     y = initial_y;
     theta = initial_theta;
+    is_running = 0;
+
+    write_motor_speed(0, 0, 0);
 }
 
 void set_holonomic_feedback_target(position_t x, position_t y, position_t theta)
@@ -36,10 +40,6 @@ void set_holonomic_feedback_target(position_t x, position_t y, position_t theta)
 
 void holonomic_feedback_loop(void)
 {
-    if (!is_running) {
-        return;
-    }
-
     // Read encoder and update x, y, theta position
     static int16_t prev_channel1 = 0, prev_channel2 = 0, prev_channel3 = 0;
     int16_t channel1, channel2, channel3;
@@ -48,6 +48,11 @@ void holonomic_feedback_loop(void)
     prev_channel1 = channel1;
     prev_channel2 = channel2;
     prev_channel3 = channel3;
+
+    if (!is_running) {
+        write_motor_speed(0, 0, 0);
+        return;
+    }
 
     position_t x_setpoint = (target_x - x) * parameter_p;
     position_t y_setpoint = (target_y - y) * parameter_p;
@@ -59,7 +64,8 @@ void holonomic_feedback_loop(void)
     write_motor_speed(channel1_sp, channel2_sp, channel3_sp);
 }
 
-static void encoder_delta_to_position(int16_t channel1, int16_t channel2, int16_t channel3, position_t *x, position_t *y, position_t *theta)
+static void encoder_delta_to_position(int16_t channel1, int16_t channel2, int16_t channel3, \
+    position_t *x, position_t *y, position_t *theta)
 {
     *x += (channel3 - channel2) * SQRT_3_2;
     *y += (channel3 + channel2) * 0.5 - channel1;

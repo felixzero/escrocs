@@ -4,7 +4,7 @@
 #define PORTD_IO 0x0B
 #define STATUS_REG 0x5F
 
-.global motor_pwm_buffer_1, motor_pwm_buffer_2, current_pwm_buffer, pwm_buffer_swap, TIMER1_COMPA_vect, TIMER1_COMPB_vect
+.global motor_pwm_buffer_1, motor_pwm_buffer_2, current_buffer_hi, pwm_buffer_swap, TIMER1_COMPA_vect, TIMER1_COMPB_vect
 ; -------------------------------------------------------------------------------------
 .section .data
 
@@ -15,7 +15,6 @@ portd_values:       .byte 0x00, 0x00, 0x00, 0x00
 channel_values:     .byte 0x00, 0x00, 0x00, 0x00
 
 current_index:      .byte 0x00
-current_pwm_buffer: .byte lo8(motor_pwm_buffer_1)
 current_buffer_hi:  .byte hi8(motor_pwm_buffer_1)
 pwm_buffer_swap:    .byte 0x00
 

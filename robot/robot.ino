@@ -1,3 +1,6 @@
+#include <Wire.h>
+
+#include <Arduino.h>
 
 #include "trajectory_control.h"
 #include "pinout.h"
@@ -15,6 +18,8 @@ static TrajectoryControl::TeamSide teamSide = TrajectoryControl::TeamSide::Left;
 void setup()
 {
   Serial.begin(9600);
+
+  pinMode(PIN_NORTH_SOUTH, INPUT);
 
   setSide();
   Trajectory.begin(400 - ROBOT_HALF_SIDE - 30, GREEN_CHANNEL_Y + ROBOT_HALF_SIDE, 90, teamSide, timerCallback);
@@ -43,6 +48,11 @@ void waitForStartSignal()
   while (digitalRead(PIN_STARTER) == LOW);
 
   gameStartTime = millis();
+}
+
+bool isSouth()
+{
+  return analogRead(PIN_NORTH_SOUTH) > 127;
 }
 
 void initializeServoSystems()
@@ -105,12 +115,17 @@ void initialFixedRoutine()
   // x = 510; y = 470; theta = 180
   Trajectory.moveTo(1050, 430, DONTCARE);
   correctedServoFlipperLeftClose();
-  Trajectory.rotate(180);
-  correctedServoFlipperLeftOpen();
-  Trajectory.moveTo(ROBOT_HALF_SIDE + EPSILON + 160, 470, DONTCARE);
-  Trajectory.translate(-SAFE_RELEASE_DISTANCE + 100);
-  correctedServoFlipperLeftClose();
-
+  if (!isSouth()) {
+    Trajectory.rotate(-180);
+    correctedServoFlipperLeftOpen();
+    Trajectory.moveTo(ROBOT_HALF_SIDE + EPSILON + 160, 470, DONTCARE);
+    Trajectory.translate(-SAFE_RELEASE_DISTANCE + 100);
+    correctedServoFlipperLeftClose();
+  } else {
+    Trajectory.moveTo(SAFE_EDGE_PORT_X + 100, 1300, DONTCARE);
+    Trajectory.moveTo(ROBOT_HALF_SIDE + EPSILON + 130, 1300, DONTCARE);
+  }
+  
   Trajectory.doNothing();
 }
 
