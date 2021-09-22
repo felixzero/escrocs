@@ -1,0 +1,23 @@
+{
+    "files.associations": {
+        "i2c.h": "c",
+        "i2c_master.h": "c",
+        "optional": "c",
+        "istream": "c",
+        "ostream": "c",
+        "ratio": "c",
+        "system_error": "c",
+        "array": "c",
+        "functional": "c",
+        "tuple": "c",
+        "type_traits": "c",
+        "utility": "c",
+        "cstring": "cpp",
+        "*.ipp": "c",
+        "*.tcc": "c",
+        "chrono": "c",
+        "string_view": "c",
+        "random": "c",
+        "limits": "c"
+    }
+}

@@ -4,17 +4,17 @@
 #include <util/twi.h>
 #include <avr/interrupt.h>
 
-#include "holonomic_feedback.h"
+#include "motor.h"
+#include "encoder.h"
 
 #define I2C_ADDR 0x0A
 #define BUFFER_LENGTH 64
 
-typedef void (*i2c_command_t)(uint8_t argc, float *argv);
+typedef void (*i2c_command_t)(uint8_t argc, uint8_t *argv);
 
-static void handle_stop(uint8_t argc, float *argv);
-static void handle_set_target(uint8_t argc, float *argv);
-static void handle_set_pid_parameters(uint8_t argc, float *argv);
-static void handle_get_position(uint8_t argc, float *argv);
+static void handle_stop(uint8_t argc, uint8_t *argv);
+static void handle_set_motor_speed(uint8_t argc, uint8_t *argv);
+static void handle_get_position(uint8_t argc, uint8_t *argv);
 
 static uint8_t rx_buffer_index = 0;
 static uint8_t rx_buffer[BUFFER_LENGTH];
@@ -25,9 +25,8 @@ static uint8_t tx_buffer[BUFFER_LENGTH];
 
 static const i2c_command_t command_mapping[] = {
     handle_stop,                // 0x00
-    handle_set_target,          // 0x01
-    handle_set_pid_parameters,  // 0x02
-    handle_get_position         // 0x03
+    handle_set_motor_speed,     // 0x01
+    handle_get_position         // 0x02
 };
 
 void init_i2c(void)
@@ -37,6 +36,9 @@ void init_i2c(void)
     
     // Enable I2C but not its interrupt
     TWCR = _BV(TWEA) | _BV(TWEN);
+
+    // Enable 5V pullup
+    PORTC |= 0b110000;
 }
 
 #define resume_with_ack() { TWCR = _BV(TWEN) | _BV(TWINT) | _BV(TWEA); }
@@ -61,7 +63,7 @@ void poll_i2c_operations(void)
     // End of reception - slave receiver
     case TW_SR_STOP:
         if (rx_buffer[0] < sizeof(command_mapping) / sizeof(command_mapping[0])) {
-            command_mapping[rx_buffer[0]]((rx_buffer_index - 1) / sizeof(float), (float*)(rx_buffer + 1));
+            command_mapping[rx_buffer[0]](rx_buffer_index - 1, rx_buffer + 1);
         }
         rx_buffer_index = 0;
         resume_with_ack();
@@ -91,34 +93,28 @@ void poll_i2c_operations(void)
     }
 }
 
-static void handle_stop(uint8_t argc, float *argv)
+static void handle_stop(uint8_t argc, uint8_t *argv)
 {
     // Check number of arguments
     if(argc != 0) { return; }
-    holonomic_stop();
+    write_motor_speed(0, 0, 0);
 }
 
-static void handle_set_target(uint8_t argc, float *argv)
+static void handle_set_motor_speed(uint8_t argc, uint8_t *argv)
 {
     // Check number of arguments
-    if(argc != 3) { return; }
-    set_holonomic_feedback_target(argv[0], argv[1], argv[2]);
+    if(argc != 3 * sizeof(motor_speed_t)) { return; }
+    motor_speed_t *casted_argv = (motor_speed_t*)argv;
+    write_motor_speed(casted_argv[0], casted_argv[1], casted_argv[2]);
 }
 
-static void handle_set_pid_parameters(uint8_t argc, float *argv)
-{
-    // Check number of arguments
-    if(argc != 3) { return; }
-    set_holonomic_pid_parameters(argv[0], argv[1], argv[2]);
-}
-
-static void handle_get_position(uint8_t argc, float *argv)
+static void handle_get_position(uint8_t argc, uint8_t *argv)
 {
     // Check number of arguments
     if(argc != 0) { return; }
-    float *casted_tx_buffer = (float*)tx_buffer;
-    get_holonomic_position(&casted_tx_buffer[0], &casted_tx_buffer[1], &casted_tx_buffer[2]);
-    tx_buffer_size = 3 * sizeof(float);
+    encoder_t *casted_tx_buffer = (encoder_t*)tx_buffer;
+    read_encoders(&casted_tx_buffer[0], &casted_tx_buffer[1], &casted_tx_buffer[2]);
+    tx_buffer_size = 3 * sizeof(encoder_t);
     tx_buffer_index = 0;
 }
 
