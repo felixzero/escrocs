@@ -90,7 +90,7 @@ void write_motor_speed(motor_speed_t speed1, motor_speed_t speed2, motor_speed_t
     }
 
     // Insert dummy values to manage duplicates
-    for (uint8_t i = 3; i > set_timings; --i) {
+    for (uint8_t i = 3; i > 3 - set_timings; --i) {
         new_buffer->channel_values[i] = new_buffer->channel_values[i - 3 + set_timings];
         new_buffer->portb_values[i] = new_buffer->portb_values[i - 3 + set_timings];
         new_buffer->portd_values[i] = new_buffer->portd_values[i - 3 + set_timings];

@@ -43,6 +43,7 @@ void init_i2c(void)
 
 #define resume_with_ack() { TWCR = _BV(TWEN) | _BV(TWINT) | _BV(TWEA); }
 #define resume_without_ack() { TWCR = _BV(TWEN) | _BV(TWINT); }
+#define resume_with_stop() { TWCR = _BV(TWEN) | _BV(TWEA) | _BV(TWINT) | _BV(TWSTO); }
 
 void poll_i2c_operations(void)
 {
@@ -87,7 +88,7 @@ void poll_i2c_operations(void)
         resume_with_ack();
         break;
     // Bus error - any mode
-    case TW_BUS_ERROR:
+    default:
         resume_without_ack();
         break;
     }

@@ -2,7 +2,7 @@
 #include <string.h>
 #include <driver/i2c.h>
 
-#include "i2c_master.h"
+#include "system/i2c_master.h"
 
 #define I2C_SDA_PIN 19
 #define I2C_SCL_PIN 21
@@ -19,9 +19,9 @@ void init_i2c_master(void)
     i2c_config_t conf = {
         .mode = I2C_MODE_MASTER,
         .sda_io_num = I2C_SDA_PIN,
-        .sda_pullup_en = GPIO_PULLUP_ENABLE,
+        .sda_pullup_en = GPIO_PULLUP_DISABLE,
         .scl_io_num = I2C_SCL_PIN,
-        .scl_pullup_en = GPIO_PULLUP_ENABLE,
+        .scl_pullup_en = GPIO_PULLUP_DISABLE,
         .master.clk_speed = I2C_CLOCK,
     };
     i2c_param_config(I2C_PORT, &conf);
