@@ -75,7 +75,7 @@ esp_err_t firmware_upgrade_handler(httpd_req_t *req)
         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "esp_ota_set_boot_partition failed");
     }
     ESP_LOGI(TAG, "Prepare to restart system!");
-    httpd_resp_send(req, "All is fine, captain", HTTPD_RESP_USE_STRLEN);
+    httpd_resp_send(req, "All is fine, captain!\n", HTTPD_RESP_USE_STRLEN);
     restart_in(2000 / portTICK_PERIOD_MS);
 
     return ESP_OK;

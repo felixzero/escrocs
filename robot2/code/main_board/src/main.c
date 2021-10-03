@@ -13,14 +13,14 @@ void app_main() {
     init_wifi_system();
     init_http_server();
 
-    /*feedback_params_t pid = { 0.006, 0.00002, 0.0 };
+    feedback_params_t pid = { 0.006, 0.00002, 0.0 };
     wheel_geometry_t geometry = {
         .wheel_radius = 28.5,
         .robot_radius = 122.26,
         .friction_coefficient = 0.0,
         .max_speed = 0.9
-    };*/
-    //init_motion_control(pid, geometry);
+    };
+    init_motion_control(pid, geometry);
 
 /*int i = 0;
     while (1) {
@@ -52,7 +52,7 @@ void app_main() {
 
     while(1) {
     for(float x = 0; x < 500.0; x += 20) {
-        //set_motion_target(x, 0, 0);
+        set_motion_target(x, 0, 0);
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
     }
