@@ -22,6 +22,12 @@
         "cmath": "c",
         "queue.h": "c",
         "esp_event.h": "c",
-        "motion_control.h": "c"
+        "motion_control.h": "c",
+        "codecvt": "c",
+        "algorithm": "c",
+        "math.h": "c",
+        "_ansi.h": "c",
+        "esp_err.h": "c",
+        "string": "c"
     }
 }
