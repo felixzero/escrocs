@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "arduino.h": "c",
+        "hardwareserial.h": "c",
+        "i2c_slave.h": "c"
+    }
+}

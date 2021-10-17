@@ -1,0 +1,14 @@
+menu "ESCROCS Configuration"
+config ESP_WIFI_SSID
+    string "WiFi SSID"
+    default "escrobot"
+
+config ESP_WIFI_CHANNEL
+    int "WiFi Channel"
+    range 1 13
+    default 1
+
+config ESP_WIFI_PASSWORD
+    string "WiFi Password"
+    default "password"
+endmenu
