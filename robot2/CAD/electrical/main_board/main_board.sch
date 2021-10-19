@@ -104,18 +104,6 @@ F 4 "C24112" H 9350 5500 50  0001 C CNN "LCSC"
 	1    0    0    -1  
 $EndComp
 $Comp
-L Interface:PCA9306DC U5
-U 1 1 6153A0D5
-P 9350 1700
-F 0 "U5" H 9150 1200 50  0000 C CNN
-F 1 "PCA9306DC" H 9600 1200 50  0000 C CNN
-F 2 "Package_SO:VSSOP-8_2.3x2mm_P0.5mm" H 9350 1250 50  0001 C CNN
-F 3 "https://www.nxp.com/docs/en/data-sheet/PCA9306.pdf" H 9050 2150 50  0001 C CNN
-F 4 "C129510" H 9350 1700 50  0001 C CNN "LCSC"
-	1    9350 1700
-	1    0    0    -1  
-$EndComp
-$Comp
 L power:+3V3 #PWR031
 U 1 1 6153C574
 P 9250 1200
@@ -257,18 +245,6 @@ Wire Wire Line
 Wire Wire Line
 	10100 1950 10300 1950
 Connection ~ 10100 1800
-$Comp
-L Interface:PCA9306DC U4
-U 1 1 61562CC8
-P 9300 3500
-F 0 "U4" H 9100 3000 50  0000 C CNN
-F 1 "PCA9306DC" H 9550 3000 50  0000 C CNN
-F 2 "Package_SO:VSSOP-8_2.3x2mm_P0.5mm" H 9300 3050 50  0001 C CNN
-F 3 "https://www.nxp.com/docs/en/data-sheet/PCA9306.pdf" H 9000 3950 50  0001 C CNN
-F 4 "C129510" H 9300 3500 50  0001 C CNN "LCSC"
-	1    9300 3500
-	1    0    0    -1  
-$EndComp
 $Comp
 L power:+3V3 #PWR030
 U 1 1 61562CCE
@@ -427,14 +403,6 @@ Text Label 8450 3500 0    50   ~ 0
 SCL_PERIPH
 Text Label 8450 3600 0    50   ~ 0
 SDA_PERIPH
-Wire Wire Line
-	8650 5300 8200 5300
-Wire Wire Line
-	8650 5200 8200 5200
-Text Label 8200 5300 0    50   ~ 0
-SCL_PERIPH
-Text Label 8200 5200 0    50   ~ 0
-SDA_PERIPH
 $Comp
 L power:GND #PWR035
 U 1 1 61586547
@@ -449,12 +417,12 @@ $EndComp
 $Comp
 L power:+3V3 #PWR034
 U 1 1 61589644
-P 9350 4700
-F 0 "#PWR034" H 9350 4550 50  0001 C CNN
-F 1 "+3V3" H 9365 4873 50  0000 C CNN
-F 2 "" H 9350 4700 50  0001 C CNN
-F 3 "" H 9350 4700 50  0001 C CNN
-	1    9350 4700
+P 9450 4800
+F 0 "#PWR034" H 9450 4650 50  0001 C CNN
+F 1 "+3V3" H 9465 4973 50  0000 C CNN
+F 2 "" H 9450 4800 50  0001 C CNN
+F 3 "" H 9450 4800 50  0001 C CNN
+	1    9450 4800
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -541,13 +509,6 @@ F 3 "" H 10050 6100 50  0001 C CNN
 	1    10050 6100
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	9450 4800 9350 4800
-Wire Wire Line
-	9350 4700 9350 4800
-Connection ~ 9350 4800
-Wire Wire Line
-	9350 4800 9250 4800
 $Comp
 L power:GND #PWR029
 U 1 1 6159F317
@@ -564,9 +525,6 @@ NoConn ~ 10050 5500
 Wire Wire Line
 	8650 5800 8650 5700
 Connection ~ 8650 5800
-Wire Wire Line
-	8650 5400 8650 5700
-Connection ~ 8650 5700
 NoConn ~ 10050 5200
 Wire Notes Line
 	11100 4350 8050 4350
@@ -784,8 +742,6 @@ F 3 "" H 7250 2300 50  0001 C CNN
 	1    7250 2300
 	1    0    0    -1  
 $EndComp
-NoConn ~ 6150 3650
-NoConn ~ 6150 3750
 Wire Wire Line
 	6150 3550 6600 3550
 Text Label 6600 3550 2    50   ~ 0
@@ -952,13 +908,9 @@ Wire Wire Line
 	6150 2950 6500 2950
 Text Label 6500 2950 2    50   ~ 0
 SIDE_BTN
-Wire Wire Line
-	6150 3050 6500 3050
-Text Label 6500 3050 2    50   ~ 0
+Text Label 7450 3650 2    50   ~ 0
 BTN_A
-Wire Wire Line
-	6150 3150 6500 3150
-Text Label 6500 3150 2    50   ~ 0
+Text Label 7450 3750 2    50   ~ 0
 BTN_B
 Wire Wire Line
 	1650 3050 1300 3050
@@ -1237,8 +1189,6 @@ Wire Wire Line
 Connection ~ 4600 4850
 NoConn ~ 4950 1650
 NoConn ~ 4950 1750
-NoConn ~ 6150 1850
-NoConn ~ 6150 1950
 $Comp
 L Device:LED D3
 U 1 1 6160F0B3
@@ -1456,4 +1406,118 @@ Wire Wire Line
 	6150 1750 6800 1750
 Text Label 6800 1750 2    50   ~ 0
 UART_MOSI
+$Comp
+L Interface:PCA9306DC1 U4
+U 1 1 616BED23
+P 9300 3500
+F 0 "U4" H 9550 3050 50  0000 C CNN
+F 1 "PCA9306DC1" H 8950 3050 50  0000 C CNN
+F 2 "Package_SO:VSSOP-8_2.3x2mm_P0.5mm" H 9300 3050 50  0001 C CNN
+F 3 "https://www.nxp.com/docs/en/data-sheet/PCA9306.pdf" H 9000 3950 50  0001 C CNN
+	1    9300 3500
+	1    0    0    -1  
+$EndComp
+$Comp
+L Interface:PCA9306DC1 U5
+U 1 1 616E525B
+P 9350 1700
+F 0 "U5" H 9600 1250 50  0000 C CNN
+F 1 "PCA9306DC1" H 9000 1250 50  0000 C CNN
+F 2 "Package_SO:VSSOP-8_2.3x2mm_P0.5mm" H 9350 1250 50  0001 C CNN
+F 3 "https://www.nxp.com/docs/en/data-sheet/PCA9306.pdf" H 9050 2150 50  0001 C CNN
+	1    9350 1700
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R7
+U 1 1 6171E78F
+P 6750 3400
+F 0 "R7" H 6820 3446 50  0000 L CNN
+F 1 "10k" H 6820 3355 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric" V 6680 3400 50  0001 C CNN
+F 3 "~" H 6750 3400 50  0001 C CNN
+F 4 "C17902" V 6650 3400 50  0001 C CNN "LCSC"
+	1    6750 3400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6150 3750 7050 3750
+Wire Wire Line
+	6150 3650 6750 3650
+$Comp
+L Device:R R8
+U 1 1 61738C6A
+P 7050 3400
+F 0 "R8" H 7120 3446 50  0000 L CNN
+F 1 "10k" H 7120 3355 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric" V 6980 3400 50  0001 C CNN
+F 3 "~" H 7050 3400 50  0001 C CNN
+F 4 "C17902" V 6950 3400 50  0001 C CNN "LCSC"
+	1    7050 3400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7050 3550 7050 3750
+Connection ~ 7050 3750
+Wire Wire Line
+	7050 3750 7450 3750
+Wire Wire Line
+	6750 3550 6750 3650
+Connection ~ 6750 3650
+Wire Wire Line
+	6750 3650 7450 3650
+$Comp
+L power:+3V3 #PWR052
+U 1 1 6174B493
+P 7050 3250
+F 0 "#PWR052" H 7050 3100 50  0001 C CNN
+F 1 "+3V3" H 7065 3423 50  0000 C CNN
+F 2 "" H 7050 3250 50  0001 C CNN
+F 3 "" H 7050 3250 50  0001 C CNN
+	1    7050 3250
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3V3 #PWR051
+U 1 1 617504F4
+P 6750 3250
+F 0 "#PWR051" H 6750 3100 50  0001 C CNN
+F 1 "+3V3" H 6765 3423 50  0000 C CNN
+F 2 "" H 6750 3250 50  0001 C CNN
+F 3 "" H 6750 3250 50  0001 C CNN
+	1    6750 3250
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6150 1950 6600 1950
+Text Label 6600 1950 2    50   ~ 0
+SPI2_CS0
+Wire Wire Line
+	6150 1850 6600 1850
+Text Label 6600 1850 2    50   ~ 0
+SPI2_CLK
+Wire Wire Line
+	6150 3050 6600 3050
+Text Label 6600 3050 2    50   ~ 0
+SPI2_MISO
+Wire Wire Line
+	6150 3150 6600 3150
+Text Label 6600 3150 2    50   ~ 0
+SPI2_MOSI
+Wire Wire Line
+	9250 4800 8800 4800
+Text Label 8800 4800 0    50   ~ 0
+SPI2_CS0
+Wire Wire Line
+	8650 5300 8200 5300
+Text Label 8200 5300 0    50   ~ 0
+SPI2_CLK
+Wire Wire Line
+	8650 5400 8200 5400
+Text Label 8200 5400 0    50   ~ 0
+SPI2_MISO
+Wire Wire Line
+	8650 5200 8200 5200
+Text Label 8200 5200 0    50   ~ 0
+SPI2_MOSI
 $EndSCHEMATC
