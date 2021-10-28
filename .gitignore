@@ -2,5 +2,5 @@
 **/*.kicad_pcb-bak
 **/*.sch-bak
 **/sdkconfig.esp32dev
-
+*.FCStd1
 
