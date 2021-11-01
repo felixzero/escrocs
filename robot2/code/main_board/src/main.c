@@ -15,12 +15,11 @@ void app_main() {
     init_http_server();
 
     init_gyroscope();
-    vTaskDelay(10000 / portTICK_PERIOD_MS);
-    calibrate_gyroscope_drift(10000 / portTICK_PERIOD_MS);
-    zero_out_gyroscope();
-    
+
     while(1) {
-        ESP_LOGI("DEBUG", "Angle: %f", get_gyroscope_corrected_angle(0));
+        float yaw, pitch, roll;
+        read_gyroscope(&yaw, &pitch, &roll);
+        ESP_LOGI("DEBUG", "Yaw: %f", yaw);
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 
