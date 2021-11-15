@@ -3,8 +3,8 @@
 
 #include "system/i2c_master.h"
 
-#define I2C_SDA_PIN_MOTOR 19
-#define I2C_SCL_PIN_MOTOR 21
+#define I2C_SDA_PIN_MOTOR 18
+#define I2C_SCL_PIN_MOTOR 19
 #define I2C_PORT_MOTOR I2C_NUM_0
 
 #define I2C_SDA_PIN_PERIPH 16

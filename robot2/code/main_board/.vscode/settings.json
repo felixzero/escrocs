@@ -28,6 +28,9 @@
         "math.h": "c",
         "_ansi.h": "c",
         "esp_err.h": "c",
-        "string": "c"
+        "string": "c",
+        "peripherals.h": "c",
+        "freertos.h": "c",
+        "httpd_handlers.h": "c"
     }
 }

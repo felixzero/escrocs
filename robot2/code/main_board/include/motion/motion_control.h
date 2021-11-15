@@ -1,30 +1,31 @@
 #pragma once
 
-/**
- * PID parameters of the control loop
- */
-typedef struct {
-    float p;
-    float i;
-    float d;
-} feedback_params_t;
+#include <stdbool.h>
 
 /**
- * Dimension of the robot
- * @param wheel_radius radius of the holonomic wheels in mm
- * @param robot_radius distance between wheels and the center of the robot in mm
+ * Tuning parameters of the motor feedback control
+ * Motor voltages are unitless (in range [0, 1])
+ * Distances are in mm
+ * Times are in s
+ * All other units derive from those
+ * @param pid_p (and i and d) PID coefficients
+ * @param friction_threshold Minimum voltage to move robot
+ * @param max_speed Maximum motor voltage
+ * @param acceleration_rate Change of voltage during acceleration phase
  */
 typedef struct {
-    float wheel_radius;
-    float robot_radius;
-    float friction_coefficient;
+    float pid_p;
+    float pid_i;
+    float pid_d;
+    float friction_threshold;
     float max_speed;
-} wheel_geometry_t;
+    float acceleration_rate;
+} motion_control_tuning_t;
 
 /**
- * Initialize the motion control system
+ * Init motion control subsystem
  */
-void init_motion_control(feedback_params_t pid, wheel_geometry_t geometry);
+void init_motion_control(void);
 
 /**
  * Set a (x, y, theta) target in (mm, mm, deg)
@@ -44,5 +45,9 @@ void stop_motion(void);
 /**
  * Check if the robot is still in motion
  */
-int is_motion_done(void);
+bool is_motion_done(void);
 
+/**
+ * Apply feedback control tuning parameters
+ */
+void set_motion_control_tuning(motion_control_tuning_t tuning);

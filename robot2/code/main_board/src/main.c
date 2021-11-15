@@ -1,8 +1,8 @@
 #include "system/i2c_master.h"
-#include "motion/motion_control.h"
-#include "motion/gyroscope.h"
 #include "wireless/wifi.h"
 #include "wireless/httpd.h"
+#include "peripherals/peripherals.h"
+#include "motion/motion_control.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -13,13 +13,19 @@ void app_main() {
     init_i2c_master();
     init_wifi_system();
     init_http_server();
+    init_peripherals();
+    init_motion_control();
 
-    init_gyroscope();
+    //set_peripherals_pump(1, true);
+    //set_peripherals_servo_channel(3, 1500);
+
+    //set_speed_targets(-400.0, 400.0, 0.0);
 
     while(1) {
-        float yaw, pitch, roll;
+        //ESP_LOGI("main", "%d", read_peripherals_motor_input(0, 1));
+        /*float yaw, pitch, roll;
         read_gyroscope(&yaw, &pitch, &roll);
-        ESP_LOGI("DEBUG", "Yaw: %f", yaw);
+        ESP_LOGI("DEBUG", "Yaw: %f", yaw);*/
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 
