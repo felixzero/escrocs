@@ -26,6 +26,8 @@ void app_main() {
         /*float yaw, pitch, roll;
         read_gyroscope(&yaw, &pitch, &roll);
         ESP_LOGI("DEBUG", "Yaw: %f", yaw);*/
+        //pose_t pose = get_current_pose();
+        //ESP_LOGI("Main", "Pose: %f %f %f", pose.x, pose.y, pose.theta);
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 

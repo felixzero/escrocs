@@ -17,9 +17,9 @@ static httpd_uri_t uri_handlers[] = {
         .user_ctx = NULL,
     },
     {
-        .uri = "/position",
+        .uri = "/pose",
         .method = HTTP_PUT,
-        .handler = set_position_target_handler,
+        .handler = set_pose_target_handler,
         .user_ctx = NULL,
     },
     {
