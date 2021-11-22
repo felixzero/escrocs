@@ -31,12 +31,14 @@ typedef struct {
 typedef struct {
     pose_t target_pose;
     const motion_control_tuning_t* tuning;
+    unsigned int timer;
 } rotation_state_t;
 
 typedef struct {
     float target_x;
     float target_y;
     const motion_control_tuning_t* tuning;
+    unsigned int timer;
 } translation_state_t;
 
 static QueueHandle_t set_target_queue, motion_information_queue, tuning_queue;
@@ -203,6 +205,7 @@ static void *init_rotation(float destination_angle, const pose_t *current_pose, 
     state.target_pose.y = current_pose->y;
     state.target_pose.theta = destination_angle;
     state.tuning = tuning;
+    state.timer = 0;
     return &state;
 }
 
@@ -217,16 +220,25 @@ static bool handle_rotation(void *data, const pose_t *current_pose)
     float position_error_correction = tuning->position_feedback_p * position_error;
 
     float delta_theta = state->target_pose.theta - current_pose->theta;
-    float rotation_speed = copysignf(
-        (fabsf(delta_theta) < tuning->slow_approach_angle) ? tuning->min_guaranteed_motion_rotation : tuning->max_speed,
-        delta_theta
-    );
+    float absolute_speed;
+    if (fabsf(delta_theta) < tuning->slow_approach_angle) {
+        absolute_speed = tuning->min_guaranteed_motion_rotation;
+    } else {
+        absolute_speed = fminf(tuning->acceleration * (state->timer * MOTION_PERIOD_MS * 0.001), tuning->max_speed);
+    }
+    float rotation_speed = copysignf(absolute_speed, delta_theta);
+
+    state->timer++;
 
     if (fabsf(delta_theta) < tuning->allowed_angle_error) {
         write_motor_speed(0.0, 0.0, 0.0);
         return true;
     } else {
-        write_motor_speed(-rotation_speed - position_error_correction, -rotation_speed + position_error_correction, 0.0);
+        write_motor_speed(
+            (-rotation_speed - position_error_correction) * (1.0 + tuning->left_right_balance),
+            (-rotation_speed + position_error_correction) * (1.0 - tuning->left_right_balance),
+            0.0
+        );
         return false;
     }
 }
@@ -237,6 +249,7 @@ static void *init_translation(const pose_t *target_pose, const motion_control_tu
     state.target_x = target_pose->x;
     state.target_y = target_pose->y;
     state.tuning = tuning;
+    state.timer = 0;
     return &state;
 }
 
@@ -247,19 +260,28 @@ static bool handle_translation(void *data, const pose_t *current_pose)
 
     float way_to_go = (state->target_x - current_pose->x) * cosf(current_pose->theta * M_PI / 180.0)
         + (state->target_y - current_pose->y) * sinf(current_pose->theta * M_PI / 180.0);
-    float target_angle = atan2f(state->target_y - current_pose->y, state->target_x - current_pose->x);
-    float angle_correction = tuning->angle_feedback_p * (target_angle - current_pose->theta);
+    float target_angle = 180.0 / M_PI * atan2f(state->target_y - current_pose->y, state->target_x - current_pose->x);
+    float angle_correction = tuning->angle_feedback_p * remainderf(target_angle - current_pose->theta, 360.0);
 
-    float translation_speed = copysignf(
-        (fabsf(way_to_go) < tuning->slow_approach_position) ? tuning->min_guaranteed_motion_translation : tuning->max_speed,
-        way_to_go
-    );
+    float absolute_speed;
+    if (fabsf(way_to_go) < tuning->slow_approach_position) {
+        absolute_speed = tuning->min_guaranteed_motion_translation;
+    } else {
+        absolute_speed = fminf(tuning->acceleration * (state->timer * MOTION_PERIOD_MS * 0.001), tuning->max_speed);
+    }
+    float translation_speed = copysignf(absolute_speed, way_to_go);
+
+    state->timer++;
 
     if (fabs(way_to_go) < tuning->allowed_position_error) {
         write_motor_speed(0.0, 0.0, 0.0);
         return true;
     } else {
-        write_motor_speed(-translation_speed - angle_correction, translation_speed - angle_correction, 0.0);
+        write_motor_speed(
+            (-translation_speed - angle_correction) * (1.0 + tuning->left_right_balance),
+            (translation_speed - angle_correction) * (1.0 - tuning->left_right_balance),
+            0.0
+        );
         return false;
     }
 }
