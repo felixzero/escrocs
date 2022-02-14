@@ -10,8 +10,8 @@
 void init_http_server(void);
 
 /**
- * Send a binary buffer in a WebSocket frame.
+ * Send a binary buffer in a SSE event.
  * The buffer is sent to all connected clients.
  */
-esp_err_t send_over_websocket(uint8_t *buffer, size_t length);
+esp_err_t send_to_clients(uint8_t *buffer, size_t length);
 

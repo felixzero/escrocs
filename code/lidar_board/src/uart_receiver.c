@@ -1,6 +1,7 @@
 #include "uart_receiver.h"
 #include "system/task_priority.h"
 #include "wireless/httpd.h"
+#include "pose_finder.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -21,7 +22,6 @@
 #define DISTANCE_DATA_INVALID_FLAG 0x8000
 #define DISTANCE_STRENGTH_WARNING_FLAG 0x4000
 #define DISTANCE_VALUE_MASK (uint16_t)~(DISTANCE_DATA_INVALID_FLAG | DISTANCE_STRENGTH_WARNING_FLAG)
-#define NUMBER_OF_ANGLES 360
 
 struct sample_data {
     uint16_t distance;
@@ -37,6 +37,12 @@ struct lidar_data_packet {
 } __attribute__((packed));
 
 #define PACKET_SIZE (sizeof(struct lidar_data_packet))
+
+struct lidar_data_buffer_t {
+    uint16_t distances[NUMBER_OF_ANGLES];
+    uint16_t intensities[NUMBER_OF_ANGLES];
+    pose_t calculated_pose;
+} __attribute__((packed));
 
 static QueueHandle_t uart_packet_queue;
 static uart_hal_context_t hal_context;
@@ -140,7 +146,7 @@ static void IRAM_ATTR uart_intr_handle(void *arg)
 
 static void uart_receiver_task(void *parameters)
 {
-    static uint16_t lidar_data_buffer[NUMBER_OF_ANGLES * 2];
+    static struct lidar_data_buffer_t lidar_data_buffer;
     uint8_t previous_packet_offset = 0;
 
     while (true) {
@@ -165,14 +171,16 @@ static void uart_receiver_task(void *parameters)
             if (packet->samples[i].distance & DISTANCE_DATA_INVALID_FLAG) {
                 continue;
             }
-            lidar_data_buffer[4 * offset_index + i] = packet->samples[i].distance & DISTANCE_VALUE_MASK;
-            lidar_data_buffer[NUMBER_OF_ANGLES + 4 * offset_index + i] = packet->samples[i].strength;
+            lidar_data_buffer.distances[4 * offset_index + i] = packet->samples[i].distance & DISTANCE_VALUE_MASK;
+            lidar_data_buffer.intensities[4 * offset_index + i] = packet->samples[i].strength;
         }
+
+        lidar_data_buffer.calculated_pose = find_pose(lidar_data_buffer.distances, lidar_data_buffer.intensities);
 
         // Advertise to websocket
         if (offset_index < previous_packet_offset) {
-            send_over_websocket((uint8_t*)lidar_data_buffer, sizeof(lidar_data_buffer));
-            memset(lidar_data_buffer, 0, sizeof(lidar_data_buffer));
+            send_to_clients((uint8_t*)&lidar_data_buffer, sizeof(lidar_data_buffer));
+            memset((void*)&lidar_data_buffer, 0, sizeof(lidar_data_buffer));
         }
         previous_packet_offset = offset_index;
     }

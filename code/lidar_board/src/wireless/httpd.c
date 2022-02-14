@@ -5,6 +5,7 @@
 #include <freertos/FreeRTOS.h>
 #include <esp_http_server.h>
 #include <esp_log.h>
+#include <mbedtls/base64.h>
 
 #define TAG "httpd"
 
@@ -13,15 +14,15 @@ struct socket_fd_list {
     struct socket_fd_list *next;
 };
 
-struct async_websocket_send_args {
-    uint8_t *buffer;
+struct async_send_args {
+    char *buffer;
     size_t length;
 };
 
 static struct socket_fd_list *opened_socket_fd = NULL;
 static httpd_handle_t server_handle = NULL;
-static esp_err_t websocket_handler(httpd_req_t *req);
-static void async_send_over_websocket(void *args);
+static esp_err_t server_sent_events_handler(httpd_req_t *req);
+static void async_send_over_sse(void *args);
 
 
 static httpd_uri_t uri_handlers[] = {
@@ -32,12 +33,10 @@ static httpd_uri_t uri_handlers[] = {
         .user_ctx = NULL,
     },
     {
-        .uri = "/points",
+        .uri = "/events",
         .method = HTTP_GET,
-        .handler = websocket_handler,
-        .user_ctx = NULL,
-        .is_websocket = true,
-        .handle_ws_control_frames = false
+        .handler = server_sent_events_handler,
+        .user_ctx = NULL
     }
 };
 
@@ -62,50 +61,31 @@ void init_http_server(void)
     init_ota_rebooter();
 }
 
-esp_err_t send_over_websocket(uint8_t *buffer, size_t length)
+esp_err_t send_to_clients(uint8_t *buffer, size_t length)
 {
-    struct async_websocket_send_args *args = malloc(sizeof(struct async_websocket_send_args));
-    args->buffer = malloc(length);
-    memcpy(args->buffer, buffer, length);
-    args->length = length;
-    return httpd_queue_work(server_handle, async_send_over_websocket, args);
+    struct async_send_args *args = malloc(sizeof(struct async_send_args));
+    const char prefix_str[] = "data: ";
+    const char suffix_str[] = "\r\n\r\n";
+
+    size_t encoded_length;
+    mbedtls_base64_encode(NULL, 0, &encoded_length, buffer, length);
+    args->buffer = malloc(encoded_length + sizeof(prefix_str) + sizeof(suffix_str) - 1);
+    memcpy(args->buffer, prefix_str, sizeof(prefix_str) - 1);
+    mbedtls_base64_encode(
+        (unsigned char*)args->buffer + sizeof(prefix_str) - 1,
+        encoded_length,
+        &encoded_length,
+        buffer,
+        length
+    );
+    strcpy(args->buffer + sizeof(prefix_str) - 1 + encoded_length, suffix_str);
+    args->length = encoded_length + sizeof(prefix_str) + sizeof(suffix_str) - 1;
+    return httpd_queue_work(server_handle, async_send_over_sse, args);
     return ESP_OK;
 }
 
-static void async_send_over_websocket(void *args)
+static esp_err_t server_sent_events_handler(httpd_req_t *req)
 {
-    struct async_websocket_send_args *send_args = (struct async_websocket_send_args*)args;
-    struct socket_fd_list **fd_list_iterator = &opened_socket_fd;
-    while (*fd_list_iterator != NULL) {
-        ESP_LOGI(TAG, "Sending WebSocket frame to client %d", (*fd_list_iterator)->fd);
-        httpd_ws_frame_t ws_pkt = {
-            .type = HTTPD_WS_TYPE_BINARY,
-            .payload = send_args->buffer,
-            .len = send_args->length
-        };
-        esp_err_t error = httpd_ws_send_frame_async(server_handle, (*fd_list_iterator)->fd, &ws_pkt);
-        if (ESP_ERROR_CHECK_WITHOUT_ABORT(error) != ESP_OK) {
-            ESP_LOGW(TAG, "Dropping client %d", (*fd_list_iterator)->fd);
-            httpd_sess_trigger_close(server_handle, (*fd_list_iterator)->fd);
-            struct socket_fd_list *current_item = *fd_list_iterator;
-            *fd_list_iterator = (*fd_list_iterator)->next;
-            free(current_item);
-        } else {
-            fd_list_iterator = &((*fd_list_iterator)->next);
-        }
-    }
-
-    free(send_args->buffer);
-    free(send_args);
-}
-
-static esp_err_t websocket_handler(httpd_req_t *req)
-{
-    if (req->method == HTTP_GET) {
-        ESP_LOGI(TAG, "Handshake done, the new connection was opened");
-        return ESP_OK;
-    }
-
     int current_client_fd = httpd_req_to_sockfd(req);
     struct socket_fd_list *fd_iterator = opened_socket_fd;
     while (fd_iterator != NULL) {
@@ -121,5 +101,38 @@ static esp_err_t websocket_handler(httpd_req_t *req)
     new_client->fd = current_client_fd;
     new_client->next = opened_socket_fd;
     opened_socket_fd = new_client;
+
+    const char header_str[] = "HTTP/1.1 200 OK\r\nContent-Type: text/event-stream\r\n\r\n";
+    httpd_socket_send(server_handle, current_client_fd, header_str, strlen(header_str), 0);
+    
     return ESP_OK;
+}
+
+static void async_send_over_sse(void *args)
+{
+    struct async_send_args *send_args = (struct async_send_args*)args;
+    struct socket_fd_list **fd_list_iterator = &opened_socket_fd;
+    while (*fd_list_iterator != NULL) {
+        ESP_LOGI(TAG, "Sending server sent event to client %d", (*fd_list_iterator)->fd);
+        esp_err_t error = httpd_socket_send(
+            server_handle,
+            (*fd_list_iterator)->fd,
+            send_args->buffer,
+            send_args->length,
+            0
+        );
+
+        if (error == ESP_ERR_INVALID_ARG) {
+            ESP_LOGW(TAG, "Dropping client %d", (*fd_list_iterator)->fd);
+            httpd_sess_trigger_close(server_handle, (*fd_list_iterator)->fd);
+            struct socket_fd_list *current_item = *fd_list_iterator;
+            *fd_list_iterator = (*fd_list_iterator)->next;
+            free(current_item);
+        } else {
+            fd_list_iterator = &((*fd_list_iterator)->next);
+        }
+    }
+
+    free(send_args->buffer);
+    free(send_args);
 }

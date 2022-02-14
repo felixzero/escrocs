@@ -12,6 +12,7 @@
         "task_priority.h": "c",
         "uart_receiver.h": "c",
         "uart.h": "c",
-        "*.bak": "c"
+        "*.bak": "c",
+        "base64.h": "c"
     }
 }
