@@ -31,6 +31,11 @@
         "string": "c",
         "peripherals.h": "c",
         "freertos.h": "c",
-        "httpd_handlers.h": "c"
+        "httpd_handlers.h": "c",
+        "pid.h": "c",
+        "motion_control_differential_drive.h": "c",
+        "motor_board.h": "c",
+        "task_priority.h": "c",
+        "task.h": "c"
     }
 }

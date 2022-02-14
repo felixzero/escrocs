@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include <sdkconfig.h>
 
 /**
  * Pose of the robot
@@ -14,7 +15,11 @@ typedef struct {
     float theta;
 } pose_t;
 
+#ifdef CONFIG_ESP_ROBOT_DIFFERENTIAL_DRIVE
 #include "motion/motion_control_differential_drive.h"
+#elif defined(CONFIG_ESP_ROBOT_HOLONOMIC)
+#include "motion/motion_control_holonomic.h"
+#endif
 
 /**
  * Init motion control subsystem

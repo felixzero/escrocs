@@ -1,7 +1,10 @@
 #include "motion/motion_control.h"
+
+// This file is only compiled for differential drive robots
+#ifdef CONFIG_ESP_ROBOT_DIFFERENTIAL_DRIVE
+
 #include "motion/motor_board.h"
 #include "system/task_priority.h"
-#include "utils/pid.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -301,3 +304,4 @@ static void update_pose(
     current_pose->theta -= (inc2 + inc1) / tuning->axle_width * 180.0 / M_PI;
 }
 
+#endif // CONFIG_ESP_ROBOT_DIFFERENTIAL_DRIVE

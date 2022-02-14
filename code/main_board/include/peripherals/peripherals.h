@@ -25,3 +25,11 @@ void set_peripherals_servo_channel(int channel, int pulse_width);
  * @param pin_channel End swich channel (0 or 1)
  */
 bool read_peripherals_motor_input(unsigned int motor_channel, unsigned int pin_channel);
+
+/**
+ * Move unipolar stepper motor by a number of steps
+ * @param motor_channel Stepper motor channel (0 or 1)
+ * @param steps Number of steps to move (positive is CW)
+ * @param speed (in range [0, 1])
+ */
+void move_peripherals_motor(unsigned int motor_channel, int steps, float speed);
