@@ -79,9 +79,8 @@ esp_err_t send_to_clients(uint8_t *buffer, size_t length)
         length
     );
     strcpy(args->buffer + sizeof(prefix_str) - 1 + encoded_length, suffix_str);
-    args->length = encoded_length + sizeof(prefix_str) + sizeof(suffix_str) - 1;
+    args->length = encoded_length + sizeof(prefix_str) + sizeof(suffix_str) - 2;
     return httpd_queue_work(server_handle, async_send_over_sse, args);
-    return ESP_OK;
 }
 
 static esp_err_t server_sent_events_handler(httpd_req_t *req)
