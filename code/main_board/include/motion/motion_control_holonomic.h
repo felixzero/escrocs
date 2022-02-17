@@ -2,8 +2,13 @@
 
 // X-Macro definition of motion control fields
 #define MOTION_CONTROL_TUNING_FIELDS \
-    X(max_speed, 0.5)
-
+    X(wheel_radius, 28.5) \
+    X(robot_radius, 122.26) \
+    X(max_speed, 0.9) \
+    X(friction_coefficient, 0.0) \
+    X(feedback_p, 0.006) \
+    X(feedback_i, 0.00002) \
+    X(feedback_d, 0.0)
 
 /**
  * Tuning parameters of the motor feedback control
