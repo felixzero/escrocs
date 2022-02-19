@@ -36,6 +36,7 @@
         "motion_control_differential_drive.h": "c",
         "motor_board.h": "c",
         "task_priority.h": "c",
-        "task.h": "c"
+        "task.h": "c",
+        "motion_control.impl.h": "c"
     }
 }

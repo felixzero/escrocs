@@ -15,6 +15,11 @@ typedef struct {
     float theta;
 } pose_t;
 
+typedef struct {
+    pose_t pose;
+    int motion_step;
+} motion_status_t;
+
 #ifdef CONFIG_ESP_ROBOT_DIFFERENTIAL_DRIVE
 #include "motion/motion_control_differential_drive.h"
 #elif defined(CONFIG_ESP_ROBOT_HOLONOMIC)
