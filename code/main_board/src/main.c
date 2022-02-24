@@ -1,8 +1,11 @@
 #include "system/i2c_master.h"
+#include "system/spiffs.h"
 #include "wireless/wifi.h"
 #include "wireless/httpd.h"
 #include "peripherals/peripherals.h"
+#include "peripherals/stepper_board.h"
 #include "motion/motion_control.h"
+#include "actions/strategy.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -11,10 +14,15 @@
 void app_main() {
     ESP_LOGI("main", "Starting ESCRObot application...\n");
     init_i2c_master();
+    init_spiffs();
     init_wifi_system();
     init_http_server();
     //init_peripherals();
+    init_stepper_board();
     init_motion_control();
+    init_lua_executor();
+
+    //set_stepper_board_pump(0, false);
 
     //set_peripherals_pump(1, true);
     //set_peripherals_servo_channel(3, 1500);
@@ -30,9 +38,7 @@ void app_main() {
         ESP_LOGI("DEBUG", "Yaw: %f", yaw);*/
         //pose_t pose = get_current_pose();
         //ESP_LOGI("Main", "Pose: %f %f %f", pose.x, pose.y, pose.theta);
-        pose_t pose = get_current_pose();
-        ESP_LOGI("Main", "Pose: %f %f %f", pose.x, pose.y, pose.theta);
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 
     /*wheel_geometry_t geometry = {

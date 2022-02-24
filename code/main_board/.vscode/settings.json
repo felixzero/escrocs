@@ -37,6 +37,17 @@
         "motor_board.h": "c",
         "task_priority.h": "c",
         "task.h": "c",
-        "motion_control.impl.h": "c"
-    }
+        "motion_control.impl.h": "c",
+        "stepper_board.h": "c",
+        "esp_log.h": "c",
+        "esp_http_server.h": "c",
+        "stdbool.h": "c",
+        "actions_http_handlers.h": "c",
+        "strategy.h": "c",
+        "lualib.h": "c",
+        "lua.h": "c",
+        "lauxlib.h": "c",
+        "typeinfo": "c"
+    },
+    "C_Cpp.errorSquiggles": "Enabled"
 }
