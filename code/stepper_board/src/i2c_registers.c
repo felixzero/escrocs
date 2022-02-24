@@ -53,33 +53,45 @@ uint8_t read_i2c_register(uint8_t reg)
 void write_i2c_register(uint8_t reg, uint8_t value)
 {
     switch (reg) {
-#define CHANNEL_WRITE_DEFINITION(CHANNEL)                           \
-    case I2C_REG_PUMP##CHANNEL##_OUT:                               \
-        write_pump_output(CHANNEL, value);                          \
-        return;                                                     \
-    case I2C_REG_STEPPER##CHANNEL##_TARGET_L:                       \
-        *((uint8_t*)&stepper_configs[CHANNEL].target) = value;      \
-        return;                                                     \
-    case I2C_REG_STEPPER##CHANNEL##_TARGET_H:                       \
-        *((uint8_t*)&stepper_configs[CHANNEL].target + 1) = value;  \
-        return;                                                     \
-    case I2C_REG_STEPPER##CHANNEL##_PULSE_PERIOD:                   \
-        stepper_configs[CHANNEL].pulse_period = value;              \
-        return;                                                     \
-    case I2C_REG_STEPPER##CHANNEL##_ACCEL_PERIOD:                   \
-        stepper_configs[CHANNEL].acceleration_period = value;       \
-        return;                                                     \
-    case I2C_REG_STEPPER##CHANNEL##_MOTION_ON_OFF:                  \
-        if (value) {                                                \
-            move_stepper(                                           \
-                CHANNEL,                                            \
-                stepper_configs[CHANNEL].target,                    \
-                stepper_configs[CHANNEL].pulse_period,              \
-                stepper_configs[CHANNEL].acceleration_period        \
-            );                                                      \
-        } else {                                                    \
-            stop_motion(CHANNEL);                                   \
-        }                                                           \
+#define CHANNEL_WRITE_DEFINITION(CHANNEL)                                           \
+    case I2C_REG_PUMP##CHANNEL##_OUT:                                               \
+        write_pump_output(CHANNEL, value);                                          \
+        return;                                                                     \
+    case I2C_REG_STEPPER##CHANNEL##_POSITION_L:                                     \
+        overwrite_stepper_position(                                                 \
+            CHANNEL,                                                                \
+            (read_i2c_register(I2C_REG_STEPPER##CHANNEL##_POSITION_H) << 8) | value \
+        );                                                                          \
+        return;                                                                     \
+    case I2C_REG_STEPPER##CHANNEL##_POSITION_H:                                     \
+        overwrite_stepper_position(                                                 \
+            CHANNEL,                                                                \
+            (value << 8) | read_i2c_register(I2C_REG_STEPPER##CHANNEL##_POSITION_L) \
+        );                                                                          \
+        return;                                                                     \
+    case I2C_REG_STEPPER##CHANNEL##_TARGET_L:                                       \
+        *((uint8_t*)&stepper_configs[CHANNEL].target) = value;                      \
+        return;                                                                     \
+    case I2C_REG_STEPPER##CHANNEL##_TARGET_H:                                       \
+        *((uint8_t*)&stepper_configs[CHANNEL].target + 1) = value;                  \
+        return;                                                                     \
+    case I2C_REG_STEPPER##CHANNEL##_PULSE_PERIOD:                                   \
+        stepper_configs[CHANNEL].pulse_period = value;                              \
+        return;                                                                     \
+    case I2C_REG_STEPPER##CHANNEL##_ACCEL_PERIOD:                                   \
+        stepper_configs[CHANNEL].acceleration_period = value;                       \
+        return;                                                                     \
+    case I2C_REG_STEPPER##CHANNEL##_MOTION_ON_OFF:                                  \
+        if (value) {                                                                \
+            move_stepper(                                                           \
+                CHANNEL,                                                            \
+                stepper_configs[CHANNEL].target,                                    \
+                stepper_configs[CHANNEL].pulse_period,                              \
+                stepper_configs[CHANNEL].acceleration_period                        \
+            );                                                                      \
+        } else {                                                                    \
+            stop_motion(CHANNEL);                                                   \
+        }                                                                           \
         return;
 
     CHANNEL_WRITE_DEFINITION(0)

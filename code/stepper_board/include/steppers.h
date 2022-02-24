@@ -15,6 +15,13 @@ void init_steppers(void);
 int16_t stepper_position(uint8_t channel);
 
 /**
+ * Overwrite current known stepper position to a given value; without moving motor
+ * @param channel Stepper channel to query
+ * @param position Position to be taken as current
+ */
+void overwrite_stepper_position(uint8_t channel, int16_t position);
+
+/**
  * Move stepper to a given position
  * @param channel Stepper channel to move
  * @param position Target position

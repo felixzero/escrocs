@@ -76,6 +76,14 @@ int16_t stepper_position(uint8_t channel)
     return stepper_positions[channel];
 }
 
+void overwrite_stepper_position(uint8_t channel, int16_t position)
+{
+    if (channel >= NUMBER_OF_CHANNELS) {
+        return;
+    }
+    stepper_positions[channel] = position;
+}
+
 void move_stepper(uint8_t channel, int16_t position, uint8_t pulse_period, uint8_t acceleration_period)
 {
     if ((channel > NUMBER_OF_CHANNELS) || position == stepper_positions[channel]) {
