@@ -1,61 +1,58 @@
 #include "actions/game_actions.h"
 #include "actions/actions_lua_functions.h"
 
-#define X(variable, setter, getter, DATA_TYPING) \
-static int game_action_set_ ## variable ## _lua(lua_State *L) \
+#define X(action_name, function, ARGUMENTS, OUTPUT) \
+static int game_action_ ## action_name ## _lua(lua_State *L) \
 { \
     int arg_id = 1; \
-    int channel_id = lua_tointeger(L, arg_id++); \
-    struct GAME_ACTION_STRUCT_NAME(variable) data; \
-    DATA_TYPING \
-    game_action_set_ ## variable(channel_id, data); \
-    return 0; \
+    (void)arg_id; \
+    struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(action_name) args; \
+ARGUMENTS \
+    struct GAME_ACTION_OUTPUT_STRUCT_NAME(action_name) output = game_action_ ## action_name(args); \
+    (void)output; \
+    int number_of_return_values = 0; \
+OUTPUT \
+    return number_of_return_values; \
 }
-#define X_FLOAT_DATA(x) data.x = lua_tonumber(L, arg_id++);
-#define X_INT_DATA(x) data.x = lua_tointeger(L, arg_id++);
-#define X_BOOL_DATA(x) data.x = lua_toboolean(L, arg_id++);
 
-DEFINE_GAME_VARIABLES
+#define X_FLOAT_ARGS(parameter_name) \
+    if (!lua_isnumber(L, arg_id)) { \
+        lua_pushstring(L, "Invalid argument: not a valid number for " # parameter_name); \
+        lua_error(L); \
+    } \
+    args.parameter_name = lua_tonumber(L, arg_id++);
+#define X_INT_ARGS(parameter_name) \
+    if (!lua_isinteger(L, arg_id)) { \
+        lua_pushstring(L, "Invalid argument: not a valid integer for " # parameter_name); \
+        lua_error(L); \
+    } \
+    args.parameter_name = lua_tointeger(L, arg_id++);
+#define X_BOOL_ARGS(parameter_name) \
+    if (!lua_isboolean(L, arg_id)) { \
+        lua_pushstring(L, "Invalid argument: not a valid boolean for " # parameter_name); \
+        lua_error(L); \
+    } \
+    args.parameter_name = lua_toboolean(L, arg_id++);
+
+#define X_FLOAT_OUTPUT(parameter_name) \
+    lua_pushnumber(L, output.parameter_name); \
+    number_of_return_values++;
+#define X_INT_OUTPUT(parameter_name) \
+    lua_pushinteger(L, output.parameter_name); \
+    number_of_return_values++;
+#define X_BOOL_OUTPUT(parameter_name) \
+    lua_pushboolean(L, output.parameter_name); \
+    number_of_return_values++;
+
+DEFINE_GAME_ACTION_FUNCTIONS
 #undef X
-#undef X_FLOAT_DATA
-#undef X_INT_DATA
-#undef X_BOOL_DATA
-
-
-#define X(variable, setter, getter, DATA_TYPING) \
-static int game_action_get_ ## variable ## _lua(lua_State *L) \
-{ \
-    int number_of_args = 0; \
-    struct GAME_ACTION_STRUCT_NAME(variable) data; \
-    int channel_id = lua_tointeger(L, 1); \
-    game_action_get_ ## variable(channel_id, &data); \
-    DATA_TYPING \
-    return number_of_args; \
-}
-#define X_FLOAT_DATA(x) \
-    lua_pushnumber(L, data.x); \
-    number_of_args++;
-#define X_INT_DATA(x) \
-    lua_pushinteger(L, data.x); \
-    number_of_args++;
-#define X_BOOL_DATA(x) \
-    lua_pushboolean(L, data.x); \
-    number_of_args++;
-
-DEFINE_GAME_VARIABLES
-#undef X
-#undef X_FLOAT_DATA
-#undef X_INT_DATA
-#undef X_BOOL_DATA
 
 void register_lua_action_functions(lua_State *L)
 {
-#define X(variable, setter, getter, DATA_TYPING) \
-    lua_pushcfunction(L, game_action_set_ ## variable ## _lua); \
-    lua_setglobal(L, "set_" # variable); \
-    lua_pushcfunction(L, game_action_get_ ## variable ## _lua); \
-    lua_setglobal(L, "get_" # variable);
-DEFINE_GAME_VARIABLES
+#define X(action_name, function, ARGUMENTS, OUTPUT) \
+    lua_pushcfunction(L, game_action_ ## action_name ## _lua); \
+    lua_setglobal(L, "action_name");
+DEFINE_GAME_ACTION_FUNCTIONS
 #undef X
 }
 

@@ -34,6 +34,12 @@ void set_stepper_board_pump(unsigned int channel, bool pump_on)
     write_i2c_register(I2C_PORT_PERIPH, I2C_ADDR, 0x01 + channel, pump_on);
 }
 
+bool get_stepper_board_pump(unsigned int channel)
+{
+    assert(channel < NUMBER_OF_PUMPS);
+    return read_i2c_register(I2C_PORT_PERIPH, I2C_ADDR, 0x01 + channel);
+}
+
 void move_stepper_board_motor(unsigned int channel, int target, float speed, float acceleration)
 {
     assert(channel < NUMBER_OF_MOTORS);
@@ -42,7 +48,23 @@ void move_stepper_board_motor(unsigned int channel, int target, float speed, flo
     *((int16_t*)&buffer[1]) = (int16_t)target; // Position target
     buffer[3] = (uint8_t)floorf(fclampf(1.0 / speed, 1.0, 255.0)); // Speed
     buffer[4] = (uint8_t)floorf(fclampf(1.0 / acceleration, 1.0, 255.0)); // Acceleration
+    buffer[5] = 1;
     send_to_i2c(I2C_PORT_PERIPH, I2C_ADDR, buffer, sizeof(buffer));
+}
+
+void define_stepper_board_motor_home(unsigned int channel, int position)
+{
+    write_i2c_register(I2C_PORT_PERIPH, I2C_ADDR, 0x0A + channel * 5, 0);
+    write_i2c_register(I2C_PORT_PERIPH, I2C_ADDR, 0x04 + channel * 5, position & 0xFF);
+    write_i2c_register(I2C_PORT_PERIPH, I2C_ADDR, 0x05 + channel * 5, position >> 8);
+}
+
+int get_stepper_board_motor_position(unsigned int channel)
+{
+    return (
+        read_i2c_register(I2C_PORT_PERIPH, I2C_ADDR, 0x04 + channel * 5)
+        | (read_i2c_register(I2C_PORT_PERIPH, I2C_ADDR, 0x05 + channel * 5) << 8)
+    );
 }
 
 static float fclampf(float x, float a, float b)

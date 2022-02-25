@@ -3,43 +3,51 @@
 #include "motion/motion_control.h"
 #include "peripherals/stepper_board.h"
 
-int game_action_set_pose(int id, struct game_action_pose_data_t data)
+struct GAME_ACTION_OUTPUT_STRUCT_NAME(set_pose) game_action_set_pose(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(set_pose) args)
 {
     pose_t target;
-    target.x = data.x;
-    target.y = data.y;
-    target.theta = data.theta;
+    target.x = args.x;
+    target.y = args.y;
+    target.theta = args.theta;
     set_motion_target(&target);
-    return 0;
+    struct GAME_ACTION_OUTPUT_STRUCT_NAME(set_pose) result;
+    return result;
 }
 
-int game_action_get_pose(int id, struct game_action_pose_data_t *data)
+struct GAME_ACTION_OUTPUT_STRUCT_NAME(get_pose) game_action_get_pose(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(get_pose) args)
 {
+    struct GAME_ACTION_OUTPUT_STRUCT_NAME(get_pose) result;
     pose_t current_pose = get_current_pose();
-    data->x = current_pose.x;
-    data->y = current_pose.y;
-    data->theta = current_pose.theta;
-    return 0;
+    result.x = current_pose.x;
+    result.y = current_pose.y;
+    result.theta = current_pose.theta;
+    return result;
 }
 
-int game_action_set_pump(int id, struct game_action_pump_data_t data)
+struct GAME_ACTION_OUTPUT_STRUCT_NAME(stop_motion) game_action_stop_motion(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(stop_motion) args)
 {
-    set_stepper_board_pump(id, data.value);
-    return 0;
+    stop_motion();
+    struct GAME_ACTION_OUTPUT_STRUCT_NAME(stop_motion) result;
+    return result;
 }
 
-int game_action_get_pump(int id, struct game_action_pump_data_t *data)
+struct GAME_ACTION_OUTPUT_STRUCT_NAME(set_pump) game_action_set_pump(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(set_pump) args)
 {
-    return 0;
+    set_stepper_board_pump(args.channel, args.value);
+    struct GAME_ACTION_OUTPUT_STRUCT_NAME(set_pump) result;
+    return result;
 }
 
-int game_action_set_stepper(int id, struct game_action_stepper_data_t data)
+struct GAME_ACTION_OUTPUT_STRUCT_NAME(move_stepper) game_action_move_stepper(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(move_stepper) args)
 {
-    move_stepper_board_motor(id, data.position, data.speed, data.acceleration);
-    return 0;
+    move_stepper_board_motor(args.channel, args.target, args.speed, args.acceleration);
+    struct GAME_ACTION_OUTPUT_STRUCT_NAME(move_stepper) result;
+    return result;
 }
 
-int game_action_get_stepper(int id, struct game_action_stepper_data_t *data)
+struct GAME_ACTION_OUTPUT_STRUCT_NAME(reset_stepper) game_action_reset_stepper(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(reset_stepper) args)
 {
-    return 0;
+    define_stepper_board_motor_home(args.channel, args.value);
+    struct GAME_ACTION_OUTPUT_STRUCT_NAME(reset_stepper) result;
+    return result;
 }
