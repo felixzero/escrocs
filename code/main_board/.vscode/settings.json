@@ -47,7 +47,11 @@
         "lualib.h": "c",
         "lua.h": "c",
         "lauxlib.h": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "fstream": "c",
+        "new": "c",
+        "stdexcept": "c",
+        "streambuf": "c"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }

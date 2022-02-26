@@ -12,25 +12,20 @@
 #define SQRT_3_2 0.86602540378
 #define PI_2 6.28318530718
 #define TICKS_PER_TURN 360
-#define ALLOWED_ERROR_XY 5.0
-#define ALLOWED_ERROR_T 0.2
-#define max(a, b) (((a) > (b)) ? (a) : (b))
-#define sign(x) ((x == 0.0) ? 1.0 : ((x) / abs(x)))
+#define ALLOWED_ERROR_XY 5.0 // mm
+#define ALLOWED_ERROR_T 0.02 // rad
+
+#define ENCODER_TO_POSITION(u, tuning) ((u) / TICKS_PER_TURN * PI_2 * tuning->wheel_radius)
+#define ENCODER_TO_ANGLE(t, tuning) ((t) / TICKS_PER_TURN * PI_2 * tuning->wheel_radius / tuning->robot_radius)
+#define POSITION_TO_ENCODER(x, tuning) ((x) * TICKS_PER_TURN / PI_2 / tuning->wheel_radius)
+#define ANGLE_TO_ENCODER(theta, tuning) ((theta) * TICKS_PER_TURN / PI_2 / tuning->wheel_radius * tuning->robot_radius)
 
 struct holonomic_data_t {
     motion_control_tuning_t *tuning;
-    pose_t last_pose;
-    pose_t cumulated_pose_error;
+    float elapsed_time;
 };
 
-static void position_setpoint_to_motor(
-    const pose_t *current_pose,
-    const motion_control_tuning_t *tuning,
-    float x_setpoint,
-    float y_setpoint,
-    float t_setpoint,
-    float motor_setpoints[]
-);
+static float apply_friction_non_linearity(float setpoint, const motion_control_tuning_t *tuning);
 
 void motion_control_on_motion_target_set(motion_status_t *motion_target, const pose_t *target, const pose_t *current_pose)
 {
@@ -47,16 +42,9 @@ void motion_control_on_init(void **motion_data, motion_control_tuning_t *tuning)
 
 void motion_control_on_new_target_received(void *motion_data, pose_t *current_pose)
 {
-    struct holonomic_data_t* data = malloc(sizeof(struct holonomic_data_t));
+    struct holonomic_data_t* data = (struct holonomic_data_t*)motion_data;
     ESP_LOGI(TAG, "Received new motion target.");
-
-    data->last_pose.x = current_pose->x;
-    data->last_pose.y = current_pose->y;
-    data->last_pose.theta = current_pose->theta;
-
-    data->cumulated_pose_error.x = 0.0;
-    data->cumulated_pose_error.y = 0.0;
-    data->cumulated_pose_error.theta = 0.0;
+    data->elapsed_time = 0.0;
 }
 
 void motion_control_on_tuning_updated(void *motion_data, motion_control_tuning_t *tuning)
@@ -78,28 +66,19 @@ void motion_control_on_pose_update(
     float channel2 = current_encoder->channel2 - previous_encoder->channel2;
     float channel3 = current_encoder->channel3 - previous_encoder->channel3;
 
-    float x_ref_robot = (-channel2 + channel3) / SQRT_3_2 / 2.0;
-    float y_ref_robot = (-2.0 * channel1 + channel2 + channel3) / 3.0;
+    float u_ref_robot = (-channel2 + channel3) / SQRT_3_2 / 2.0;
+    float v_ref_robot = (-2.0 * channel1 + channel2 + channel3) / 3.0;
     float t_ref_robot = (channel1 + channel2 + channel3) / 3.0;
 
-    current_pose->x += x_ref_robot * cos(current_pose->theta) + y_ref_robot * sin(current_pose->theta);
-    current_pose->y += - x_ref_robot * sin(current_pose->theta) + y_ref_robot * cos(current_pose->theta);
-    current_pose->theta += t_ref_robot / TICKS_PER_TURN * data->tuning->wheel_radius / data->tuning->robot_radius;
+    current_pose->x += ENCODER_TO_POSITION(u_ref_robot * cos(current_pose->theta) + v_ref_robot * sin(current_pose->theta), data->tuning);
+    current_pose->y += ENCODER_TO_POSITION(-u_ref_robot * sin(current_pose->theta) + v_ref_robot * cos(current_pose->theta), data->tuning);
+    current_pose->theta += ENCODER_TO_ANGLE(t_ref_robot, data->tuning);
 }
 
 void motion_control_on_motor_loop(void *motion_data, motion_status_t *motion_target, const pose_t *current_pose)
 {
     struct holonomic_data_t* data = (struct holonomic_data_t*)motion_data;
     const pose_t target_pose = motion_target->pose;
-    const pose_t last_pose = data->last_pose;
-
-    data->cumulated_pose_error.x += (target_pose.x - current_pose->x) * MOTION_PERIOD_MS;
-    data->cumulated_pose_error.y += (target_pose.y - current_pose->y) * MOTION_PERIOD_MS;
-    data->cumulated_pose_error.theta += (target_pose.theta - current_pose->theta) * MOTION_PERIOD_MS;
-
-    float motion_x = (current_pose->x - last_pose.x) / MOTION_PERIOD_MS;
-    float motion_y = (current_pose->y - last_pose.y) / MOTION_PERIOD_MS;
-    float motion_theta = (current_pose->theta - last_pose.theta) / MOTION_PERIOD_MS;
 
     if ((fabsf(target_pose.x - current_pose->x) < ALLOWED_ERROR_XY) &&
         (fabsf(target_pose.y - current_pose->y) < ALLOWED_ERROR_XY) &&
@@ -108,59 +87,49 @@ void motion_control_on_motor_loop(void *motion_data, motion_status_t *motion_tar
         motion_target->motion_step = MOTION_STEP_DONE;
     }
 
-    float x_setpoint = (target_pose.x - current_pose->x) * data->tuning->feedback_p
-        + data->cumulated_pose_error.x * data->tuning->feedback_i
-        + motion_x * data->tuning->feedback_d;
-    float y_setpoint = (target_pose.y - current_pose->y) * data->tuning->feedback_p
-        + data->cumulated_pose_error.y * data->tuning->feedback_i
-        + motion_y * data->tuning->feedback_d;
-    float t_setpoint = ((target_pose.theta - current_pose->theta) * data->tuning->feedback_p
-        + data->cumulated_pose_error.theta * data->tuning->feedback_i
-        + motion_theta * data->tuning->feedback_d)  / TICKS_PER_TURN * data->tuning->wheel_radius / data->tuning->robot_radius;
+    float u_setpoint = POSITION_TO_ENCODER(
+        (target_pose.x - current_pose->x) * cos(current_pose->theta) - (target_pose.y - current_pose->y) * sin(current_pose->theta),
+        data->tuning
+    );
+    float v_setpoint = POSITION_TO_ENCODER(
+        (target_pose.x - current_pose->x) * sin(current_pose->theta) + (target_pose.y - current_pose->y) * cos(current_pose->theta),
+        data->tuning
+    );
+    float t_setpoint = ANGLE_TO_ENCODER(target_pose.theta - current_pose->theta, data->tuning);
 
-    data->last_pose.x = current_pose->x;
-    data->last_pose.y = current_pose->y;
-    data->last_pose.theta = current_pose->theta;
+    float c1 = -v_setpoint + t_setpoint;
+    float c2 = - SQRT_3_2 * u_setpoint + v_setpoint / 2.0 + t_setpoint;
+    float c3 = SQRT_3_2 * u_setpoint + v_setpoint / 2.0 + t_setpoint;
+    ESP_LOGI(TAG, "Raw setpoints: %f %f %f", c1, c2, c3);
+
+    float max_value = fmaxf(fabsf(c1), fmaxf(fabsf(c2), fabsf(c3)));
+    data->elapsed_time += MOTION_PERIOD_MS;
+    float current_speed = fminf(1.0, 0.001 * data->elapsed_time * data->tuning->acceleration);
+    current_speed = fminf(current_speed, sqrtf(ENCODER_TO_POSITION(max_value, data->tuning) / data->tuning->braking_distance));
+    c1 /= max_value / current_speed;
+    c2 /= max_value / current_speed;
+    c3 /= max_value / current_speed;
 
     float motor_setpoints[3];
-    position_setpoint_to_motor(current_pose, data->tuning, x_setpoint, y_setpoint, t_setpoint, motor_setpoints);
+    motor_setpoints[0] = apply_friction_non_linearity(c1, data->tuning);
+    motor_setpoints[1] = apply_friction_non_linearity(c2, data->tuning);
+    motor_setpoints[2] = apply_friction_non_linearity(c3, data->tuning);
+
     write_motor_speed(motor_setpoints[0], motor_setpoints[1], motor_setpoints[2]);
-    ESP_LOGD(TAG, "Wrote motor speed %f %f %f", motor_setpoints[0], motor_setpoints[1], motor_setpoints[2]);
+    ESP_LOGI(TAG, "Wrote motor speed %f %f %f", motor_setpoints[0], motor_setpoints[1], motor_setpoints[2]);
 }
 
 static float apply_friction_non_linearity(float setpoint, const motion_control_tuning_t *tuning)
 {
-    float clamped = abs(setpoint) * (tuning->max_speed - tuning->friction_coefficient) + tuning->friction_coefficient;
-    return clamped * sign(setpoint);
-}
-
-static void position_setpoint_to_motor(
-    const pose_t *current_pose,
-    const motion_control_tuning_t *tuning,
-    float x_setpoint,
-    float y_setpoint,
-    float t_setpoint,
-    float motor_setpoints[]
-)
-{
-    float x_ref_robot = x_setpoint * cos(current_pose->theta) - y_setpoint * sin(current_pose->theta);
-    float y_ref_robot = x_setpoint * sin(current_pose->theta) + y_setpoint * cos(current_pose->theta);
-    float t_ref_robot = t_setpoint;
-
-    float c1 = -y_ref_robot + t_ref_robot;
-    float c2 = - SQRT_3_2 * x_ref_robot + y_ref_robot / 2.0 + t_ref_robot;
-    float c3 = SQRT_3_2 * x_ref_robot + y_ref_robot / 2.0 + t_ref_robot;
-
-    float max_value = max(abs(c1), max(abs(c2), abs(c3)));
-    if (max_value >= 1.0) {
-        c1 /= max_value;
-        c2 /= max_value;
-        c3 /= max_value;
+    float clamped = fabsf(setpoint) * (tuning->max_speed - tuning->friction_coefficient) + tuning->friction_coefficient;
+    if (setpoint > 0) {
+        return clamped;
+    } else if (setpoint < 0) {
+        return -clamped;
+    } else {
+        return 0.0;
     }
-
-    motor_setpoints[0] = apply_friction_non_linearity(c1, tuning);
-    motor_setpoints[1] = apply_friction_non_linearity(c2, tuning);
-    motor_setpoints[2] = apply_friction_non_linearity(c3, tuning);
+    
 }
 
 #endif

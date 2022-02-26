@@ -4,11 +4,10 @@
 #define MOTION_CONTROL_TUNING_FIELDS \
     X(wheel_radius, 28.5) \
     X(robot_radius, 122.26) \
-    X(max_speed, 0.9) \
-    X(friction_coefficient, 0.0) \
-    X(feedback_p, 0.006) \
-    X(feedback_i, 0.00002) \
-    X(feedback_d, 0.0)
+    X(max_speed, 1.0) \
+    X(friction_coefficient, 0.25) \
+    X(acceleration, 1.0) \
+    X(braking_distance, 300.0)
 
 /**
  * Tuning parameters of the motor feedback control
