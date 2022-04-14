@@ -1,6 +1,6 @@
 #include "wireless/ota.h"
 #include "system/task_priority.h"
-#include "uart_receiver.h"
+#include "lidar/uart_receiver.h"
 
 #include <esp_partition.h>
 #include <esp_ota_ops.h>

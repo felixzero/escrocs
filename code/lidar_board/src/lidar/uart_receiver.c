@@ -1,7 +1,7 @@
-#include "uart_receiver.h"
+#include "lidar/uart_receiver.h"
 #include "system/task_priority.h"
 #include "wireless/httpd.h"
-#include "pose_finder.h"
+#include "localization/pose_refinement.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -147,7 +147,6 @@ static void IRAM_ATTR uart_intr_handle(void *arg)
 static void uart_receiver_task(void *parameters)
 {
     static struct lidar_data_buffer_t lidar_data_buffer;
-    uint8_t previous_packet_offset = 0;
 
     while (true) {
         struct lidar_data_packet *packet;
@@ -175,14 +174,12 @@ static void uart_receiver_task(void *parameters)
             lidar_data_buffer.intensities[4 * offset_index + i] = packet->samples[i].strength;
         }
 
-        lidar_data_buffer.calculated_pose = find_pose(lidar_data_buffer.distances, lidar_data_buffer.intensities);
-
-        // Advertise to websocket
-        if (offset_index < previous_packet_offset) {
+        // Process point cloud upon RX completion
+        if (offset_index == NUMBER_OF_ANGLES / 4 - 1) {
+            refine_pose_from_point_cloud(lidar_data_buffer.distances, lidar_data_buffer.intensities);
+            compute_obstacle_clusters(lidar_data_buffer.distances);
             send_to_clients((uint8_t*)&lidar_data_buffer, sizeof(lidar_data_buffer));
-            memset((void*)&lidar_data_buffer, 0, sizeof(lidar_data_buffer));
         }
-        previous_packet_offset = offset_index;
     }
 }
 

@@ -13,6 +13,18 @@
         "uart_receiver.h": "c",
         "uart.h": "c",
         "*.bak": "c",
-        "base64.h": "c"
+        "base64.h": "c",
+        "i2c.h": "c",
+        "pose_refinement.h": "c",
+        "optional": "c",
+        "istream": "c",
+        "ostream": "c",
+        "ratio": "c",
+        "system_error": "c",
+        "array": "c",
+        "functional": "c",
+        "tuple": "c",
+        "utility": "c",
+        "i2c_slave.h": "c"
     }
 }

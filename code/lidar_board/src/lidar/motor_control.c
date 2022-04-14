@@ -1,4 +1,4 @@
-#include "motor_control.h"
+#include "lidar/motor_control.h"
 #include "system/task_priority.h"
 
 #include <esp_log.h>
