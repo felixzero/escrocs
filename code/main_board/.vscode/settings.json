@@ -51,7 +51,8 @@
         "fstream": "c",
         "new": "c",
         "stdexcept": "c",
-        "streambuf": "c"
+        "streambuf": "c",
+        "spiffs.h": "c"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }

@@ -17,12 +17,15 @@ messages = SSEClient("http://192.168.4.2/events", chunk_size=4096)
 for msg in messages:
     data = base64.b64decode(msg.data)
     d = struct.unpack("360h360hfff", data)
+    print(d)
     distance = np.array(d[:360])
     intensity = np.array(d[360:2*360])
-    reflectivity = intensity * distance
-    print(f"Pose: x={d[-3]}, y={d[-2]}, t={d[-1]}; Refl. max: {max(intensity)}")
+    reflectivity = intensity * distance**1.0
+    print(f"Pose: x={d[-3]}, y={d[-2]}, t={d[-1]}; Refl. max: {max(reflectivity)}")
     ax.clear()
-    ax.scatter(angle, distance, c=reflectivity)
-    ax.set_ylim(ymin=0, ymax=4000)
+    threshold = 3_500_00
+    print(min(reflectivity[reflectivity > threshold]), max(reflectivity))
+    ax.scatter(angle[reflectivity > threshold], distance[reflectivity > threshold], c=reflectivity[reflectivity > threshold])
+    ax.set_ylim(ymin=0, ymax=2000)
     fig.canvas.draw()
     fig.canvas.flush_events()
