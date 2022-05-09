@@ -21,8 +21,7 @@
 #define MOVE_STEPPER_ARGUMENTS \
     X_INT_ARGS(channel) \
     X_INT_ARGS(target) \
-    X_FLOAT_ARGS(speed) \
-    X_FLOAT_ARGS(acceleration)
+    X_FLOAT_ARGS(speed)
 #define MOVE_STEPPER_OUTPUT // nothing
 #define RESET_STEPPER_ARGUMENTS \
     X_INT_ARGS(channel) \

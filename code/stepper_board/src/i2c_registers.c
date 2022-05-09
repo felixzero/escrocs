@@ -36,8 +36,6 @@ uint8_t read_i2c_register(uint8_t reg)
         return (uint8_t)(stepper_configs[CHANNEL].target >> 8);   \
     case I2C_REG_STEPPER##CHANNEL##_PULSE_PERIOD:                 \
         return stepper_configs[CHANNEL].pulse_period;             \
-    case I2C_REG_STEPPER##CHANNEL##_ACCEL_PERIOD:                 \
-        return stepper_configs[CHANNEL].acceleration_period;      \
     case I2C_REG_STEPPER##CHANNEL##_MOTION_ON_OFF:                \
         return is_stepper_in_motion(CHANNEL);
 
@@ -78,16 +76,12 @@ void write_i2c_register(uint8_t reg, uint8_t value)
     case I2C_REG_STEPPER##CHANNEL##_PULSE_PERIOD:                                   \
         stepper_configs[CHANNEL].pulse_period = value;                              \
         return;                                                                     \
-    case I2C_REG_STEPPER##CHANNEL##_ACCEL_PERIOD:                                   \
-        stepper_configs[CHANNEL].acceleration_period = value;                       \
-        return;                                                                     \
     case I2C_REG_STEPPER##CHANNEL##_MOTION_ON_OFF:                                  \
         if (value) {                                                                \
             move_stepper(                                                           \
                 CHANNEL,                                                            \
                 stepper_configs[CHANNEL].target,                                    \
-                stepper_configs[CHANNEL].pulse_period,                              \
-                stepper_configs[CHANNEL].acceleration_period                        \
+                stepper_configs[CHANNEL].pulse_period                               \
             );                                                                      \
         } else {                                                                    \
             stop_motion(CHANNEL);                                                   \

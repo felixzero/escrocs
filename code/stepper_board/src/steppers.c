@@ -11,7 +11,6 @@
 static volatile int16_t stepper_positions[NUMBER_OF_CHANNELS] = { 0 };
 static int16_t stepper_targets[NUMBER_OF_CHANNELS] = { 0 };
 static uint8_t stepper_target_pulse_periods[NUMBER_OF_CHANNELS] = { 0 };
-static uint8_t stepper_target_acceleration_periods[NUMBER_OF_CHANNELS] = { 0 };
 static uint8_t stepper_target_initial_positions[NUMBER_OF_CHANNELS] = { 0 };
 
 static volatile uint8_t *ocrxa_registers[] = { &OCR0A, &OCR1AL, &OCR2A };
@@ -67,6 +66,10 @@ void init_steppers(void)
     cli();
     PCICR |= _BV(PCIE0);
     sei();
+
+    move_stepper(0, 0, 1);
+    move_stepper(1, 0, 1);
+    move_stepper(2, 0, 1);
 }
 
 int16_t stepper_position(uint8_t channel)
@@ -85,7 +88,7 @@ void overwrite_stepper_position(uint8_t channel, int16_t position)
     stepper_positions[channel] = position;
 }
 
-void move_stepper(uint8_t channel, int16_t position, uint8_t pulse_period, uint8_t acceleration_period)
+void move_stepper(uint8_t channel, int16_t position, uint8_t pulse_period)
 {
     if ((channel > NUMBER_OF_CHANNELS) || position == stepper_positions[channel]) {
         return;
@@ -102,7 +105,6 @@ void move_stepper(uint8_t channel, int16_t position, uint8_t pulse_period, uint8
 
     // Set speed
     stepper_target_pulse_periods[channel] = pulse_period;
-    stepper_target_acceleration_periods[channel] = acceleration_period;
     *(ocrxa_registers[channel]) = 255;
 
     // Enable motion
@@ -147,19 +149,7 @@ static inline void timer_overflow_interrupt(uint8_t channel) {
         stepper_positions[channel] += (PORTC & _BV(channel)) ? 1 : -1;
 
         // Set speed for acceleration ramp
-        if (stepper_target_acceleration_periods[channel] == 0) {
-            *(ocrxa_registers[channel]) = stepper_target_pulse_periods[channel];
-        } else {
-            int16_t distance_to_edge = min(
-                abs(stepper_positions[channel] - stepper_targets[channel]),
-                abs(stepper_positions[channel] - stepper_target_initial_positions[channel])
-            );
-            uint16_t speed_factor = 8 * (distance_to_edge + 1) / stepper_target_acceleration_periods[channel];
-            *(ocrxa_registers[channel]) = max(
-                stepper_target_pulse_periods[channel],
-                64 * 255 / speed_factor / speed_factor
-            );
-        }
+        *(ocrxa_registers[channel]) = stepper_target_pulse_periods[channel];
     }
 
     // Stop motion if at target

@@ -40,7 +40,7 @@ struct GAME_ACTION_OUTPUT_STRUCT_NAME(set_pump) game_action_set_pump(struct GAME
 
 struct GAME_ACTION_OUTPUT_STRUCT_NAME(move_stepper) game_action_move_stepper(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(move_stepper) args)
 {
-    move_stepper_board_motor(args.channel, args.target, args.speed, args.acceleration);
+    move_stepper_board_motor(args.channel, args.target, args.speed);
     struct GAME_ACTION_OUTPUT_STRUCT_NAME(move_stepper) result;
     return result;
 }

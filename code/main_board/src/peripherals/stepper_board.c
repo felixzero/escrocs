@@ -40,15 +40,14 @@ bool get_stepper_board_pump(unsigned int channel)
     return read_i2c_register(I2C_PORT_PERIPH, I2C_ADDR, 0x01 + channel);
 }
 
-void move_stepper_board_motor(unsigned int channel, int target, float speed, float acceleration)
+void move_stepper_board_motor(unsigned int channel, int target, float speed)
 {
     assert(channel < NUMBER_OF_MOTORS);
-    uint8_t buffer[6];
-    buffer[0] = 0x06 + channel * 5; // I2C address
+    uint8_t buffer[5];
+    buffer[0] = 0x06 + channel * 6; // I2C address
     *((int16_t*)&buffer[1]) = (int16_t)target; // Position target
     buffer[3] = (uint8_t)floorf(fclampf(1.0 / speed, 1.0, 255.0)); // Speed
-    buffer[4] = (uint8_t)floorf(fclampf(1.0 / acceleration, 1.0, 255.0)); // Acceleration
-    buffer[5] = 1;
+    buffer[4] = 1;
     send_to_i2c(I2C_PORT_PERIPH, I2C_ADDR, buffer, sizeof(buffer));
 }
 

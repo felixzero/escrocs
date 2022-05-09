@@ -26,10 +26,9 @@ void overwrite_stepper_position(uint8_t channel, int16_t position);
  * @param channel Stepper channel to move
  * @param position Target position
  * @param pulse_period Inverse of speed (1 = fastest; 255 = slowest)
- * @param acceleration_period Inverse of acceleration. Set 0 to disable ramp.
  * Otherwise (1 = fast acceleration; 255 = ultra slow acceleration)
  */
-void move_stepper(uint8_t channel, int16_t position, uint8_t pulse_period, uint8_t acceleration_period);
+void move_stepper(uint8_t channel, int16_t position, uint8_t pulse_period);
 
 /**
  * Abort current motion
