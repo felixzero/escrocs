@@ -9,25 +9,36 @@
 #include <esp_err.h>
 #include <driver/i2c.h>
 #include <math.h>
+#include <string.h>
 
 #define TAG "I2C"
 #define I2C_SDA_PIN 33
 #define I2C_SCL_PIN 32
-#define I2C_TIMEOUT 80000
+#define I2C_TIMEOUT 200
 #define I2C_BUFFER_SIZE 512
 #define SLAVE_ADDR 0x0D
+#define HEADER_VALUE 0xBC
 
 struct i2c_query_t {
-    pose_t guess_pose;
+    uint8_t header;
+    int16_t guess_pose_x_mm;
+    int16_t guess_pose_y_mm;
+    int16_t guess_pose_theta_mrad;
+    uint8_t checksum;
 } __attribute__((packed));
 
 struct i2c_response_t {
-    pose_t refined_pose;
+    uint8_t header;
+    int16_t refined_pose_x_mm;
+    int16_t refined_pose_y_mm;
+    int16_t refined_pose_theta_mrad;
     uint8_t has_refined;
-    float obstacle_clusters[NUMBER_OF_CLUSTER_ANGLES];
+    uint8_t obstacle_clusters[NUMBER_OF_CLUSTER_ANGLES];
+    uint8_t checksum;
 } __attribute__((packed));
 
 static void i2c_slave_task(void *parameters);
+static uint8_t compute_checksum(uint8_t *payload, size_t length);
 
 void init_i2c_slave(void)
 {
@@ -58,23 +69,66 @@ static void i2c_slave_task(void *parameters)
     struct i2c_response_t response;
 
     while (true) {
-        int s;
-        if ((s = i2c_slave_read_buffer(I2C_NUM_0, (void*)&query, sizeof(query), I2C_TIMEOUT)) <= 0) {
+        int read;
+        if ((read = i2c_slave_read_buffer(I2C_NUM_0, (void*)&query, sizeof(query), I2C_TIMEOUT)) <= 0) {
             continue;
-            ESP_ERROR_CHECK_WITHOUT_ABORT(s);
+            ESP_ERROR_CHECK_WITHOUT_ABORT(read);
         }
 
         ESP_LOGD(TAG, "Received from I2C master");
-
-        update_estimated_input_pose(&query.guess_pose);
-        response.has_refined = get_refined_output_pose(&response.refined_pose);
-
-        for (int i = 0; i < NUMBER_OF_CLUSTER_ANGLES; ++i) {
-            response.obstacle_clusters[i] = INFINITY;
+        memset(&response, 0, sizeof(response));
+        response.header = HEADER_VALUE;
+        if ((compute_checksum((uint8_t*)&query, sizeof(query)) != query.checksum) || (query.header != HEADER_VALUE)) {
+            ESP_LOGW(TAG, "Warning: bad checksum on I2C query from main board");
+            ESP_LOG_BUFFER_HEX_LEVEL(TAG, (void*)&query, sizeof(query), ESP_LOG_INFO);
+            int flushed = i2c_slave_read_buffer(I2C_NUM_0, (void*)&query, sizeof(query), 0);
+            ESP_LOGI(TAG, "Flushed %d bytes", flushed);
+            ESP_ERROR_CHECK_WITHOUT_ABORT(i2c_reset_tx_fifo(I2C_NUM_0));
+            continue;
         }
-        get_obstacle_clusters(response.obstacle_clusters);
 
+        pose_t guess_pose, refined_pose;
+        guess_pose.x = query.guess_pose_x_mm;
+        guess_pose.y = query.guess_pose_y_mm;
+        // Note the minus sign, due to difference in sign convention between boards
+        // I am a moron
+        guess_pose.theta = -(float)query.guess_pose_theta_mrad / 1000.0;
+        ESP_LOGW(TAG, "Estimated pose from main board: %f %f %f", guess_pose.x, guess_pose.y, guess_pose.theta);
+        update_estimated_input_pose(&guess_pose);
+
+        response.has_refined = get_refined_output_pose(&refined_pose);
+        if (response.has_refined) {
+            response.refined_pose_x_mm = refined_pose.x;
+            response.refined_pose_y_mm = refined_pose.y;
+            response.refined_pose_theta_mrad = -refined_pose.theta * 1000.0;
+        }
+        float obstacle_clusters[NUMBER_OF_CLUSTER_ANGLES];
+        get_obstacle_clusters(obstacle_clusters);
+        for (int i = 0; i < NUMBER_OF_CLUSTER_ANGLES; ++i) {
+            if (isnanf(obstacle_clusters[i]) || isinff(obstacle_clusters[i])) {
+                response.obstacle_clusters[i] = 0xFF;
+            } else {
+                response.obstacle_clusters[i] = (uint8_t)floorf(obstacle_clusters[i] / 10.0);
+            }
+        }
+        
+        response.checksum = compute_checksum((uint8_t*)&response, sizeof(response));
+
+        // Flush RX buffer
+        i2c_slave_read_buffer(I2C_NUM_0, (void*)&query, sizeof(query), 0);
         ESP_ERROR_CHECK_WITHOUT_ABORT(i2c_reset_tx_fifo(I2C_NUM_0));
-        i2c_slave_write_buffer(I2C_NUM_0, (const void*)&response, sizeof(struct i2c_response_t), 0);
+        int written = 0;
+        do {
+            written += i2c_slave_write_buffer(I2C_NUM_0, (const void*)&response + written, sizeof(response) - written, I2C_TIMEOUT);
+        } while (written < sizeof(response));
     }
+}
+
+static uint8_t compute_checksum(uint8_t *payload, size_t length)
+{
+    uint8_t result = 0x00;
+    for (size_t i = 0; i < length - 1; ++i) {
+        result ^= payload[i];
+    }
+    return result;
 }

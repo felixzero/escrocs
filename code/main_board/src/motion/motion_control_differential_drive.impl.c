@@ -76,7 +76,7 @@ void motion_control_on_tuning_updated(void *motion_data, motion_control_tuning_t
     data->tuning = tuning;
 }
 
-void motion_control_on_pose_update(
+void motion_control_update_pose(
     void *motion_data,
     pose_t *current_pose,
     const encoder_measurement_t *previous_encoder,

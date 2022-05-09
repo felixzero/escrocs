@@ -3,6 +3,7 @@
 
 #include "motion/motor_board.h"
 #include "system/task_priority.h"
+#include "peripherals/lidar_board.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -71,7 +72,11 @@ void set_motion_control_tuning(const motion_control_tuning_t *tuning)
 static void motion_control_task(void *parameters)
 {
     TickType_t iteration_time = xTaskGetTickCount();
-    pose_t current_pose;
+    pose_t current_pose = {
+            .x = 470.0,
+            .y = -1000.0,
+            .theta = 0.0
+        };
     motion_status_t motion_target = {
         .motion_step = MOTION_STEP_DONE
     };
@@ -86,6 +91,7 @@ static void motion_control_task(void *parameters)
 
     read_encoders(&previous_encoder);
     motion_control_on_init(&motion_data, &tuning);
+    int iteration = 0;
     while (true) {
         vTaskDelayUntil(&iteration_time, MOTION_PERIOD_MS / portTICK_PERIOD_MS);
 
@@ -100,8 +106,17 @@ static void motion_control_task(void *parameters)
         // Update pose according to encoders
         encoder_measurement_t encoder;
         read_encoders(&encoder);
-        motion_control_on_pose_update(motion_data, &current_pose, &previous_encoder, &encoder);
+        motion_control_update_pose(motion_data, &current_pose, &previous_encoder, &encoder);
         previous_encoder = encoder;
+
+        // Retrieve absolute pose from lidar
+        if (iteration % (LIDAR_PERIOD_MS / MOTION_PERIOD_MS) == 0) {
+            pose_t lidar_pose;
+            refine_pose(&current_pose, &lidar_pose);
+            current_pose.x = tuning.lidar_filter * lidar_pose.x + (1.0 - tuning.lidar_filter) * current_pose.x;
+            current_pose.y = tuning.lidar_filter * lidar_pose.y + (1.0 - tuning.lidar_filter) * current_pose.y;
+            current_pose.theta = tuning.lidar_filter * lidar_pose.theta + (1.0 - tuning.lidar_filter) * current_pose.theta;
+        }
 
         // Calculate new motor targets
         if (motion_target.motion_step == MOTION_STEP_DONE) {
@@ -115,5 +130,7 @@ static void motion_control_task(void *parameters)
         status.pose = current_pose;
         status.motion_step = motion_target.motion_step;
         xQueueOverwrite(output_status_queue, &status);
+
+        iteration++;
     }
 }

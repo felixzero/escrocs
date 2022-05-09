@@ -2,9 +2,10 @@
 
 // X-Macro definition of motion control fields
 #define MOTION_CONTROL_TUNING_FIELDS \
-    X(max_speed, 0.5) \
-    X(min_guaranteed_motion_rotation, 0.25) \
-    X(min_guaranteed_motion_translation, 0.25) \
+    X(lidar_filter, 0.1) \
+    X(max_speed, 0.9) \
+    X(min_guaranteed_motion_rotation, 0.4) \
+    X(min_guaranteed_motion_translation, 0.4) \
     X(slow_approach_angle, 20.0) \
     X(slow_approach_position, 200.0) \
     X(allowed_angle_error, 0.2) \
