@@ -34,19 +34,20 @@ void init_steppers(void)
     // Configure all prescalers to /1024
     // Yielding 8 kHz PWM output (in phase correct mode)
     TCCR0B = _BV(CS02) | _BV(CS00) | _BV(WGM02);
-    TCCR1B = _BV(CS12) | _BV(CS10) | _BV(WGM12);
-    TCCR2B = _BV(CS22) | _BV(CS20) | _BV(WGM22); 
+    TCCR1B = _BV(CS12) | _BV(CS10) | _BV(WGM13);
+    TCCR2B = _BV(CS22) | _BV(CS21) | _BV(CS20) | _BV(WGM22); 
 
     // Set all channels in phase correct PWM to OCRxA and activate PWM on port B
     // This yields to half-frequency impulses at a frequency set by OCRxA
     TCCR0A = _BV(COM0B1) | _BV(WGM00);
-    TCCR1A = _BV(COM1B1) | _BV(WGM10);
+    TCCR1A = _BV(COM1B1) | _BV(WGM11) | _BV(WGM10);
     TCCR2A = _BV(COM2B1) | _BV(WGM20);
 
     // Set pulse period to a slow value by default (OCRxA = 255)
     // And disable the pulse completly (OCRxB = 0)
-    OCR0A = OCR1A = OCR2A = 255;
+    OCR0A = OCR1AL = OCR2A = 255;
     OCR0B = OCR1BL = OCR2B = 0;
+    OCR1AH = OCR1BH = 0;
 
     // Enable overflow interrupts on all timers
     cli();
