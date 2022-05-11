@@ -3,6 +3,7 @@
 #include "wireless/wifi.h"
 #include "wireless/httpd.h"
 #include "peripherals/stepper_board.h"
+#include "peripherals/gpio.h"
 #include "motion/motion_control.h"
 #include "actions/strategy.h"
 #include "motion/motor_board.h"
@@ -21,6 +22,7 @@ void app_main() {
     init_http_server();
     vTaskDelay(200);
     init_stepper_board();
+    init_gpio();
     init_motion_control();
     init_lua_executor();
 

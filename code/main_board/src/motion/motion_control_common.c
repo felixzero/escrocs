@@ -13,7 +13,7 @@
 
 #define TAG "Motion control"
 
-static QueueHandle_t input_target_queue, output_status_queue, tuning_queue;
+static QueueHandle_t input_target_queue, overwrite_pose_queue, output_status_queue, tuning_queue;
 
 static void motion_control_task(void *parameters);
 
@@ -24,6 +24,7 @@ void init_motion_control(void)
     // Create FreeRTOS task
     TaskHandle_t task;
     input_target_queue = xQueueCreate(1, sizeof(motion_status_t));
+    overwrite_pose_queue = xQueueCreate(1, sizeof(pose_t));
     output_status_queue = xQueueCreate(1, sizeof(motion_status_t));
     tuning_queue = xQueueCreate(1, sizeof(motion_control_tuning_t));
     xTaskCreate(motion_control_task, "motion_control", TASK_STACK_SIZE, NULL, MOTION_CONTROL_PRIORITY, &task);
@@ -45,6 +46,11 @@ void set_motion_target(const pose_t *target)
     // Send request to task
     ESP_LOGI(TAG, "Setting target to: %f %f %f", target->x, target->y, target->theta);
     xQueueOverwrite(input_target_queue, &motion_target);
+}
+
+void overwrite_current_pose(const pose_t *target)
+{
+    xQueueOverwrite(overwrite_pose_queue, target);
 }
 
 void stop_motion(void)
@@ -96,6 +102,7 @@ static void motion_control_task(void *parameters)
         vTaskDelayUntil(&iteration_time, MOTION_PERIOD_MS / portTICK_PERIOD_MS);
 
         // Retrieve latest parameters
+        xQueueReceive(overwrite_pose_queue, &current_pose, 0);
         if (xQueueReceive(input_target_queue, &motion_target, 0)) {
             motion_control_on_new_target_received(motion_data, &current_pose);
         }

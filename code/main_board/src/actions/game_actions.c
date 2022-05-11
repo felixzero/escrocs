@@ -2,6 +2,7 @@
 
 #include "motion/motion_control.h"
 #include "peripherals/stepper_board.h"
+#include "peripherals/gpio.h"
 
 struct GAME_ACTION_OUTPUT_STRUCT_NAME(set_pose) game_action_set_pose(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(set_pose) args)
 {
@@ -21,6 +22,17 @@ struct GAME_ACTION_OUTPUT_STRUCT_NAME(get_pose) game_action_get_pose(struct GAME
     result.x = current_pose.x;
     result.y = current_pose.y;
     result.theta = current_pose.theta;
+    return result;
+}
+
+struct GAME_ACTION_OUTPUT_STRUCT_NAME(overwrite_pose) game_action_overwrite_pose(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(overwrite_pose) args)
+{
+    pose_t target;
+    target.x = args.x;
+    target.y = args.y;
+    target.theta = args.theta;
+    overwrite_current_pose(&target);
+    struct GAME_ACTION_OUTPUT_STRUCT_NAME(overwrite_pose) result;
     return result;
 }
 
@@ -49,5 +61,12 @@ struct GAME_ACTION_OUTPUT_STRUCT_NAME(reset_stepper) game_action_reset_stepper(s
 {
     define_stepper_board_motor_home(args.channel, args.value);
     struct GAME_ACTION_OUTPUT_STRUCT_NAME(reset_stepper) result;
+    return result;
+}
+
+struct GAME_ACTION_OUTPUT_STRUCT_NAME(get_button) game_action_get_button(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(get_button) args)
+{
+    struct GAME_ACTION_OUTPUT_STRUCT_NAME(get_button) result;
+    result.status = read_switch(args.channel);
     return result;
 }

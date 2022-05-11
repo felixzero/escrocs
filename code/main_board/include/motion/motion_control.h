@@ -42,6 +42,12 @@ void set_motion_target(const pose_t *target);
 pose_t get_current_pose(void);
 
 /**
+ * Declare current pose as equal to a known value
+ * Used to (re-)initialize the motion control system
+ */
+void overwrite_current_pose(const pose_t *target);
+
+/**
  * Stop all motion
  */
 void stop_motion(void);
