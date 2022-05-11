@@ -4,6 +4,7 @@
 #include <esp_log.h>
 #include <esp_http_server.h>
 #include <cJSON.h>
+#include <math.h>
 
 #define TAG "httpd"
 
@@ -42,11 +43,11 @@ OUTPUT \
 
 #define X_FLOAT_ARGS(parameter_name) \
 item = cJSON_GetObjectItem(root, #parameter_name); \
-if (item == NULL || !cJSON_IsNumber(item)) { \
+if (item == NULL || (!cJSON_IsNumber(item) && !cJSON_IsNull(item))) { \
     httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Could not retrieve parameter " #parameter_name "\n"); \
     return ESP_OK; \
 } \
-args.parameter_name = cJSON_GetNumberValue(item);
+args.parameter_name = cJSON_IsNull(item) ? NAN : cJSON_GetNumberValue(item);
 
 #define X_INT_ARGS(parameter_name) \
 item = cJSON_GetObjectItem(root, #parameter_name); \

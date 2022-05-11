@@ -73,8 +73,8 @@ static void motion_control_task(void *parameters)
 {
     TickType_t iteration_time = xTaskGetTickCount();
     pose_t current_pose = {
-            .x = 470.0,
-            .y = -1000.0,
+            .x = 0.0,
+            .y = 0.0,
             .theta = 0.0
         };
     motion_status_t motion_target = {
@@ -108,6 +108,7 @@ static void motion_control_task(void *parameters)
         read_encoders(&encoder);
         motion_control_update_pose(motion_data, &current_pose, &previous_encoder, &encoder);
         previous_encoder = encoder;
+        ESP_LOGD(TAG, "Pose: %f %f %f", current_pose.x, current_pose.y, current_pose.theta);
 
         // Retrieve absolute pose from lidar
         if (iteration % (LIDAR_PERIOD_MS / MOTION_PERIOD_MS) == 0) {
