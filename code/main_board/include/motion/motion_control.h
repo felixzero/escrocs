@@ -17,6 +17,7 @@ typedef struct {
 
 typedef struct {
     pose_t pose;
+    bool perform_detection;
     int motion_step;
 } motion_status_t;
 
@@ -34,7 +35,7 @@ void init_motion_control(void);
 /**
  * Set a (x, y, theta) target in (mm, mm, deg)
  */
-void set_motion_target(const pose_t *target);
+void set_motion_target(const pose_t *target, bool perform_detection);
 
 /**
  * Get current (x, y, theta) pose in (mm, mm, deg)

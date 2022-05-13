@@ -126,9 +126,9 @@ void refine_pose_from_point_cloud(const uint16_t distances[], const uint16_t int
         number_of_identified_beacons++;
     }
 
-    ESP_LOGI(TAG, "Refining pose with %d identified beacons - %d rejects", number_of_identified_beacons, number_of_rejects);
+    ESP_LOGD(TAG, "Refining pose with %d identified beacons - %d rejects", number_of_identified_beacons, number_of_rejects);
     pose_t refined_pose = find_pose_from_beacons(actual_positions, relative_positions, number_of_identified_beacons, estimated_pose);
-    ESP_LOGI(TAG, "Pose refined to %f %f %f", refined_pose.x, refined_pose.y, refined_pose.theta);
+    ESP_LOGD(TAG, "Pose refined to %f %f %f", refined_pose.x, refined_pose.y, refined_pose.theta);
     xQueueOverwrite(output_pose_queue, &refined_pose);
 }
 

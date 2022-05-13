@@ -8,7 +8,6 @@
 #define TAG "Lidar"
 #define LIDAR_I2C_PORT I2C_PORT_MOTOR
 #define LIDAR_I2C_ADDR 0x0D
-#define NUMBER_OF_CLUSTER_ANGLES 8
 #define MAX_VALID_DIMENSION 10000.0
 #define HEADER_VALUE 0xBC
 
@@ -32,7 +31,7 @@ struct i2c_response_t {
 
 static uint8_t compute_checksum(uint8_t *payload, size_t length);
 
-void refine_pose(const pose_t *guess_pose, pose_t *refined_pose)
+void refine_pose(const pose_t *guess_pose, pose_t *refined_pose, float *obstacle_distances_by_angle)
 {
     struct i2c_query_t query;
     struct i2c_response_t response;
@@ -50,6 +49,10 @@ void refine_pose(const pose_t *guess_pose, pose_t *refined_pose)
     if ((compute_checksum((uint8_t*)&response, sizeof(response)) != response.checksum) || (response.header != HEADER_VALUE)) {
         ESP_LOGW(TAG, "Warning: bad checksum on response from lidar board");
         return;
+    }
+
+    for (int i = 0; i < NUMBER_OF_CLUSTER_ANGLES; ++i) {
+        obstacle_distances_by_angle[i] = (float)response.obstacle_clusters[i];
     }
 
     if (response.has_refined) {

@@ -119,6 +119,15 @@ void motion_control_on_motor_loop(void *motion_data, motion_status_t *motion_tar
     ESP_LOGI(TAG, "Wrote motor speed %f %f %f", motor_setpoints[0], motor_setpoints[1], motor_setpoints[2]);
 }
 
+bool motion_control_is_obstacle_near(
+    void *motion_data,
+    motion_status_t *motion_target,
+    const pose_t *current_pose,
+    float *obstacle_distances_by_angle
+) {
+    return false;
+}
+
 static float apply_friction_non_linearity(float setpoint, const motion_control_tuning_t *tuning)
 {
     float clamped = fabsf(setpoint) * (tuning->max_speed - tuning->friction_coefficient) + tuning->friction_coefficient;

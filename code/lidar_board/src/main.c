@@ -25,7 +25,7 @@ void app_main()
     pose_refinement_tuning_t tuning = {
         .reflectivity_threshold = 3500000,
         .max_acceptable_beacon_error = 200.0,
-        .angle_offset = -0.917,
+        .angle_offset = CONFIG_LIDAR_CALIBRATION / 1000.0,
     };
     set_pose_refinement_tuning(&tuning);
 

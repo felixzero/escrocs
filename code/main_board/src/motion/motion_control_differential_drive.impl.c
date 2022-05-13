@@ -223,6 +223,37 @@ static bool handle_translation(void *data, const pose_t *current_pose)
     }
 }
 
+bool motion_control_is_obstacle_near(
+    void *motion_data,
+    motion_status_t *motion_target,
+    const pose_t *current_pose,
+    float *obstacle_distances_by_angle
+) {
+    struct differential_drive_data_t* data = (struct differential_drive_data_t*)motion_data;
+
+    // If not performing a translation, skip obstacle check
+    if ((data->current_state == NULL) || (motion_target->motion_step != MOTION_STEP_TRANSLATION)) {
+        return false;
+    }
+
+    translation_state_t *state = (translation_state_t*)data->current_state;
+
+    float way_to_go = (state->target_x - current_pose->x) * cosf(current_pose->theta)
+        + (state->target_y - current_pose->y) * sinf(current_pose->theta);
+
+    if (way_to_go < 0) {
+        return (
+            (obstacle_distances_by_angle[0] < data->tuning->obstacle_distance_front)
+            || (obstacle_distances_by_angle[7] < data->tuning->obstacle_distance_front)
+        );
+    } else {
+        return (
+            (obstacle_distances_by_angle[3] < data->tuning->obstacle_distance_back)
+            || (obstacle_distances_by_angle[4] < data->tuning->obstacle_distance_back)
+        );
+    }
+}
+
 static float optimal_target_angle(const pose_t *target_pose, const pose_t *current_pose)
 {
     float target_angle = atan2f(

@@ -179,6 +179,8 @@ static void uart_receiver_task(void *parameters)
             refine_pose_from_point_cloud(lidar_data_buffer.distances, lidar_data_buffer.intensities);
             compute_obstacle_clusters(lidar_data_buffer.distances);
             send_to_clients((uint8_t*)&lidar_data_buffer, sizeof(lidar_data_buffer));
+            memset(lidar_data_buffer.distances, 0, 2 * NUMBER_OF_ANGLES);
+            memset(lidar_data_buffer.intensities, 0, 2 * NUMBER_OF_ANGLES);
         }
     }
 }

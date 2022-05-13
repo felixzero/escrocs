@@ -13,6 +13,8 @@
 
 #define TAG "Motion control"
 
+#define OBSTACLE_FRAMES_TO_CLEAR 10
+
 static QueueHandle_t input_target_queue, overwrite_pose_queue, output_status_queue, tuning_queue;
 
 static void motion_control_task(void *parameters);
@@ -37,9 +39,10 @@ pose_t get_current_pose(void)
     return status.pose;
 }
 
-void set_motion_target(const pose_t *target)
+void set_motion_target(const pose_t *target, bool perform_detection)
 {
     motion_status_t motion_target;
+    motion_target.perform_detection = perform_detection;
     pose_t current_pose = get_current_pose();
     motion_control_on_motion_target_set(&motion_target, target, &current_pose);
 
@@ -98,6 +101,8 @@ static void motion_control_task(void *parameters)
     read_encoders(&previous_encoder);
     motion_control_on_init(&motion_data, &tuning);
     int iteration = 0;
+    unsigned int obstacle_frames = 0;
+
     while (true) {
         vTaskDelayUntil(&iteration_time, MOTION_PERIOD_MS / portTICK_PERIOD_MS);
 
@@ -120,14 +125,26 @@ static void motion_control_task(void *parameters)
         // Retrieve absolute pose from lidar
         if (iteration % (LIDAR_PERIOD_MS / MOTION_PERIOD_MS) == 0) {
             pose_t lidar_pose;
-            refine_pose(&current_pose, &lidar_pose);
+            float obstacle_distances_by_angle[NUMBER_OF_CLUSTER_ANGLES];
+            refine_pose(&current_pose, &lidar_pose, obstacle_distances_by_angle);
+
             current_pose.x = tuning.lidar_filter * lidar_pose.x + (1.0 - tuning.lidar_filter) * current_pose.x;
             current_pose.y = tuning.lidar_filter * lidar_pose.y + (1.0 - tuning.lidar_filter) * current_pose.y;
             current_pose.theta = tuning.lidar_filter * lidar_pose.theta + (1.0 - tuning.lidar_filter) * current_pose.theta;
+
+            if (
+                motion_target.perform_detection
+                && motion_control_is_obstacle_near(motion_data, &motion_target, &current_pose, obstacle_distances_by_angle)
+            ) {
+                obstacle_frames = OBSTACLE_FRAMES_TO_CLEAR;
+                ESP_LOGW(TAG, "Warning: obstacle found");
+            } else if (obstacle_frames > 0) {
+                obstacle_frames--;
+            }
         }
 
         // Calculate new motor targets
-        if (motion_target.motion_step == MOTION_STEP_DONE) {
+        if ((motion_target.motion_step == MOTION_STEP_DONE) || (obstacle_frames > 0)) {
             write_motor_speed(0.0, 0.0, 0.0);
         } else {
             motion_control_on_motor_loop(motion_data, &motion_target, &current_pose);

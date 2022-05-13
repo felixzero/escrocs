@@ -5,7 +5,8 @@
 #define SET_POSE_ARGUMENTS \
     X_FLOAT_ARGS(x) \
     X_FLOAT_ARGS(y) \
-    X_FLOAT_ARGS(theta)
+    X_FLOAT_ARGS(theta) \
+    X_BOOL_ARGS(perform_detection)
 #define SET_POSE_OUTPUT // nothing
 #define GET_POSE_ARGUMENTS // nothing
 #define GET_POSE_OUTPUT \
@@ -19,6 +20,9 @@
 #define OVERWRITE_POSE_OUTPUT // nothing
 #define STOP_MOTION_ARGUMENTS // nothing
 #define STOP_MOTION_OUTPUT // nothing
+#define IS_MOTION_DONE_ARGUMENTS // nothing
+#define IS_MOTION_DONE_OUTPUT \
+    X_BOOL_OUTPUT(motion_done)
 #define SET_PUMP_ARGUMENTS \
     X_INT_ARGS(channel) \
     X_BOOL_ARGS(value)
@@ -42,6 +46,7 @@
     X(get_pose, game_action_get_pose, GET_POSE_ARGUMENTS, GET_POSE_OUTPUT) \
     X(overwrite_pose, game_action_overwrite_pose, OVERWRITE_POSE_ARGUMENTS, OVERWRITE_POSE_OUTPUT) \
     X(stop_motion, game_action_stop_motion, STOP_MOTION_ARGUMENTS, STOP_MOTION_OUTPUT) \
+    X(is_motion_done, game_action_is_motion_done, IS_MOTION_DONE_ARGUMENTS, IS_MOTION_DONE_OUTPUT) \
     X(set_pump, game_action_set_pump, SET_PUMP_ARGUMENTS, SET_PUMP_OUTPUT) \
     X(move_stepper, game_action_move_stepper, MOVE_STEPPER_ARGUMENTS, MOVE_STEPPER_OUTPUT) \
     X(reset_stepper, game_action_reset_stepper, RESET_STEPPER_ARGUMENTS, RESET_STEPPER_OUTPUT) \

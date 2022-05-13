@@ -93,7 +93,7 @@ static void i2c_slave_task(void *parameters)
         // Note the minus sign, due to difference in sign convention between boards
         // I am a moron
         guess_pose.theta = -(float)query.guess_pose_theta_mrad / 1000.0;
-        ESP_LOGW(TAG, "Estimated pose from main board: %f %f %f", guess_pose.x, guess_pose.y, guess_pose.theta);
+        ESP_LOGD(TAG, "Estimated pose from main board: %f %f %f", guess_pose.x, guess_pose.y, guess_pose.theta);
         update_estimated_input_pose(&guess_pose);
 
         response.has_refined = get_refined_output_pose(&refined_pose);

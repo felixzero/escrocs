@@ -10,7 +10,7 @@ struct GAME_ACTION_OUTPUT_STRUCT_NAME(set_pose) game_action_set_pose(struct GAME
     target.x = args.x;
     target.y = args.y;
     target.theta = args.theta;
-    set_motion_target(&target);
+    set_motion_target(&target, args.perform_detection);
     struct GAME_ACTION_OUTPUT_STRUCT_NAME(set_pose) result;
     return result;
 }
@@ -40,6 +40,13 @@ struct GAME_ACTION_OUTPUT_STRUCT_NAME(stop_motion) game_action_stop_motion(struc
 {
     stop_motion();
     struct GAME_ACTION_OUTPUT_STRUCT_NAME(stop_motion) result;
+    return result;
+}
+
+struct GAME_ACTION_OUTPUT_STRUCT_NAME(is_motion_done) game_action_is_motion_done(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(is_motion_done) args)
+{
+    struct GAME_ACTION_OUTPUT_STRUCT_NAME(is_motion_done) result;
+    result.motion_done = is_motion_done();
     return result;
 }
 
