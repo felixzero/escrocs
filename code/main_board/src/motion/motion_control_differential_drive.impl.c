@@ -241,7 +241,7 @@ bool motion_control_is_obstacle_near(
     float way_to_go = (state->target_x - current_pose->x) * cosf(current_pose->theta)
         + (state->target_y - current_pose->y) * sinf(current_pose->theta);
 
-    if (way_to_go > 0) {
+    if (way_to_go < 0) {
         return (
             (obstacle_distances_by_angle[0] < data->tuning->obstacle_distance_front)
             || (obstacle_distances_by_angle[7] < data->tuning->obstacle_distance_front)

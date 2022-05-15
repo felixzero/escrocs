@@ -5,9 +5,9 @@
     X(lidar_filter, 0.1) \
     X(obstacle_distance_front, 50.0) \
     X(obstacle_distance_back, 30.0) \
-    X(max_speed, 0.5) \
-    X(min_guaranteed_motion_rotation, 0.25) \
-    X(min_guaranteed_motion_translation, 0.25) \
+    X(max_speed, 0.8) \
+    X(min_guaranteed_motion_rotation, 0.45) \
+    X(min_guaranteed_motion_translation, 0.45) \
     X(slow_approach_angle, 0.15) \
     X(slow_approach_position, 100.0) \
     X(allowed_angle_error, 0.01) \

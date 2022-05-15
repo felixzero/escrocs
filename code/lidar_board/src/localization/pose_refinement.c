@@ -126,7 +126,7 @@ void refine_pose_from_point_cloud(const uint16_t distances[], const uint16_t int
         number_of_identified_beacons++;
     }
 
-    ESP_LOGD(TAG, "Refining pose with %d identified beacons - %d rejects", number_of_identified_beacons, number_of_rejects);
+    ESP_LOGI(TAG, "Refining pose with %d identified beacons - %d rejects", number_of_identified_beacons, number_of_rejects);
     pose_t refined_pose = find_pose_from_beacons(actual_positions, relative_positions, number_of_identified_beacons, estimated_pose);
     ESP_LOGD(TAG, "Pose refined to %f %f %f", refined_pose.x, refined_pose.y, refined_pose.theta);
     xQueueOverwrite(output_pose_queue, &refined_pose);
@@ -162,8 +162,12 @@ void compute_obstacle_clusters(const uint16_t point_cloud[])
         float angle = INDEX_TO_ANGLE(i, tuning.angle_offset);
 
         int angle_index = floorf(fmodf(angle / 2.0 / M_PI * NUMBER_OF_CLUSTER_ANGLES, NUMBER_OF_CLUSTER_ANGLES));
+        angle_index = (angle_index + NUMBER_OF_CLUSTER_ANGLES) % NUMBER_OF_CLUSTER_ANGLES;
         if (point_cloud[i] > MINIMUM_OBSTACLE_DISTANCE) {
-            distances_by_angle[angle_index] = fminf(point_cloud[i], distances_by_angle[angle_index]);
+            distances_by_angle[angle_index] = fminf(
+                point_cloud[i],
+                distances_by_angle[angle_index]
+            );
         }
     }
 

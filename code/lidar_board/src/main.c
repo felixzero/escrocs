@@ -18,9 +18,9 @@ void app_main()
     init_pose_refinement();
     init_i2c_slave();
 
-    set_beacon_position(0, 0.0, 0.0);
-    set_beacon_position(1, 1200.0, 0.0);
-    set_beacon_position(2, 0.0, -1000.0);
+    set_beacon_position(0, 0.0, 1000.0);
+    set_beacon_position(1, 3000.0, 50.0);
+    set_beacon_position(2, 3000.0, 1950.0);
 
     pose_refinement_tuning_t tuning = {
         .reflectivity_threshold = 3500000,
