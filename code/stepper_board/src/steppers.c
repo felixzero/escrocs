@@ -25,6 +25,12 @@ void init_steppers(void)
     DDRB |= _BV(2);
     DDRD |= _BV(3) | _BV(5);
 
+    // Configure RESET pin as output, low by default
+    DDRC |= _BV(6);
+    PORTC &= ~(_BV(6));
+    DDRD |= _BV(2);
+    PORTD |= _BV(2);
+
     // Configure data direction pins as output
     // And set CW by default
     DDRC |= _BV(0) | _BV(1) | _BV(2);
@@ -66,10 +72,6 @@ void init_steppers(void)
     cli();
     PCICR |= _BV(PCIE0);
     sei();
-
-    move_stepper(0, 0, 1);
-    move_stepper(1, 0, 1);
-    move_stepper(2, 0, 1);
 }
 
 int16_t stepper_position(uint8_t channel)
@@ -109,11 +111,25 @@ void move_stepper(uint8_t channel, int16_t position, uint8_t pulse_period)
 
     // Enable motion
     *(ocrxb_registers[channel]) = 1;
+    PORTC |= _BV(6);
+    PORTD |= _BV(2);
 }
 
 void stop_motion(uint8_t channel)
 {
     *(ocrxb_registers[channel]) = 0;
+
+    bool should_reset = true;
+    for (uint8_t i = 0; i < NUMBER_OF_CHANNELS; ++i) {
+        if (*(ocrxb_registers[i]) == 1) {
+            should_reset = false;
+        }
+    }
+
+    if (should_reset) {
+        PORTC &= ~(_BV(6));
+        PORTD &= ~(_BV(2));
+    }
 }
 
 bool is_stepper_in_motion(uint8_t channel)
@@ -154,6 +170,6 @@ static inline void timer_overflow_interrupt(uint8_t channel) {
 
     // Stop motion if at target
     if (stepper_positions[channel] == stepper_targets[channel]) {
-        *(ocrxb_registers[channel]) = 0;
+        stop_motion(channel);
     }
 }

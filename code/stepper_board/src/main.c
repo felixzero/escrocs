@@ -12,8 +12,6 @@ int main()
     init_pumps();
     init_steppers();
 
-    DDRD |= _BV(2);
-
     while (true) {
         poll_i2c_operations();
     }
