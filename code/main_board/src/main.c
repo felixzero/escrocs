@@ -23,7 +23,7 @@ void app_main() {
     vTaskDelay(200);
     init_stepper_board();
     init_gpio();
-    init_motion_control();
+    init_motion_control(read_switch(GPIO_CHANNEL_SIDE));
     init_lua_executor();
 
     while(1) {

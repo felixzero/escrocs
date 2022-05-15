@@ -4,12 +4,13 @@
 #define MOTION_CONTROL_TUNING_FIELDS \
     X(lidar_filter, 0.1) \
     X(obstacle_distance, 60.0) \
-    X(wheel_radius, 28.5) \
-    X(robot_radius, 122.26) \
-    X(max_speed, 1.0) \
-    X(friction_coefficient, 0.25) \
+    X(wheel_radius, 32.5) \
+    X(robot_radius, 135.0) \
+    X(max_speed, 0.6) \
+    X(friction_coefficient, 0.10) \
     X(acceleration, 1.0) \
-    X(braking_distance, 300.0)
+    X(braking_distance, 50.0) \
+    X(minimum_guaranteed_motion, 0.3)
 
 /**
  * Tuning parameters of the motor feedback control

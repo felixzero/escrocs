@@ -30,7 +30,7 @@ typedef struct {
 /**
  * Init motion control subsystem
  */
-void init_motion_control(void);
+void init_motion_control(bool reversed_side);
 
 /**
  * Set a (x, y, theta) target in (mm, mm, deg)

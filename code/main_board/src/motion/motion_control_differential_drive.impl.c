@@ -89,8 +89,8 @@ void motion_control_update_pose(
     float inc1 = (current_encoder->channel1 - previous_encoder->channel1) * data->tuning->wheel_diameter / 360.0 * M_PI;
     float inc2 = (current_encoder->channel2 - previous_encoder->channel2) * data->tuning->wheel_diameter / 360.0 * M_PI;
 
-    current_pose->x += (inc2 - inc1) * cosf(current_pose->theta) / 2.0;
-    current_pose->y += (inc2 - inc1) * sinf(current_pose->theta) / 2.0;
+    current_pose->x += (inc1 - inc2) * cosf(current_pose->theta) / 2.0;
+    current_pose->y += (inc1 - inc2) * sinf(current_pose->theta) / 2.0;
     current_pose->theta -= (inc2 + inc1) / data->tuning->axle_width;
 }
 
@@ -167,8 +167,8 @@ static bool handle_rotation(void *data, const pose_t *current_pose)
         return true;
     } else {
         write_motor_speed(
-            (-rotation_speed - position_error_correction) * (1.0 + tuning->left_right_balance),
             (-rotation_speed + position_error_correction) * (1.0 - tuning->left_right_balance),
+            (-rotation_speed - position_error_correction) * (1.0 + tuning->left_right_balance),
             0.0
         );
         return false;
@@ -215,8 +215,8 @@ static bool handle_translation(void *data, const pose_t *current_pose)
         return true;
     } else {
         write_motor_speed(
-            (-translation_speed - angle_correction * absolute_speed) * (1.0 + tuning->left_right_balance),
             (translation_speed - angle_correction * absolute_speed) * (1.0 - tuning->left_right_balance),
+            (-translation_speed - angle_correction * absolute_speed) * (1.0 + tuning->left_right_balance),
             0.0
         );
         return false;
@@ -241,7 +241,7 @@ bool motion_control_is_obstacle_near(
     float way_to_go = (state->target_x - current_pose->x) * cosf(current_pose->theta)
         + (state->target_y - current_pose->y) * sinf(current_pose->theta);
 
-    if (way_to_go < 0) {
+    if (way_to_go > 0) {
         return (
             (obstacle_distances_by_angle[0] < data->tuning->obstacle_distance_front)
             || (obstacle_distances_by_angle[7] < data->tuning->obstacle_distance_front)

@@ -13,11 +13,11 @@
     X(allowed_angle_error, 0.01) \
     X(allowed_position_error, 10.0) \
     X(position_feedback_p, 0.001) \
-    X(angle_feedback_p, 1.0) \
+    X(angle_feedback_p, 2.0) \
     X(wheel_diameter, 115.3) \
     X(axle_width, 287.0) \
     X(acceleration, 0.4) \
-    X(left_right_balance, 0.12)
+    X(left_right_balance, -0.08)
 
 
 /**
