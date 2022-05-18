@@ -51,7 +51,7 @@ void register_lua_action_functions(lua_State *L)
 {
 #define X(action_name, function, ARGUMENTS, OUTPUT) \
     lua_pushcfunction(L, game_action_ ## action_name ## _lua); \
-    lua_setglobal(L, "action_name");
+    lua_setglobal(L, #action_name);
 DEFINE_GAME_ACTION_FUNCTIONS
 #undef X
 }

@@ -4,6 +4,7 @@
 #include "wireless/httpd.h"
 #include "peripherals/stepper_board.h"
 #include "peripherals/gpio.h"
+#include "peripherals/peripherals.h"
 #include "motion/motion_control.h"
 #include "actions/strategy.h"
 #include "motion/motor_board.h"
@@ -23,7 +24,15 @@ void app_main() {
     vTaskDelay(200);
     init_stepper_board();
     init_gpio();
-    init_motion_control(read_switch(GPIO_CHANNEL_SIDE));
+
+#ifdef CONFIG_ESP_ROBOT_HOLONOMIC
+    init_peripherals();
+    set_peripherals_servo_channel(0, 8000);
+    set_peripherals_servo_channel(1, 8000);
+    set_peripherals_servo_channel(2, 8000);
+#endif
+
+    init_motion_control(false);
     init_lua_executor();
 
     while(1) {

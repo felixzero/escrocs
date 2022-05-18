@@ -45,7 +45,9 @@ static void lua_executor_task(void *parameters)
         luaL_openlibs(L);
         luaL_loadfile(L, filename);
         register_lua_action_functions(L);
-        lua_pcall(L, 0, LUA_MULTRET, 0);
+        if (lua_pcall(L, 0, LUA_MULTRET, 0) != LUA_OK) {
+            ESP_LOGE(TAG, "Lua error: %s", lua_tostring(L, -1));
+        }
 
         free(filename);
     }
@@ -53,7 +55,7 @@ static void lua_executor_task(void *parameters)
 
 esp_err_t get_strategy_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG, "Received GET /strategy request; uploading strategy");
+    ESP_LOGI(TAG, "Received GET /strategy request");
     httpd_resp_set_type(req, "application/octet-stream");
 
     char strategy_name[MAX_STRATEGY_NAME_LENGTH];

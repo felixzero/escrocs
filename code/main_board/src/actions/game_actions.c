@@ -3,6 +3,10 @@
 #include "motion/motion_control.h"
 #include "peripherals/stepper_board.h"
 #include "peripherals/gpio.h"
+#include "peripherals/peripherals.h"
+
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 
 struct GAME_ACTION_OUTPUT_STRUCT_NAME(set_pose) game_action_set_pose(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(set_pose) args)
 {
@@ -64,6 +68,13 @@ struct GAME_ACTION_OUTPUT_STRUCT_NAME(move_stepper) game_action_move_stepper(str
     return result;
 }
 
+struct GAME_ACTION_OUTPUT_STRUCT_NAME(move_servo) game_action_move_servo(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(move_servo) args)
+{
+    set_peripherals_servo_channel(args.channel, args.value);
+    struct GAME_ACTION_OUTPUT_STRUCT_NAME(move_servo) result;
+    return result;
+}
+
 struct GAME_ACTION_OUTPUT_STRUCT_NAME(reset_stepper) game_action_reset_stepper(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(reset_stepper) args)
 {
     define_stepper_board_motor_home(args.channel, args.value);
@@ -75,5 +86,12 @@ struct GAME_ACTION_OUTPUT_STRUCT_NAME(get_button) game_action_get_button(struct 
 {
     struct GAME_ACTION_OUTPUT_STRUCT_NAME(get_button) result;
     result.status = read_switch(args.channel);
+    return result;
+}
+
+struct GAME_ACTION_OUTPUT_STRUCT_NAME(sleep) game_action_sleep(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(sleep) args)
+{
+    vTaskDelay((int)(args.delay * 100));
+    struct GAME_ACTION_OUTPUT_STRUCT_NAME(sleep) result;
     return result;
 }
