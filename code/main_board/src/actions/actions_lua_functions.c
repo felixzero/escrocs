@@ -1,14 +1,30 @@
 #include "actions/game_actions.h"
 #include "actions/actions_lua_functions.h"
 
+#include <freertos/FreeRTOS.h>
+#include <freertos/queue.h>
+
+static QueueHandle_t enable_status_queue;
+
+void init_lua_action_functions(void)
+{
+    enable_status_queue = xQueueCreate(1, sizeof(bool));
+    set_lua_action_function_enable_status(true);
+}
+
 #define X(action_name, function, ARGUMENTS, OUTPUT) \
 static int game_action_ ## action_name ## _lua(lua_State *L) \
 { \
+    bool action_enabled = true; \
+    xQueuePeek(enable_status_queue, &action_enabled, 0); \
     int arg_id = 1; \
     (void)arg_id; \
     struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(action_name) args; \
 ARGUMENTS \
-    struct GAME_ACTION_OUTPUT_STRUCT_NAME(action_name) output = game_action_ ## action_name(args); \
+    struct GAME_ACTION_OUTPUT_STRUCT_NAME(action_name) output; \
+    if (action_enabled) { \
+        output = game_action_ ## action_name(args); \
+    } \
     (void)output; \
     int number_of_return_values = 0; \
 OUTPUT \
@@ -56,3 +72,7 @@ DEFINE_GAME_ACTION_FUNCTIONS
 #undef X
 }
 
+void set_lua_action_function_enable_status(bool enabled)
+{
+    xQueueOverwrite(enable_status_queue, &enabled);
+}

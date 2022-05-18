@@ -53,7 +53,8 @@
         "stdexcept": "c",
         "streambuf": "c",
         "spiffs.h": "c",
-        "lidar_board.h": "c"
+        "lidar_board.h": "c",
+        "gpio.h": "c"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }
