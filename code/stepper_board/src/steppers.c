@@ -11,7 +11,6 @@
 static volatile int16_t stepper_positions[NUMBER_OF_CHANNELS] = { 0 };
 static int16_t stepper_targets[NUMBER_OF_CHANNELS] = { 0 };
 static uint8_t stepper_target_pulse_periods[NUMBER_OF_CHANNELS] = { 0 };
-static uint8_t stepper_target_acceleration_periods[NUMBER_OF_CHANNELS] = { 0 };
 static uint8_t stepper_target_initial_positions[NUMBER_OF_CHANNELS] = { 0 };
 
 static volatile uint8_t *ocrxa_registers[] = { &OCR0A, &OCR1AL, &OCR2A };
@@ -26,6 +25,12 @@ void init_steppers(void)
     DDRB |= _BV(2);
     DDRD |= _BV(3) | _BV(5);
 
+    // Configure RESET pin as output, low by default
+    DDRC |= _BV(6);
+    PORTC &= ~(_BV(6));
+    DDRD |= _BV(2);
+    PORTD |= _BV(2);
+
     // Configure data direction pins as output
     // And set CW by default
     DDRC |= _BV(0) | _BV(1) | _BV(2);
@@ -34,19 +39,20 @@ void init_steppers(void)
     // Configure all prescalers to /1024
     // Yielding 8 kHz PWM output (in phase correct mode)
     TCCR0B = _BV(CS02) | _BV(CS00) | _BV(WGM02);
-    TCCR1B = _BV(CS12) | _BV(CS10) | _BV(WGM12);
-    TCCR2B = _BV(CS22) | _BV(CS20) | _BV(WGM22); 
+    TCCR1B = _BV(CS12) | _BV(CS10) | _BV(WGM13);
+    TCCR2B = _BV(CS22) | _BV(CS21) | _BV(CS20) | _BV(WGM22); 
 
     // Set all channels in phase correct PWM to OCRxA and activate PWM on port B
     // This yields to half-frequency impulses at a frequency set by OCRxA
     TCCR0A = _BV(COM0B1) | _BV(WGM00);
-    TCCR1A = _BV(COM1B1) | _BV(WGM10);
+    TCCR1A = _BV(COM1B1) | _BV(WGM11) | _BV(WGM10);
     TCCR2A = _BV(COM2B1) | _BV(WGM20);
 
     // Set pulse period to a slow value by default (OCRxA = 255)
     // And disable the pulse completly (OCRxB = 0)
-    OCR0A = OCR1A = OCR2A = 255;
+    OCR0A = OCR1AL = OCR2A = 255;
     OCR0B = OCR1BL = OCR2B = 0;
+    OCR1AH = OCR1BH = 0;
 
     // Enable overflow interrupts on all timers
     cli();
@@ -84,7 +90,7 @@ void overwrite_stepper_position(uint8_t channel, int16_t position)
     stepper_positions[channel] = position;
 }
 
-void move_stepper(uint8_t channel, int16_t position, uint8_t pulse_period, uint8_t acceleration_period)
+void move_stepper(uint8_t channel, int16_t position, uint8_t pulse_period)
 {
     if ((channel > NUMBER_OF_CHANNELS) || position == stepper_positions[channel]) {
         return;
@@ -101,16 +107,29 @@ void move_stepper(uint8_t channel, int16_t position, uint8_t pulse_period, uint8
 
     // Set speed
     stepper_target_pulse_periods[channel] = pulse_period;
-    stepper_target_acceleration_periods[channel] = acceleration_period;
     *(ocrxa_registers[channel]) = 255;
 
     // Enable motion
     *(ocrxb_registers[channel]) = 1;
+    PORTC |= _BV(6);
+    PORTD |= _BV(2);
 }
 
 void stop_motion(uint8_t channel)
 {
     *(ocrxb_registers[channel]) = 0;
+
+    bool should_reset = true;
+    for (uint8_t i = 0; i < NUMBER_OF_CHANNELS; ++i) {
+        if (*(ocrxb_registers[i]) == 1) {
+            should_reset = false;
+        }
+    }
+
+    if (should_reset) {
+        PORTC &= ~(_BV(6));
+        PORTD &= ~(_BV(2));
+    }
 }
 
 bool is_stepper_in_motion(uint8_t channel)
@@ -146,23 +165,11 @@ static inline void timer_overflow_interrupt(uint8_t channel) {
         stepper_positions[channel] += (PORTC & _BV(channel)) ? 1 : -1;
 
         // Set speed for acceleration ramp
-        if (stepper_target_acceleration_periods[channel] == 0) {
-            *(ocrxa_registers[channel]) = stepper_target_pulse_periods[channel];
-        } else {
-            int16_t distance_to_edge = min(
-                abs(stepper_positions[channel] - stepper_targets[channel]),
-                abs(stepper_positions[channel] - stepper_target_initial_positions[channel])
-            );
-            uint16_t speed_factor = 8 * (distance_to_edge + 1) / stepper_target_acceleration_periods[channel];
-            *(ocrxa_registers[channel]) = max(
-                stepper_target_pulse_periods[channel],
-                64 * 255 / speed_factor / speed_factor
-            );
-        }
+        *(ocrxa_registers[channel]) = stepper_target_pulse_periods[channel];
     }
 
     // Stop motion if at target
     if (stepper_positions[channel] == stepper_targets[channel]) {
-        *(ocrxb_registers[channel]) = 0;
+        stop_motion(channel);
     }
 }

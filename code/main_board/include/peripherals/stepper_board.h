@@ -20,9 +20,8 @@ bool get_stepper_board_pump(unsigned int channel);
  * @param channel Stepper motor channel
  * @param target Position to move to
  * @param speed (in range [0, 1])
- * @param acceleration (in range [0, 1])
  */
-void move_stepper_board_motor(unsigned int channel, int target, float speed, float acceleration);
+void move_stepper_board_motor(unsigned int channel, int target, float speed);
 
 /**
  * Define the current position to be the home (0)

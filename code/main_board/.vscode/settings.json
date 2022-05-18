@@ -52,7 +52,8 @@
         "new": "c",
         "stdexcept": "c",
         "streambuf": "c",
-        "spiffs.h": "c"
+        "spiffs.h": "c",
+        "lidar_board.h": "c"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }

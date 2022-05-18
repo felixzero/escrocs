@@ -18,14 +18,14 @@ void app_main()
     init_pose_refinement();
     init_i2c_slave();
 
-    set_beacon_position(0, 0.0, 0.0);
-    set_beacon_position(1, 1200.0, 0.0);
-    set_beacon_position(2, 0.0, -1000.0);
+    set_beacon_position(0, 0.0, 1000.0);
+    set_beacon_position(1, 3000.0, 50.0);
+    set_beacon_position(2, 3000.0, 1950.0);
 
     pose_refinement_tuning_t tuning = {
         .reflectivity_threshold = 3500000,
         .max_acceptable_beacon_error = 200.0,
-        .angle_offset = 0.13,
+        .angle_offset = CONFIG_LIDAR_CALIBRATION / 1000.0,
     };
     set_pose_refinement_tuning(&tuning);
 

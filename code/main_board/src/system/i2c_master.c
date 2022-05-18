@@ -6,14 +6,14 @@
 #define I2C_SDA_PIN_MOTOR 18
 #define I2C_SCL_PIN_MOTOR 19
 #define I2C_PORT_MOTOR I2C_NUM_0
-#define I2C_CLOCK_MOTOR 10000
+#define I2C_CLOCK_MOTOR 400000
 
 #define I2C_SDA_PIN_PERIPH 16
 #define I2C_SCL_PIN_PERIPH 17
 #define I2C_PORT_PERIPH I2C_NUM_1
-#define I2C_CLOCK_PERIPH 10000
+#define I2C_CLOCK_PERIPH 100000
 
-#define I2C_TIMEOUT_MS 100
+#define I2C_TIMEOUT_MS 500
 #define I2C_MAX_BUFFER_SIZE 64
 
 void init_i2c_master(void)
@@ -23,9 +23,9 @@ void init_i2c_master(void)
     i2c_config_t conf_motor = {
         .mode = I2C_MODE_MASTER,
         .sda_io_num = I2C_SDA_PIN_MOTOR,
-        .sda_pullup_en = GPIO_PULLUP_DISABLE,
+        .sda_pullup_en = GPIO_PULLUP_ENABLE,
         .scl_io_num = I2C_SCL_PIN_MOTOR,
-        .scl_pullup_en = GPIO_PULLUP_DISABLE,
+        .scl_pullup_en = GPIO_PULLUP_ENABLE,
         .master.clk_speed = I2C_CLOCK_MOTOR,
     };
     i2c_param_config(I2C_PORT_MOTOR, &conf_motor);
@@ -36,9 +36,9 @@ void init_i2c_master(void)
     i2c_config_t conf_perif = {
         .mode = I2C_MODE_MASTER,
         .sda_io_num = I2C_SDA_PIN_PERIPH,
-        .sda_pullup_en = GPIO_PULLUP_DISABLE,
+        .sda_pullup_en = GPIO_PULLUP_ENABLE,
         .scl_io_num = I2C_SCL_PIN_PERIPH,
-        .scl_pullup_en = GPIO_PULLUP_DISABLE,
+        .scl_pullup_en = GPIO_PULLUP_ENABLE,
         .master.clk_speed = I2C_CLOCK_PERIPH,
     };
     i2c_param_config(I2C_PORT_PERIPH, &conf_perif);

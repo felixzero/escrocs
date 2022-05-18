@@ -29,7 +29,10 @@ static float apply_friction_non_linearity(float setpoint, const motion_control_t
 
 void motion_control_on_motion_target_set(motion_status_t *motion_target, const pose_t *target, const pose_t *current_pose)
 {
-    motion_target->pose = *target;
+    motion_target->pose.x = isnan(target->x) ? current_pose->x : target->x;
+    motion_target->pose.y = isnan(target->y) ? current_pose->y : target->y;
+    motion_target->pose.theta = isnan(target->theta) ? current_pose->theta : target->theta;
+
     motion_target->motion_step = MOTION_STEP_RUNNING;
 }
 
@@ -53,7 +56,7 @@ void motion_control_on_tuning_updated(void *motion_data, motion_control_tuning_t
     data->tuning = tuning;
 }
 
-void motion_control_on_pose_update(
+void motion_control_update_pose(
     void *motion_data,
     pose_t *current_pose,
     const encoder_measurement_t *previous_encoder,
@@ -104,8 +107,18 @@ void motion_control_on_motor_loop(void *motion_data, motion_status_t *motion_tar
 
     float max_value = fmaxf(fabsf(c1), fmaxf(fabsf(c2), fabsf(c3)));
     data->elapsed_time += MOTION_PERIOD_MS;
-    float current_speed = fminf(1.0, 0.001 * data->elapsed_time * data->tuning->acceleration);
-    current_speed = fminf(current_speed, sqrtf(ENCODER_TO_POSITION(max_value, data->tuning) / data->tuning->braking_distance));
+
+    float current_speed = fminf(
+        1.0, // Plateau
+        fminf(
+            0.001 * data->elapsed_time * data->tuning->acceleration, // Acceleration ramp
+            fmaxf(
+                data->tuning->minimum_guaranteed_motion,
+                sqrtf(ENCODER_TO_POSITION(max_value, data->tuning) / data->tuning->braking_distance)
+            ) // Braking ramp
+        )
+    );
+
     c1 /= max_value / current_speed;
     c2 /= max_value / current_speed;
     c3 /= max_value / current_speed;
@@ -117,6 +130,15 @@ void motion_control_on_motor_loop(void *motion_data, motion_status_t *motion_tar
 
     write_motor_speed(motor_setpoints[0], motor_setpoints[1], motor_setpoints[2]);
     ESP_LOGI(TAG, "Wrote motor speed %f %f %f", motor_setpoints[0], motor_setpoints[1], motor_setpoints[2]);
+}
+
+bool motion_control_is_obstacle_near(
+    void *motion_data,
+    motion_status_t *motion_target,
+    const pose_t *current_pose,
+    float *obstacle_distances_by_angle
+) {
+    return false;
 }
 
 static float apply_friction_non_linearity(float setpoint, const motion_control_tuning_t *tuning)

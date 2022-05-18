@@ -3,6 +3,7 @@
 
 #include "motion/motor_board.h"
 #include "system/task_priority.h"
+#include "peripherals/lidar_board.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -12,17 +13,26 @@
 
 #define TAG "Motion control"
 
-static QueueHandle_t input_target_queue, output_status_queue, tuning_queue;
+#define OBSTACLE_FRAMES_TO_CLEAR 10
+#define MAP_LENGTH 300.0
+#define MAX_LIDAR_REFINEMENT_XY 200.0
+#define MAX_LIDAR_REFINEMENT_T 0.3
+
+static QueueHandle_t input_target_queue, overwrite_pose_queue, output_status_queue, tuning_queue;
+static bool reversed_side;
 
 static void motion_control_task(void *parameters);
+static pose_t apply_reverse_transformation(const pose_t *pose, bool reversed_side);
 
-void init_motion_control(void)
+void init_motion_control(bool reversed)
 {
     write_motor_speed(0.0, 0.0, 0.0);
+    reversed_side = reversed;
 
     // Create FreeRTOS task
     TaskHandle_t task;
     input_target_queue = xQueueCreate(1, sizeof(motion_status_t));
+    overwrite_pose_queue = xQueueCreate(1, sizeof(pose_t));
     output_status_queue = xQueueCreate(1, sizeof(motion_status_t));
     tuning_queue = xQueueCreate(1, sizeof(motion_control_tuning_t));
     xTaskCreate(motion_control_task, "motion_control", TASK_STACK_SIZE, NULL, MOTION_CONTROL_PRIORITY, &task);
@@ -32,18 +42,26 @@ pose_t get_current_pose(void)
 {
     motion_status_t status;
     xQueuePeek(output_status_queue, &status, 0);
-    return status.pose;
+    return apply_reverse_transformation(&status.pose, reversed_side);
 }
 
-void set_motion_target(const pose_t *target)
+void set_motion_target(const pose_t *target, bool perform_detection)
 {
     motion_status_t motion_target;
+    motion_target.perform_detection = perform_detection;
     pose_t current_pose = get_current_pose();
-    motion_control_on_motion_target_set(&motion_target, target, &current_pose);
+    pose_t setpoint_pose = apply_reverse_transformation(target, reversed_side);
+    motion_control_on_motion_target_set(&motion_target, &setpoint_pose, &current_pose);
 
     // Send request to task
     ESP_LOGI(TAG, "Setting target to: %f %f %f", target->x, target->y, target->theta);
     xQueueOverwrite(input_target_queue, &motion_target);
+}
+
+void overwrite_current_pose(const pose_t *target)
+{
+    pose_t known_pose = apply_reverse_transformation(target, reversed_side);
+    xQueueOverwrite(overwrite_pose_queue, &known_pose);
 }
 
 void stop_motion(void)
@@ -71,7 +89,12 @@ void set_motion_control_tuning(const motion_control_tuning_t *tuning)
 static void motion_control_task(void *parameters)
 {
     TickType_t iteration_time = xTaskGetTickCount();
-    pose_t current_pose;
+    pose_t current_pose = {
+            .x = 0.0,
+            .y = 0.0,
+            .theta = 0.0
+        };
+    current_pose = apply_reverse_transformation(&current_pose, reversed_side);
     motion_status_t motion_target = {
         .motion_step = MOTION_STEP_DONE
     };
@@ -86,10 +109,14 @@ static void motion_control_task(void *parameters)
 
     read_encoders(&previous_encoder);
     motion_control_on_init(&motion_data, &tuning);
+    int iteration = 0;
+    unsigned int obstacle_frames = 0;
+
     while (true) {
         vTaskDelayUntil(&iteration_time, MOTION_PERIOD_MS / portTICK_PERIOD_MS);
 
         // Retrieve latest parameters
+        xQueueReceive(overwrite_pose_queue, &current_pose, 0);
         if (xQueueReceive(input_target_queue, &motion_target, 0)) {
             motion_control_on_new_target_received(motion_data, &current_pose);
         }
@@ -100,11 +127,39 @@ static void motion_control_task(void *parameters)
         // Update pose according to encoders
         encoder_measurement_t encoder;
         read_encoders(&encoder);
-        motion_control_on_pose_update(motion_data, &current_pose, &previous_encoder, &encoder);
+        motion_control_update_pose(motion_data, &current_pose, &previous_encoder, &encoder);
         previous_encoder = encoder;
+        ESP_LOGD(TAG, "Pose: %f %f %f", current_pose.x, current_pose.y, current_pose.theta);
+
+        // Retrieve absolute pose from lidar
+        if (iteration % (LIDAR_PERIOD_MS / MOTION_PERIOD_MS) == 0) {
+            pose_t lidar_pose;
+            float obstacle_distances_by_angle[NUMBER_OF_CLUSTER_ANGLES];
+            refine_pose(&current_pose, &lidar_pose, obstacle_distances_by_angle);
+
+            if (
+                (fabsf(current_pose.x - lidar_pose.x) < MAX_LIDAR_REFINEMENT_XY)
+                && (fabsf(current_pose.y - lidar_pose.y) < MAX_LIDAR_REFINEMENT_XY)
+                && (fabsf(current_pose.theta - lidar_pose.theta) < MAX_LIDAR_REFINEMENT_T)
+            ) {
+                current_pose.x = tuning.lidar_filter * lidar_pose.x + (1.0 - tuning.lidar_filter) * current_pose.x;
+                current_pose.y = tuning.lidar_filter * lidar_pose.y + (1.0 - tuning.lidar_filter) * current_pose.y;
+                current_pose.theta = tuning.lidar_filter * lidar_pose.theta + (1.0 - tuning.lidar_filter) * current_pose.theta;
+            }
+
+            if (
+                motion_target.perform_detection
+                && motion_control_is_obstacle_near(motion_data, &motion_target, &current_pose, obstacle_distances_by_angle)
+            ) {
+                obstacle_frames = OBSTACLE_FRAMES_TO_CLEAR;
+                ESP_LOGW(TAG, "Warning: obstacle found");
+            } else if (obstacle_frames > 0) {
+                obstacle_frames--;
+            }
+        }
 
         // Calculate new motor targets
-        if (motion_target.motion_step == MOTION_STEP_DONE) {
+        if ((motion_target.motion_step == MOTION_STEP_DONE) || (obstacle_frames > 0)) {
             write_motor_speed(0.0, 0.0, 0.0);
         } else {
             motion_control_on_motor_loop(motion_data, &motion_target, &current_pose);
@@ -115,5 +170,20 @@ static void motion_control_task(void *parameters)
         status.pose = current_pose;
         status.motion_step = motion_target.motion_step;
         xQueueOverwrite(output_status_queue, &status);
+
+        iteration++;
     }
+}
+
+static pose_t apply_reverse_transformation(const pose_t *pose, bool reversed_side)
+{
+    pose_t reversed_pose;
+    if (!reversed_side) {
+        reversed_pose = *pose;
+    } else {
+        reversed_pose.x = -pose->x;
+        reversed_pose.y = pose->y;
+        reversed_pose.theta = fmodf(M_PI - pose->theta, 2.0 * M_PI);
+    }
+    return reversed_pose;
 }

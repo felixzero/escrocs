@@ -26,6 +26,6 @@ for msg in messages:
     threshold = 3_500_00
     print(min(reflectivity[reflectivity > threshold]), max(reflectivity))
     ax.scatter(angle[reflectivity > threshold], distance[reflectivity > threshold], c=reflectivity[reflectivity > threshold])
-    ax.set_ylim(ymin=0, ymax=2000)
+    ax.set_ylim(ymin=0, ymax=4000)
     fig.canvas.draw()
     fig.canvas.flush_events()
