@@ -71,10 +71,10 @@ void motion_control_update_pose(
 
     float u_ref_robot = (-channel2 + channel3) / SQRT_3_2 / 2.0;
     float v_ref_robot = (-2.0 * channel1 + channel2 + channel3) / 3.0;
-    float t_ref_robot = (channel1 + channel2 + channel3) / 3.0;
+    float t_ref_robot = -(channel1 + channel2 + channel3) / 3.0;
 
-    current_pose->x += ENCODER_TO_POSITION(u_ref_robot * cos(current_pose->theta) + v_ref_robot * sin(current_pose->theta), data->tuning);
-    current_pose->y += ENCODER_TO_POSITION(-u_ref_robot * sin(current_pose->theta) + v_ref_robot * cos(current_pose->theta), data->tuning);
+    current_pose->x += ENCODER_TO_POSITION(u_ref_robot * cos(current_pose->theta) - v_ref_robot * sin(current_pose->theta), data->tuning);
+    current_pose->y += ENCODER_TO_POSITION(u_ref_robot * sin(current_pose->theta) + v_ref_robot * cos(current_pose->theta), data->tuning);
     current_pose->theta += ENCODER_TO_ANGLE(t_ref_robot, data->tuning);
 }
 
@@ -86,23 +86,23 @@ void motion_control_on_motor_loop(void *motion_data, motion_status_t *motion_tar
     if ((fabsf(target_pose.x - current_pose->x) < ALLOWED_ERROR_XY) &&
         (fabsf(target_pose.y - current_pose->y) < ALLOWED_ERROR_XY) &&
         (fabsf(target_pose.theta - current_pose->theta) < ALLOWED_ERROR_T)) {
-        ESP_LOGI(TAG, "Motion finished");
+        ESP_LOGI(TAG, "Motion finished at (X=%f, Y=%f, T=%f)", current_pose->x, current_pose->y, current_pose->theta);
         motion_target->motion_step = MOTION_STEP_DONE;
     }
 
     float u_setpoint = POSITION_TO_ENCODER(
-        (target_pose.x - current_pose->x) * cos(current_pose->theta) - (target_pose.y - current_pose->y) * sin(current_pose->theta),
+        (target_pose.x - current_pose->x) * cos(current_pose->theta) + (target_pose.y - current_pose->y) * sin(current_pose->theta),
         data->tuning
     );
     float v_setpoint = POSITION_TO_ENCODER(
-        (target_pose.x - current_pose->x) * sin(current_pose->theta) + (target_pose.y - current_pose->y) * cos(current_pose->theta),
+        -(target_pose.x - current_pose->x) * sin(current_pose->theta) + (target_pose.y - current_pose->y) * cos(current_pose->theta),
         data->tuning
     );
     float t_setpoint = ANGLE_TO_ENCODER(target_pose.theta - current_pose->theta, data->tuning);
 
-    float c1 = -v_setpoint + t_setpoint;
-    float c2 = - SQRT_3_2 * u_setpoint + v_setpoint / 2.0 + t_setpoint;
-    float c3 = SQRT_3_2 * u_setpoint + v_setpoint / 2.0 + t_setpoint;
+    float c1 = -v_setpoint - t_setpoint;
+    float c2 = - SQRT_3_2 * u_setpoint + v_setpoint / 2.0 - t_setpoint;
+    float c3 = SQRT_3_2 * u_setpoint + v_setpoint / 2.0 - t_setpoint;
     ESP_LOGD(TAG, "Raw setpoints: %f %f %f", c1, c2, c3);
 
     float max_value = fmaxf(fabsf(c1), fmaxf(fabsf(c2), fabsf(c3)));

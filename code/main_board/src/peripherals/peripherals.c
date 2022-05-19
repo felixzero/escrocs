@@ -53,8 +53,10 @@ void init_peripherals(void)
 void set_peripherals_pump(int channel, bool status)
 {
     if (status) {
+        ESP_LOGI(TAG, "Switching on pump %d", channel);
         current_pump_reg |= (1 << channel);
     } else {
+        ESP_LOGI(TAG, "Switching off pump %d", channel);
         current_pump_reg &= ~(1 << channel);
     }
     write_i2c_register(I2C_PORT_PERIPH, PUMP_I2C_ADDR, 0x01, current_pump_reg);
@@ -62,6 +64,7 @@ void set_peripherals_pump(int channel, bool status)
 
 void set_peripherals_servo_channel(int channel, int pulse_width)
 {
+    ESP_LOGI(TAG, "Setting target %d on servo channel %d", pulse_width, channel);
     write_servo_i2c_register(0x06 + 4 * channel, pulse_width);
 }
 
