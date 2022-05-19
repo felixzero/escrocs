@@ -1,16 +1,18 @@
 #include "Arduino.h"
-#include <Servo.h>
+#include <Adafruit_TiCoServo.h>
 #include <Adafruit_NeoPixel.h>
 
 #define LED_COUNT 60
 #define LED_PIN 6
-#define SERVO_PIN 7
+
+#define SERVO_PIN 9
+
 #define CONTACT_PIN A2
 #define SIDE_PIN A3
 
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
-Servo arm; 
+Adafruit_TiCoServo arm; 
 int done = 0;
 
 uint32_t sideYellow = strip.Color(0xFF, 0x3F, 0x00); //(0xFF, 0x2F, 0x00);
@@ -27,6 +29,18 @@ void fetch() // Move the servo gently, to avoid detaching the magnets
       arm.write(servoAngle);
       Serial.println(servoAngle);
       delay(10);
+    }
+}
+
+// Initialise the arm position (this assume a starting position near 0)
+void initservo()
+{
+  int servoAngle = 10; 
+  for (servoAngle = 10; servoAngle < 88; servoAngle++)
+    {
+      arm.write(servoAngle);
+      Serial.println(servoAngle);
+      delay(20);
     }
 }
 
@@ -95,8 +109,8 @@ void setup()
   Serial.begin(9600);
   pinMode(CONTACT_PIN, INPUT_PULLUP); // contact switch  
   pinMode(SIDE_PIN, INPUT_PULLUP);    // side switch
-  arm.attach(SERVO_PIN);
-  arm.write(89); // init pos
+  arm.attach(SERVO_PIN); //, SERVO_MIN, SERVO_MAX);
+  initservo(); // init pos
   
   // NeoPixel Setup ------------------------------------------------------
   strip.begin();           // INITIALIZE NeoPixel strip object
@@ -125,7 +139,9 @@ void loop()
   if(!done)
   { //Update side color, just in case
     currentSide = digitalRead(SIDE_PIN) ? sideYellow : sidePurple; 
+    Serial.print("Side: ");
     Serial.print(currentSide);
+    Serial.print("/");
     Serial.println(digitalRead(SIDE_PIN));
   }
 
