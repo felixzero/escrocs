@@ -103,7 +103,7 @@ void motion_control_on_motor_loop(void *motion_data, motion_status_t *motion_tar
     float c1 = -v_setpoint + t_setpoint;
     float c2 = - SQRT_3_2 * u_setpoint + v_setpoint / 2.0 + t_setpoint;
     float c3 = SQRT_3_2 * u_setpoint + v_setpoint / 2.0 + t_setpoint;
-    ESP_LOGI(TAG, "Raw setpoints: %f %f %f", c1, c2, c3);
+    ESP_LOGD(TAG, "Raw setpoints: %f %f %f", c1, c2, c3);
 
     float max_value = fmaxf(fabsf(c1), fmaxf(fabsf(c2), fabsf(c3)));
     data->elapsed_time += MOTION_PERIOD_MS;
@@ -129,7 +129,7 @@ void motion_control_on_motor_loop(void *motion_data, motion_status_t *motion_tar
     motor_setpoints[2] = apply_friction_non_linearity(c3, data->tuning);
 
     write_motor_speed(motor_setpoints[0], motor_setpoints[1], motor_setpoints[2]);
-    ESP_LOGI(TAG, "Wrote motor speed %f %f %f", motor_setpoints[0], motor_setpoints[1], motor_setpoints[2]);
+    ESP_LOGD(TAG, "Wrote motor speed %f %f %f", motor_setpoints[0], motor_setpoints[1], motor_setpoints[2]);
 }
 
 bool motion_control_is_obstacle_near(
