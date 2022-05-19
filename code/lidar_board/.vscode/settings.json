@@ -25,6 +25,7 @@
         "functional": "c",
         "tuple": "c",
         "utility": "c",
-        "i2c_slave.h": "c"
+        "i2c_slave.h": "c",
+        "pose.h": "c"
     }
 }

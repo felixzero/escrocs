@@ -77,6 +77,11 @@ static void network_logger_task(void *args)
             continue;
         }
 
+        size_t message_length = strlen(message);
+        if (message[message_length - 1] != '\n') {
+            message[message_length - 1] = '\n';
+        }
+
         sendto(socket_fd, message, strlen(message), 0, (struct sockaddr *)&server_addr, sizeof(server_addr));
         free(message);
     }

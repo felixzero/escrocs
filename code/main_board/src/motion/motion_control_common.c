@@ -135,26 +135,33 @@ static void motion_control_task(void *parameters)
         if (iteration % (LIDAR_PERIOD_MS / MOTION_PERIOD_MS) == 0) {
             pose_t lidar_pose;
             float obstacle_distances_by_angle[NUMBER_OF_CLUSTER_ANGLES];
-            refine_pose(&current_pose, &lidar_pose, obstacle_distances_by_angle);
+            if (refine_pose(&current_pose, &lidar_pose, obstacle_distances_by_angle)) {
+                if (iteration % (20 * LIDAR_PERIOD_MS / MOTION_PERIOD_MS) == 0) {
+                    ESP_LOGI(
+                        TAG, "Lidar board refined position to (X=%f, Y=%f, T=%f)",
+                        lidar_pose.x, lidar_pose.y, lidar_pose.theta
+                    );
+                }
 
-            if (
-                (fabsf(current_pose.x - lidar_pose.x) < MAX_LIDAR_REFINEMENT_XY)
-                && (fabsf(current_pose.y - lidar_pose.y) < MAX_LIDAR_REFINEMENT_XY)
-                && (fabsf(current_pose.theta - lidar_pose.theta) < MAX_LIDAR_REFINEMENT_T)
-            ) {
-                current_pose.x = tuning.lidar_filter * lidar_pose.x + (1.0 - tuning.lidar_filter) * current_pose.x;
-                current_pose.y = tuning.lidar_filter * lidar_pose.y + (1.0 - tuning.lidar_filter) * current_pose.y;
-                current_pose.theta = tuning.lidar_filter * lidar_pose.theta + (1.0 - tuning.lidar_filter) * current_pose.theta;
-            }
+                if (
+                    (fabsf(current_pose.x - lidar_pose.x) < MAX_LIDAR_REFINEMENT_XY)
+                    && (fabsf(current_pose.y - lidar_pose.y) < MAX_LIDAR_REFINEMENT_XY)
+                    && (fabsf(current_pose.theta - lidar_pose.theta) < MAX_LIDAR_REFINEMENT_T)
+                ) {
+                    current_pose.x = tuning.lidar_filter * lidar_pose.x + (1.0 - tuning.lidar_filter) * current_pose.x;
+                    current_pose.y = tuning.lidar_filter * lidar_pose.y + (1.0 - tuning.lidar_filter) * current_pose.y;
+                    current_pose.theta = tuning.lidar_filter * lidar_pose.theta + (1.0 - tuning.lidar_filter) * current_pose.theta;
+                }
 
-            if (
-                motion_target.perform_detection
-                && motion_control_is_obstacle_near(motion_data, &motion_target, &current_pose, obstacle_distances_by_angle)
-            ) {
-                obstacle_frames = OBSTACLE_FRAMES_TO_CLEAR;
-                ESP_LOGW(TAG, "Warning: obstacle found");
-            } else if (obstacle_frames > 0) {
-                obstacle_frames--;
+                if (
+                    motion_target.perform_detection
+                    && motion_control_is_obstacle_near(motion_data, &motion_target, &current_pose, obstacle_distances_by_angle)
+                ) {
+                    obstacle_frames = OBSTACLE_FRAMES_TO_CLEAR;
+                    ESP_LOGW(TAG, "Warning: obstacle found");
+                } else if (obstacle_frames > 0) {
+                    obstacle_frames--;
+                }
             }
         }
 
