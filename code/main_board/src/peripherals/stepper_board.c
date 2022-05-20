@@ -31,6 +31,12 @@ esp_err_t init_stepper_board(void)
 void set_stepper_board_pump(unsigned int channel, bool pump_on)
 {
     assert(channel < NUMBER_OF_PUMPS);
+    if (pump_on) {
+        ESP_LOGI(TAG, "Switching on pump %d", channel);
+    } else {
+        ESP_LOGI(TAG, "Switching off pump %d", channel);
+    }
+
     write_i2c_register(I2C_PORT_PERIPH, I2C_ADDR, 0x01 + channel, pump_on);
 }
 
@@ -48,6 +54,7 @@ void move_stepper_board_motor(unsigned int channel, int target, float speed)
     *((int16_t*)&buffer[1]) = (int16_t)target; // Position target
     buffer[3] = (uint8_t)floorf(fclampf(1.0 / speed, 1.0, 255.0)); // Speed
     buffer[4] = 1;
+    ESP_LOGI(TAG, "Moving stepper %d to target %d (speed=%f)", channel, target, speed);
     send_to_i2c(I2C_PORT_PERIPH, I2C_ADDR, buffer, sizeof(buffer));
 }
 

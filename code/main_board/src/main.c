@@ -2,6 +2,7 @@
 #include "system/spiffs.h"
 #include "wireless/wifi.h"
 #include "wireless/httpd.h"
+#include "wireless/udp_logger.h"
 #include "peripherals/stepper_board.h"
 #include "peripherals/gpio.h"
 #include "peripherals/peripherals.h"
@@ -34,6 +35,7 @@ void app_main() {
 
     init_motion_control(false);
     init_lua_executor();
+    init_udp_logger();
 
     while(1) {
         vTaskDelay(100);
