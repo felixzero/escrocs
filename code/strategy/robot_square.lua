@@ -9,10 +9,10 @@ REPLICA_CHANNEL = 1 --TBC
 -- Fork Stepper positions
 FORK_TOP    = -1150
 FORK_BOTTOM =  2400
-FORK_GRAB1  =   140 -- should have enough clearance both top & bottom
-FORK_GRAB2  =    20 -- second step to hook fully
+FORK_GRAB1  =   350 -- should have enough clearance both top & bottom
+FORK_GRAB2  =     0 -- second step to hook fully
 FORK_CRUISE =  -700
-FORK_DROP   =    30 -- TBC
+FORK_DROP   =   400 -- TBC
 
 --START_X = 400 + 160
 --START_Y = 120; // Dos collé au bord
@@ -87,6 +87,8 @@ sleep(2)
 move_to_position(225, 1880, pi/2)
 
 move_to_position(225, 1578, pi/2)
+
+
 
 
 

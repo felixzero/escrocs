@@ -40,7 +40,7 @@ void initservo()
     {
       arm.write(servoAngle);
       Serial.println(servoAngle);
-      delay(20);
+      delay(10);
     }
 }
 
@@ -153,7 +153,7 @@ void loop()
     colorWipe(currentSide, 10); // total wait ~600ms
     rotateVoid(currentSide, 5); // total wait ~300ms
     
-    delay(1100); //Wait 2s for robot to lower claw, in order to clear the hook
+    delay(3000); //Wait 4s for robot to lower claw, in order to clear the hook
     
     // ITS PLACE IS IN A MUSEUM !!!
     fetch();
