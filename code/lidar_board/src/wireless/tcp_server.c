@@ -74,9 +74,7 @@ static void tcp_socket_task(void *args)
         pose_t guess_pose, refined_pose;
         guess_pose.x = query.guess_pose_x_mm;
         guess_pose.y = query.guess_pose_y_mm;
-        // Note the minus sign, due to difference in sign convention between boards
-        // I am a moron
-        guess_pose.theta = -(float)query.guess_pose_theta_mrad / 1000.0;
+        guess_pose.theta = (float)query.guess_pose_theta_mrad / 1000.0;
         ESP_LOGD(TAG, "Estimated pose from main board: %f %f %f", guess_pose.x, guess_pose.y, guess_pose.theta);
         update_estimated_input_pose(&guess_pose);
 
@@ -84,7 +82,7 @@ static void tcp_socket_task(void *args)
         if (response.has_refined) {
             response.refined_pose_x_mm = refined_pose.x;
             response.refined_pose_y_mm = refined_pose.y;
-            response.refined_pose_theta_mrad = -refined_pose.theta * 1000.0;
+            response.refined_pose_theta_mrad = refined_pose.theta * 1000.0;
         }
         float obstacle_clusters[NUMBER_OF_CLUSTER_ANGLES];
         get_obstacle_clusters(obstacle_clusters);
@@ -96,7 +94,10 @@ static void tcp_socket_task(void *args)
             }
         }
 
-        write(conn_fd, &response, sizeof(response));
+        size_t s = 0;
+        do {
+            s += write(conn_fd, &response + s, sizeof(response) - s);
+        } while(s < sizeof(response));
 
         close(conn_fd);
     }

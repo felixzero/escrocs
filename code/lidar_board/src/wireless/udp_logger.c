@@ -12,7 +12,8 @@
 #include <lwip/netdb.h>
 
 #define TAG "UDP_Logger"
-#define DEBUG_PORT 11111
+#define DEBUG_PORT 11112
+#define BROADCAST_IP "192.168.4.255"
 
 #define MAX_MESSAGE_LENGTH 128
 #define MAX_MESSAGE_NUMBER 32
@@ -41,9 +42,11 @@ void init_udp_logger(void)
         return;
     }
 
+    in_addr_t broadcast_address;
+    inet_aton(BROADCAST_IP, &broadcast_address);
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(DEBUG_PORT);
-    server_addr.sin_addr.s_addr = PP_HTONL(LWIP_MAKEU32(192, 168, CONFIG_ESP_WIFI_SUBNET, 255));
+    server_addr.sin_addr.s_addr = broadcast_address;
 
     TaskHandle_t task;
     network_log_queue = xQueueCreate(MAX_MESSAGE_NUMBER, sizeof(char*));

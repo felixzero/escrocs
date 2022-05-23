@@ -3,6 +3,7 @@
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
+#include <math.h>
 
 static QueueHandle_t enable_status_queue;
 
@@ -32,11 +33,16 @@ OUTPUT \
 }
 
 #define X_FLOAT_ARGS(parameter_name) \
-    if (!lua_isnumber(L, arg_id)) { \
+    if (!lua_isnumber(L, arg_id) && !lua_isnil(L, arg_id)) { \
         lua_pushstring(L, "Invalid argument: not a valid number for " # parameter_name); \
         lua_error(L); \
     } \
-    args.parameter_name = lua_tonumber(L, arg_id++);
+    if (lua_isnil(L, arg_id)) { \
+        args.parameter_name = NAN; \
+        arg_id++; \
+    } else { \
+        args.parameter_name = lua_tonumber(L, arg_id++); \
+    }
 #define X_INT_ARGS(parameter_name) \
     if (!lua_isinteger(L, arg_id)) { \
         lua_pushstring(L, "Invalid argument: not a valid integer for " # parameter_name); \

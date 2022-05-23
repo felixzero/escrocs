@@ -13,7 +13,7 @@ plt.ion()
 fig = plt.figure()
 ax = fig.add_subplot(projection='polar')
 
-messages = SSEClient("http://192.168.4.2/events", chunk_size=4096)
+messages = SSEClient("http://192.168.6.2/events", chunk_size=4096)
 for msg in messages:
     data = base64.b64decode(msg.data)
     d = struct.unpack("360h360hfff", data)

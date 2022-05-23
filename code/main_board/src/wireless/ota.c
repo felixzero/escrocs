@@ -97,7 +97,7 @@ static void restart_in(int ticks_to_wait)
 static void rebooter_task(void *parameters)
 {
     int ticks_to_wait;
-    while (xQueueReceive(reboot_request_queue, &ticks_to_wait, 1000 / portTICK_PERIOD_MS) == pdFALSE);
+    while (xQueueReceive(reboot_request_queue, &ticks_to_wait, portMAX_DELAY) == pdFALSE);
     vTaskDelay(ticks_to_wait);
     esp_restart();
 }

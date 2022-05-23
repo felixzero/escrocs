@@ -1,4 +1,5 @@
 #include "motion/motion_control.impl.h"
+#include "peripherals/lidar_board.h"
 
 // This file is only compiled for holonomic robots
 #ifdef CONFIG_ESP_ROBOT_HOLONOMIC
@@ -7,7 +8,7 @@
 #include <math.h>
 #include <esp_log.h>
 
-#define TAG "Motion control [DD]"
+#define TAG "Motion control [H]"
 #define MOTION_STEP_RUNNING 1
 #define SQRT_3_2 0.86602540378
 #define PI_2 6.28318530718
@@ -138,7 +139,20 @@ bool motion_control_is_obstacle_near(
     const pose_t *current_pose,
     float *obstacle_distances_by_angle
 ) {
-    return false;
+    struct holonomic_data_t* data = (struct holonomic_data_t*)motion_data;
+    const pose_t target_pose = motion_target->pose;
+    float angle_to_target = atan2(target_pose.y - current_pose->y, target_pose.x - current_pose->x);
+
+    int index_of_direction = (int)floorf(
+        fmodf(
+            3 * NUMBER_OF_CLUSTER_ANGLES / 2
+            - (angle_to_target - current_pose->theta) * NUMBER_OF_CLUSTER_ANGLES / 2 / M_PI,
+            NUMBER_OF_CLUSTER_ANGLES
+        )
+    );
+    float distance_to_obstacle = obstacle_distances_by_angle[index_of_direction];
+
+    return ((distance_to_obstacle < data->tuning->obstacle_distance) && (distance_to_obstacle > 0));
 }
 
 static float apply_friction_non_linearity(float setpoint, const motion_control_tuning_t *tuning)

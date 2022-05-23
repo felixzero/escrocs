@@ -28,12 +28,12 @@ void app_main() {
 
 #ifdef CONFIG_ESP_ROBOT_HOLONOMIC
     init_peripherals();
-    set_peripherals_servo_channel(0, 8000);
-    set_peripherals_servo_channel(1, 8000);
-    set_peripherals_servo_channel(2, 8000);
+    set_peripherals_servo_channel(0, 6500);
+    set_peripherals_servo_channel(1, 6500);
+    set_peripherals_servo_channel(2, 6500);
 #endif
 
-    init_motion_control(false);
+    init_motion_control(read_switch(GPIO_CHANNEL_SIDE));
     init_lua_executor();
     init_udp_logger();
 
