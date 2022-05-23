@@ -3,14 +3,14 @@
 // X-Macro definition of motion control fields
 #define MOTION_CONTROL_TUNING_FIELDS \
     X(lidar_filter, 0.1) \
-    X(obstacle_distance, 60.0) \
+    X(obstacle_distance, 50.0) \
     X(wheel_radius, 32.5) \
     X(robot_radius, 135.0) \
-    X(max_speed, 0.8) \
-    X(friction_coefficient, 0.35) \
-    X(acceleration, 1.0) \
-    X(braking_distance, 50.0) \
-    X(minimum_guaranteed_motion, 0.6)
+    X(max_speed, 0.7) \
+    X(friction_coefficient, 0.2) \
+    X(acceleration, 0.5) \
+    X(braking_distance, 100.0) \
+    X(minimum_guaranteed_motion, 0.5)
 
 /**
  * Tuning parameters of the motor feedback control

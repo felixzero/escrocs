@@ -15,7 +15,7 @@
 
 #define OBSTACLE_FRAMES_TO_CLEAR 10
 #define MAP_LENGTH 300.0
-#define MAX_LIDAR_REFINEMENT_XY 200.0
+#define MAX_LIDAR_REFINEMENT_XY 300.0
 #define MAX_LIDAR_REFINEMENT_T 0.3
 
 static QueueHandle_t input_target_queue, overwrite_pose_queue, output_status_queue, tuning_queue;

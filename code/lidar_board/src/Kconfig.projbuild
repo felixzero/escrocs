@@ -7,6 +7,10 @@ config ESP_WIFI_PASSWORD
     string "WiFi Password"
     default "password"
 
+config ESP_WIFI_SUBNET
+    int "IP subnet (3rd byte)"
+    default 4
+
 config LIDAR_CALIBRATION
     int "Lidar angle calibration (x1000)"
     default 0

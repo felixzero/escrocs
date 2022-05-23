@@ -152,7 +152,7 @@ bool motion_control_is_obstacle_near(
     );
     float distance_to_obstacle = obstacle_distances_by_angle[index_of_direction];
 
-    return ((distance_to_obstacle < data->tuning->obstacle_distance) && (distance_to_obstacle > 0));
+    return ((distance_to_obstacle < data->tuning->obstacle_distance) && (distance_to_obstacle > 15));
 }
 
 static float apply_friction_non_linearity(float setpoint, const motion_control_tuning_t *tuning)

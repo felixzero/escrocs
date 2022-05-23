@@ -18,8 +18,8 @@ function unsafe_move_to_position(x, y, theta, timeout)
     set_pose(x, map_size_y - y, theta, false)
     sleep(0.5)
     for i = timeout, 1, -1 do
-        if is_motion_done() do
-            break
+        if is_motion_done() then
+            return
         end
         sleep(1.0)
     end
@@ -30,7 +30,7 @@ function move_to_position_or_give_up(x, y, theta, timeout)
     set_pose(x, map_size_y - y, theta, true)
     sleep(0.5)
     for i = timeout, 1, -1 do
-        if is_motion_done() do
+        if is_motion_done() then
             return true
         end
         sleep(1.0)
@@ -41,9 +41,9 @@ end
 
 function lower_pump_to_floor(channel)
     if channel == 1 then
-        move_stepper(channel, 2000, 0.15)
+        move_stepper(channel, 2200, 0.2)
     else
-        move_stepper(channel, -2000, 0.15)
+        move_stepper(channel, -2200, 0.2)
     end
 end
 
@@ -59,6 +59,7 @@ function lower_arm(channel)
     move_servo(channel, 6500)
 end
 
+
 -- Initial setup
 overwrite_known_pose(258, 544, 0)
 lower_arm(0)
@@ -72,12 +73,14 @@ lower_pump_to_floor(0)
 sleep(4.0)
 raise_pump_to_up_position(0)
 sleep(1.5)
+move_to_position(480, 677, -pi / 3)
+move_to_position(480, 677, 2 * pi / 3)
 move_to_position(823, 669, 2 * pi / 3)
 set_pump(1, true)
 set_pump(2, true)
 lower_pump_to_floor(1)
 lower_pump_to_floor(2)
-sleep(3.0)
+sleep(4.0)
 raise_pump_to_up_position(1)
 raise_pump_to_up_position(2)
 sleep(1.5)
@@ -93,6 +96,7 @@ for i = 1, 3, 1 do
     raise_arm(i - 1)
     unsafe_move_to_position(x_depositions[i], y_deposition_contact, theta_depositions[i], 3)
     set_pump(i - 1, false)
+    sleep(1.5)
     move_to_position(x_depositions[i], y_deposition_safe, theta_depositions[i])
     lower_arm(i - 1)
 end
@@ -101,16 +105,18 @@ end
 x_flips = { 1777, 1592, 1407, 1222, 852 }
 y_flip_safe = 1690
 y_flip_contact = 1910
+move_to_position(x_flips[1], y_flip_safe, -pi / 6)
 lower_pump_to_floor(1)
+sleep(3)
 for i = 1, #x_flips do
-    if move_to_position_or_give_up(x_flips[i], y_flip_safe, -pi / 6, 5) do
-        raise_arm(i)
-        unsafe_move_to_position(x_flips[i], y_flip_contact, -pi / 6, 3)
-        move_to_position(x_flips[i], y_flip_safe, -pi / 6)
-        lower_arm(i)
-    end
+    move_to_position(x_flips[i], y_flip_safe, -pi / 6)
+    raise_arm(1)
+    unsafe_move_to_position(x_flips[i], y_flip_contact, -pi / 6, 2)
+    move_to_position(x_flips[i], y_flip_safe, -pi / 6)
+    lower_arm(1)
 end
 lower_arm(1)
 
 -- Finally go home
 move_to_position(390, 1000, 0)
+
