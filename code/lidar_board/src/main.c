@@ -6,6 +6,7 @@
 #include "wireless/wifi.h"
 #include "wireless/httpd.h"
 #include "wireless/tcp_server.h"
+#include "wireless/udp_logger.h"
 #include "system/i2c_slave.h"
 #include "localization/pose_refinement.h"
 
@@ -20,6 +21,7 @@ void app_main()
     init_pose_refinement();
     init_i2c_slave();
     init_tcp_server();
+    init_udp_logger();
 
     set_beacon_position(0, 0.0, 1000.0);
     set_beacon_position(1, 3000.0, 50.0);

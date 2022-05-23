@@ -24,7 +24,16 @@ void init_wifi_system(void)
     // Initialize Wifi AP
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
-    esp_netif_create_default_wifi_ap();
+    esp_netif_t* wifi_ap = esp_netif_create_default_wifi_ap();
+
+    // Setting IP configuration
+    esp_netif_ip_info_t ip_info;
+    IP4_ADDR(&ip_info.ip, 192, 168, CONFIG_ESP_WIFI_SUBNET, 1);
+	IP4_ADDR(&ip_info.gw, 192, 168, CONFIG_ESP_WIFI_SUBNET, 1);
+	IP4_ADDR(&ip_info.netmask, 255, 255, 255, 0);
+	esp_netif_dhcps_stop(wifi_ap);
+	esp_netif_set_ip_info(wifi_ap, &ip_info);
+	esp_netif_dhcps_start(wifi_ap);
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));

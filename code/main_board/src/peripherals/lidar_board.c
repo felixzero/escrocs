@@ -10,7 +10,7 @@
 #include <lwip/netdb.h>
 
 #define TAG "Lidar"
-#define LIDAR_BOARD_IP_ADDRESS "192.168.4.2"
+#define LIDAR_BOARD_IP_ADDRESS 2
 
 struct tcp_query_t {
     int16_t guess_pose_x_mm;
@@ -28,11 +28,6 @@ struct tcp_response_t {
 
 bool refine_pose(const pose_t *guess_pose, pose_t *refined_pose, float *obstacle_distances_by_angle)
 {
-    struct timeval socket_timeout = {
-        .tv_sec = 0,
-        .tv_usec = 5000
-    };
-
     int socket_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (socket_fd < 0) {
         ESP_LOGE(TAG, "Cannot create TCP socket");
@@ -42,12 +37,10 @@ bool refine_pose(const pose_t *guess_pose, pose_t *refined_pose, float *obstacle
     struct sockaddr_in serv_addr = {
         .sin_family = AF_INET,
         .sin_port = 11120,
-        .sin_addr = {}
+        .sin_addr = {
+            .s_addr = PP_HTONL(LWIP_MAKEU32(192, 168, CONFIG_ESP_WIFI_SUBNET, LIDAR_BOARD_IP_ADDRESS))
+        }
     };
-    inet_pton(AF_INET, LIDAR_BOARD_IP_ADDRESS, &serv_addr.sin_addr);
-
-    setsockopt(socket_fd, SOL_SOCKET, SO_SNDTIMEO, (const char *)&socket_timeout, sizeof(socket_timeout));
-    setsockopt(socket_fd, SOL_SOCKET, SO_RCVTIMEO, (const char *)&socket_timeout, sizeof(socket_timeout));
 
     if (connect(socket_fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
         ESP_LOGE(TAG, "Cannot connect to lidar board");
@@ -56,9 +49,19 @@ bool refine_pose(const pose_t *guess_pose, pose_t *refined_pose, float *obstacle
     }
 
     struct tcp_query_t query;
-    write(socket_fd, &query, sizeof(query));
+    query.guess_pose_x_mm = (int)guess_pose->x;
+    query.guess_pose_y_mm = (int)guess_pose->y;
+    query.guess_pose_theta_mrad = (int)(guess_pose->theta * 1000);
+
+    size_t s = 0;
+    do {
+        s += write(socket_fd, &query + s, sizeof(query) - s);
+    } while (s < sizeof(query));
     struct tcp_response_t response;
-    read(socket_fd, &response, sizeof(response));
+    if(read(socket_fd, &response, sizeof(response)) < sizeof(response)) {
+        ESP_LOGW(TAG, "Timeout while receiving lidar data");
+        return false;
+    }
 
     for (int i = 0; i < NUMBER_OF_CLUSTER_ANGLES; ++i) {
         obstacle_distances_by_angle[i] = (float)response.obstacle_clusters[i];
@@ -82,4 +85,3 @@ bool refine_pose(const pose_t *guess_pose, pose_t *refined_pose, float *obstacle
 
     return true;
 }
-

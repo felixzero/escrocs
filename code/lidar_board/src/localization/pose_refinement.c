@@ -8,7 +8,7 @@
 #include <math.h>
 
 #define TAG "Pose refinement"
-#define INITIAL_REFLECTIVITY_THRESHOLD 3500000
+#define INITIAL_REFLECTIVITY_THRESHOLD 2500000
 #define INITIAL_MAX_ACCEPTABLE_BEACON_ERROR 200.0
 #define MINIMUM_OBSTACLE_DISTANCE 150.0
 #define NUMBER_OF_BEACONS 3
@@ -128,7 +128,7 @@ void refine_pose_from_point_cloud(const uint16_t distances[], const uint16_t int
 
     ESP_LOGI(TAG, "Refining pose with %d identified beacons - %d rejects", number_of_identified_beacons, number_of_rejects);
     pose_t refined_pose = find_pose_from_beacons(actual_positions, relative_positions, number_of_identified_beacons, estimated_pose);
-    ESP_LOGD(TAG, "Pose refined to %f %f %f", refined_pose.x, refined_pose.y, refined_pose.theta);
+    ESP_LOGI(TAG, "Pose refined to %f %f %f", refined_pose.x, refined_pose.y, refined_pose.theta);
     xQueueOverwrite(output_pose_queue, &refined_pose);
 }
 
