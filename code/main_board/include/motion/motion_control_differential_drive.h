@@ -5,19 +5,19 @@
     X(lidar_filter, 0.0) \
     X(obstacle_distance_front, 50.0) \
     X(obstacle_distance_back, 30.0) \
-    X(max_speed, 0.4) \
-    X(min_guaranteed_motion_rotation, 0.4) \
-    X(min_guaranteed_motion_translation, 0.4) \
+    X(max_speed, 0.6) \
+    X(min_guaranteed_motion_rotation, 0.48) \
+    X(min_guaranteed_motion_translation, 0.48) \
     X(slow_approach_angle, 0.25) \
     X(slow_approach_position, 200.0) \
     X(allowed_angle_error, 0.01) \
     X(allowed_position_error, 10.0) \
-    X(position_feedback_p, 0.001) \
-    X(angle_feedback_p, 1.0) \
+    X(position_feedback_p, 0.00) \
+    X(angle_feedback_p, 40.0) \
     X(wheel_diameter, 98.6) \
     X(axle_width, 287.0) \
-    X(acceleration, 0.3) \
-    X(left_right_balance, -0.08)
+    X(acceleration, 0.5) \
+    X(left_right_balance, -0.06)
 
 
 /**

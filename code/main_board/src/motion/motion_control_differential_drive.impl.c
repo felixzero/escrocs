@@ -199,6 +199,9 @@ static bool handle_translation(void *data, const pose_t *current_pose)
     };
     float target_angle = optimal_target_angle(&target_pose, current_pose);
     float angle_correction = tuning->angle_feedback_p * remainderf(target_angle - current_pose->theta, 2 * M_PI);
+    if (angle_correction > 1.0 || angle_correction < -1.0) {
+        angle_correction /= fabsf(angle_correction);
+    }
 
     float absolute_speed;
     if (fabsf(way_to_go) < tuning->slow_approach_position) {
@@ -209,6 +212,14 @@ static bool handle_translation(void *data, const pose_t *current_pose)
     float translation_speed = copysignf(absolute_speed, way_to_go);
 
     state->timer++;
+
+    float wheel1 = (translation_speed - angle_correction * absolute_speed) * (1.0 - tuning->left_right_balance);
+    float wheel2 = (-translation_speed - angle_correction * absolute_speed) * (1.0 + tuning->left_right_balance);
+    float max_value = fmaxf(fabsf(wheel1), fabsf(wheel2));
+    if (max_value > 1.0) {
+        wheel1 /= max_value;
+        wheel2 /= max_value;
+    }
 
     if (fabs(way_to_go) < tuning->allowed_position_error) {
         write_motor_speed(0.0, 0.0, 0.0);
