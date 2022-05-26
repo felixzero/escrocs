@@ -15,6 +15,8 @@
 #define TICKS_PER_TURN 360
 #define ALLOWED_ERROR_XY 5.0 // mm
 #define ALLOWED_ERROR_T 0.02 // rad
+#define TERRAIN_SIZE_X 3000
+#define TERRAIN_SIZE_Y 2000
 
 #define ENCODER_TO_POSITION(u, tuning) ((u) / TICKS_PER_TURN * PI_2 * tuning->wheel_radius)
 #define ENCODER_TO_ANGLE(t, tuning) ((t) / TICKS_PER_TURN * PI_2 * tuning->wheel_radius / tuning->robot_radius)
@@ -142,17 +144,39 @@ bool motion_control_is_obstacle_near(
     struct holonomic_data_t* data = (struct holonomic_data_t*)motion_data;
     const pose_t target_pose = motion_target->pose;
     float angle_to_target = atan2(target_pose.y - current_pose->y, target_pose.x - current_pose->x);
+    float distance_to_target = sqrtf(
+        (target_pose.x - current_pose->x) * (target_pose.x - current_pose->x)
+        + (target_pose.y - current_pose->y) * (target_pose.y - current_pose->y)
+    );
+
+    if (distance_to_target < data->tuning->obstacle_no_detection_distance) {
+        return false;
+    }
+
+    float estimated_x_obstacle = current_pose->x + distance_to_target * cosf(angle_to_target);
+    float estimated_y_obstacle = current_pose->y + distance_to_target * sinf(angle_to_target);
+
+    if (
+        (estimated_x_obstacle < 0) || (estimated_y_obstacle < 0)
+        || (estimated_x_obstacle > TERRAIN_SIZE_X) || (estimated_y_obstacle > TERRAIN_SIZE_X)
+    ) {
+        return false;
+    }
 
     int index_of_direction = (int)floorf(
         fmodf(
-            3 * NUMBER_OF_CLUSTER_ANGLES / 2
-            - (angle_to_target - current_pose->theta) * NUMBER_OF_CLUSTER_ANGLES / 2 / M_PI,
-            NUMBER_OF_CLUSTER_ANGLES
+        3 * NUMBER_OF_CLUSTER_ANGLES / 2
+        - (angle_to_target - current_pose->theta) * NUMBER_OF_CLUSTER_ANGLES / 2 / M_PI,
+        NUMBER_OF_CLUSTER_ANGLES
         )
     );
     float distance_to_obstacle = obstacle_distances_by_angle[index_of_direction];
 
-    return ((distance_to_obstacle < data->tuning->obstacle_distance) && (distance_to_obstacle > 15));
+    bool result = ((distance_to_obstacle < data->tuning->obstacle_distance) && (distance_to_obstacle > 15));
+    if (result) {
+        ESP_LOGI(TAG, "Obstacle at distance: %f with angle %d", distance_to_obstacle * 10, index_of_direction);
+    }
+    return result;
 }
 
 static float apply_friction_non_linearity(float setpoint, const motion_control_tuning_t *tuning)

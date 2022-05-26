@@ -23,9 +23,9 @@ void app_main()
     init_tcp_server();
     init_udp_logger();
 
-    set_beacon_position(0, 0.0, 1000.0);
-    set_beacon_position(1, 3000.0, 50.0);
-    set_beacon_position(2, 3000.0, 1950.0);
+    set_beacon_position(0, -50.0, 1000.0);
+    set_beacon_position(1, 3050.0, 50.0);
+    set_beacon_position(2, 3050.0, 1950.0);
 
     pose_refinement_tuning_t tuning = {
         .reflectivity_threshold = 3500000,

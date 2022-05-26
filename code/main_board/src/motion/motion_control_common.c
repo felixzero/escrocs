@@ -117,7 +117,7 @@ static void motion_control_task(void *parameters)
     read_encoders(&previous_encoder);
     motion_control_on_init(&motion_data, &tuning);
     int iteration = 0;
-    unsigned int obstacle_frames = 0;
+    unsigned int obstacle_frames = 0, clear_frames = 0;
 
     while (true) {
         vTaskDelayUntil(&iteration_time, MOTION_PERIOD_MS / portTICK_PERIOD_MS);
@@ -137,10 +137,13 @@ static void motion_control_task(void *parameters)
         motion_control_update_pose(motion_data, &current_pose, &previous_encoder, &encoder);
         previous_encoder = encoder;
         xQueueOverwrite(input_lidar_queue, &current_pose);
-        ESP_LOGD(TAG, "Pose: %f %f %f", current_pose.x, current_pose.y, current_pose.theta);
+
+        if (iteration % 100 == 0) {
+            ESP_LOGI(TAG, "Pose: %f %f %f", current_pose.x, current_pose.y, current_pose.theta);
+        }
 
         // Retrieve absolute pose from lidar
-        pose_t lidar_pose;
+        /*pose_t lidar_pose;
         if (xQueueReceive(output_pose_lidar_queue, &lidar_pose, 0)) {
             if (
                 (fabsf(current_pose.x - lidar_pose.x) < MAX_LIDAR_REFINEMENT_XY)
@@ -154,7 +157,7 @@ static void motion_control_task(void *parameters)
             } else {
                 ESP_LOGW(TAG, "Proposed refinement from lidar too far: %f %f %f", lidar_pose.x, lidar_pose.y, lidar_pose.theta);
             }
-        }
+        }*/
 
         float *obstacle_distances_by_angle;
         if (xQueueReceive(output_obstacle_lidar_queue, &obstacle_distances_by_angle, 0)) {
@@ -162,8 +165,12 @@ static void motion_control_task(void *parameters)
                 motion_target.perform_detection
                 && motion_control_is_obstacle_near(motion_data, &motion_target, &current_pose, obstacle_distances_by_angle)
             ) {
-                obstacle_frames = OBSTACLE_FRAMES_TO_CLEAR;
-                ESP_LOGW(TAG, "Warning: obstacle found");
+                if (clear_frames == 0) {
+                    obstacle_frames = OBSTACLE_FRAMES_TO_CLEAR;
+                    ESP_LOGW(TAG, "Warning: obstacle found");
+                } else {
+                    clear_frames = 1;
+                }
             } else if (obstacle_frames > 0) {
                 obstacle_frames--;
             }
@@ -176,6 +183,7 @@ static void motion_control_task(void *parameters)
             write_motor_speed(0.0, 0.0, 0.0);
         } else {
             motion_control_on_motor_loop(motion_data, &motion_target, &current_pose);
+            clear_frames = 1;
         }
 
         // Broadcast current pose
