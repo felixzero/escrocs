@@ -64,6 +64,7 @@ end
 x_initial = 190
 y_initial = 882
 overwrite_known_pose(x_initial, y_initial, 0)
+side = get_button(22)
 sleep(30)
 
 -- Move to piedestal and pick statuette
@@ -82,11 +83,40 @@ move_to_position(x_safe_pied, y_safe_pied, pi / 4)
 --set_pose(nil, nil, pi / 4, true)
 sleep(2)
 --unsafe_move_to_position(x_contact_pied, y_contact_pied, nil, 4)
-move_straight(-400, 4)
-deposit_replique()
-move_to_position(x_safe_pied, y_safe_pied, nil)
+--move_straight(-400, 4)
+--deposit_replique()
+--move_to_position(x_safe_pied, y_safe_pied, nil)
 
 move_to_position_with_detection(300, 400, pi / 2)
+
+set_pose(nil, nil, -pi, false)
+sleep(0.5)
+while not is_motion_done() do
+    sleep(0.5)
+end
+move_straight(350, 4)
+move_straight(-80, 2)
+set_pose(nil, nil, pi / 2, false)
+sleep(0.5)
+while not is_motion_done() do
+    sleep(0.5)
+end
+move_stepper(0, 900, 0.15)
+sleep(2.0)
+move_straight(350, 3)
+if not side then
+    move_straight(-30, 2)
+end
+move_stepper(0, 1600, 0.15)
+sleep(2.0)
+move_straight(-150, 4)
+move_stepper(0, 2200, 0.15)
+sleep(2.0)
+move_straight(150, 4)
+
+move_straight(-400, 4)
+
+
 --[[
 -- Go to vitrine
 x_vitrine = 200

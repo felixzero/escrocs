@@ -143,8 +143,8 @@ for i = 1, #x_flips do
     lower_arm(pump_1)
 end
 lower_arm(pump_1)
-move_to_position(407, 1482, -pi / 6)
+move_to_position(407, 1550, -pi / 6)
 
 -- Finally go home
-move_to_position(290, 1000, 0)
+move_to_position(200, 1000, 0)
 
