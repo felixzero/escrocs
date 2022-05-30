@@ -5,22 +5,31 @@
 #define LED_COUNT 60
 #define LED_PIN 6
 
-#define SERVO_PIN 9
+//#define SERVO_PIN 9
 
-#define CONTACT_PIN A2
+#define US_TRIG_PIN 9
+#define US_ECHO_PIN A2
+
+//#define CONTACT_PIN A2
 #define SIDE_PIN A3
+
+#define DETECTION_DISTANCE 17 //cm
+const unsigned long MEASURE_TIMEOUT = 25000UL; // 25ms = ~8m à 340m/s
+
 
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
-Adafruit_TiCoServo arm; 
+//Adafruit_TiCoServo arm; 
 int done = 0;
+int detectionCounter = 0;
+int missCounter = 0;
+const float SOUND_SPEED = 340.0 / 1000; // mm/µs
 
 uint32_t sideYellow = strip.Color(0xFF, 0x3F, 0x00); //(0xFF, 0x2F, 0x00);
 uint32_t sidePurple=  strip.Color(0x62, 0x00, 0xDF); //(0x92, 0x00, 0xDF);
 uint32_t currentSide = sideYellow;
 
-
-void fetch() // Move the servo gently, to avoid detaching the magnets
+/*void fetch() // Move the servo gently, to avoid detaching the magnets
 {
   //Serial.println("FETCHING =====================");
   int servoAngle = 90; 
@@ -42,8 +51,7 @@ void initservo()
       Serial.println(servoAngle);
       delay(10);
     }
-}
-
+}*/
 
 void rainbow(int wait, int cycles) {
   // Hue of first pixel runs _cycles_ complete loops through the color wheel.
@@ -107,16 +115,21 @@ void rotateVoid(uint32_t color, int wait) {
 void setup() 
 {
   Serial.begin(9600);
-  pinMode(CONTACT_PIN, INPUT_PULLUP); // contact switch  
+  //pinMode(CONTACT_PIN, INPUT_PULLUP); // contact switch  
   pinMode(SIDE_PIN, INPUT_PULLUP);    // side switch
-  arm.attach(SERVO_PIN); //, SERVO_MIN, SERVO_MAX);
-  initservo(); // init pos
+  //arm.attach(SERVO_PIN); //, SERVO_MIN, SERVO_MAX);
+  //initservo(); // init pos
   
   // NeoPixel Setup ------------------------------------------------------
   strip.begin();           // INITIALIZE NeoPixel strip object
   strip.show();            // Turn OFF all pixels
   strip.setBrightness(40); // Set BRIGHTNESS to about 1/6 (max = 255)
   //----------------------------------------------------------------------
+
+  // Sonar setup ---------------------------------------------------------
+  pinMode(US_TRIG_PIN, OUTPUT);
+  digitalWrite(US_TRIG_PIN, LOW);
+  pinMode(US_ECHO_PIN, INPUT);
 
   currentSide = digitalRead(SIDE_PIN) ? sideYellow : sidePurple; 
   Serial.print("Side: ");
@@ -127,14 +140,15 @@ void setup()
 
 void loop()
 {
-  int contact = digitalRead(CONTACT_PIN);
+  int contact = 0;
+  /* = digitalRead(CONTACT_PIN);
   Serial.print("Switch: ");
   Serial.print(contact);
   Serial.print(" / ");
   Serial.println(digitalRead(CONTACT_PIN));
   
   Serial.print("Done: ");
-  Serial.println(done);
+  Serial.println(done);*/
   
   if(!done)
   { //Update side color, just in case
@@ -143,8 +157,48 @@ void loop()
     Serial.print(currentSide);
     Serial.print("/");
     Serial.println(digitalRead(SIDE_PIN));
-  }
 
+    //Read distance from US sensor
+    digitalWrite(US_TRIG_PIN, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(US_TRIG_PIN, LOW);
+    long duration = pulseIn(US_ECHO_PIN, HIGH, MEASURE_TIMEOUT);
+    long distance = (duration / 2.0 * SOUND_SPEED)/10;  //duration / 29 / 2;
+
+    long distance2 = duration / 29 / 2;
+
+    if(distance <= DETECTION_DISTANCE && distance != 0 && distance != -1)
+    {
+      Serial.println("Detection !");
+      detectionCounter++;
+      missCounter=0;
+    }
+    else
+    {
+      Serial.println("Miss !");
+      missCounter++;
+      if(missCounter >= 2)
+      {
+        missCounter = 0;
+        detectionCounter = 0;
+      }
+    }
+
+    if(detectionCounter >= 5)
+    {
+      contact = 1;
+    }
+
+    Serial.print("Distance: ");
+    Serial.print(distance);
+    Serial.print(" // Distance 2: ");
+    Serial.print(distance2);
+    Serial.print(" Contact: ");
+    Serial.print(contact);
+    Serial.print(" (Count: ");
+    Serial.print(detectionCounter);
+    Serial.println(" )");
+  }
 
   if(contact && !done)
   {
@@ -153,10 +207,10 @@ void loop()
     colorWipe(currentSide, 10); // total wait ~600ms
     rotateVoid(currentSide, 5); // total wait ~300ms
     
-    delay(3000); //Wait 4s for robot to lower claw, in order to clear the hook
+    delay(2000); //Wait 4s for robot to clear the hook and push statue
     
     // ITS PLACE IS IN A MUSEUM !!!
-    fetch();
+    //fetch();
   }
   if(done)
   {
