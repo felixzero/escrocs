@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "ultrasound.h": "c",
+        "interrupt.h": "c",
+        "global_definitions.h": "c",
+        "delay.h": "c",
+        "io.h": "c",
+        "stdint.h": "c",
+        "i2c_registers.h": "c",
+        "controller.h": "c",
+        "i2c.h": "c"
+    }
+}
