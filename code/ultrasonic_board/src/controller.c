@@ -43,11 +43,12 @@ void perform_ultrasound_scan(yield_fn yield)
             continue;
         }
         TCNT0 = 0;
-        ultrasound_distances[i] = pulse_ultrasound(i);
+        ultrasound_distances[i] = pulse_ultrasound(i, yield);
         yield();
 
-        while (TCNT0 < REPETITION_RATE);
-        yield();
+        while (TCNT0 < REPETITION_RATE) {
+            yield();
+        }
     }
     // FIXME: Causes race conditions with the I2C bus; to be put back when fixed
     //write_led_strip_values(ultrasound_distances, enabled_channels, critical_threshold_distance);
