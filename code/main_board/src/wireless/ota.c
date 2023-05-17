@@ -23,7 +23,10 @@ esp_err_t firmware_upgrade_handler(httpd_req_t *req)
     // Retrieve OTA partition
     const esp_partition_t *update_partition = esp_ota_get_next_update_partition(NULL);
     assert(update_partition != NULL);
-    ESP_LOGI(TAG, "Writing to partition subtype %d at offset 0x%x", update_partition->subtype, update_partition->address);
+    ESP_LOGI(TAG,
+        "Writing to partition subtype %d at offset 0x%x",
+        update_partition->subtype, (unsigned int)update_partition->address
+    );
 
     // Initiate OTA
     esp_ota_handle_t update_handle = 0;
