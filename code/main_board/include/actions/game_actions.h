@@ -40,6 +40,11 @@
     X_INT_ARGS(channel) \
     X_INT_ARGS(value)
 #define MOVE_SERVO_OUTPUT // nothing
+#define SET_PERIPHERAL_MOTORS_ARGUMENTS \
+    X_FLOAT_ARGS(channel1) \
+    X_FLOAT_ARGS(channel2) \
+    X_FLOAT_ARGS(channel3)
+#define SET_PERIPHERAL_MOTORS_OUTPUT // nothing
 #define GET_BUTTON_ARGUMENTS \
     X_INT_ARGS(channel)
 #define GET_BUTTON_OUTPUT \

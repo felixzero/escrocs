@@ -6,6 +6,7 @@
 #include "peripherals/stepper_board.h"
 #include "peripherals/gpio.h"
 #include "peripherals/peripherals.h"
+#include "peripherals/ultrasonic_board.h"
 #include "motion/motion_control.h"
 #include "actions/strategy.h"
 #include "motion/motor_board.h"
@@ -23,11 +24,14 @@ void app_main() {
     init_wifi_system();
     init_http_server();
     vTaskDelay(200);
+#ifdef CONFIG_ESP_ROBOT_HOLONOMIC
     init_stepper_board();
+#endif
     init_gpio();
+    init_ultrasonic_board();
+    init_peripherals();
 
 #ifdef CONFIG_ESP_ROBOT_HOLONOMIC
-    init_peripherals();
     set_peripherals_servo_channel(0, 6500);
     set_peripherals_servo_channel(1, 6500);
     set_peripherals_servo_channel(2, 6500);
