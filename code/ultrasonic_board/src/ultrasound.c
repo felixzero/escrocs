@@ -21,7 +21,7 @@ void init_ultrasound(void)
     TCCR1B = _BV(CS12);
 }
 
-uint8_t pulse_ultrasound(uint8_t channel_number)
+uint8_t pulse_ultrasound(uint8_t channel_number, void (*yield)(void))
 {
     // Set pin as output
     *DDR_LOOKUP[channel_number] |= _BV(BV_LOOKUP[channel_number]);
@@ -36,13 +36,15 @@ uint8_t pulse_ultrasound(uint8_t channel_number)
 
     // Wait until echo pulse starts
     TCNT1 = 0;
-    while (!(*PIN_LOOKUP[channel_number] & _BV(BV_LOOKUP[channel_number])) && (TCNT1 < TICKS_RETURN_TIMEOUT));
+    while (!(*PIN_LOOKUP[channel_number] & _BV(BV_LOOKUP[channel_number])) && (TCNT1 < TICKS_RETURN_TIMEOUT))
+        yield();
     if (TCNT1 >= TICKS_RETURN_TIMEOUT) {
         return 255;
     }
     TCNT1 = 0;
 
     // Wait until echo pulse stops
-    while ((*PIN_LOOKUP[channel_number] & _BV(BV_LOOKUP[channel_number])) && (TCNT1 < TICKS_PULSE_TIMEOUT));
+    while ((*PIN_LOOKUP[channel_number] & _BV(BV_LOOKUP[channel_number])) && (TCNT1 < TICKS_PULSE_TIMEOUT))
+        yield();
     return (TCNT1 >= TICKS_PULSE_TIMEOUT) ? 255 : TCNT1L;
 } 

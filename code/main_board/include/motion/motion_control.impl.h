@@ -18,11 +18,13 @@ void motion_control_update_pose(
     const encoder_measurement_t *current_encoder
 );
 void motion_control_on_motor_loop(void *motion_data, motion_status_t *motion_target, const pose_t *current_pose);
-bool motion_control_is_obstacle_near(
+void motion_control_scanning_angles(
     void *motion_data,
     motion_status_t *motion_target,
     const pose_t *current_pose,
-    float *obstacle_distances_by_angle
+    float *min_angle,
+    float *max_angle,
+    bool *perform_detection
 );
 
 #define UNUSED(x) (void)(x)
