@@ -1,0 +1,38 @@
+
+
+curl -X POST http://192.168.4.1/action/get_pose --data "{}"
+
+curl -X POST http://192.168.4.1/action/move_stepper --data "{\"channel\": 0, \"target\": 1000, \"speed\": 0.1}"
+
+curl -X POST http://192.168.4.1/action/set_pose --data "{\"x\": 340, \"y\": 340, \"theta\": 4.19, \"perform_detection\": false}"
+
+curl -X POST http://192.168.4.1/action/overwrite_pose --data "{\"x\": 340, \"y\": 340, \"theta\": 4.19}"
+
+
+
+
+
+
+STEPPER
+>> Grab
+curl -X POST http://192.168.4.1/action/move_stepper --data "{\"channel\": 0, \"target\": 20, \"speed\": 0.1}"
+>> Cruise
+curl -X POST http://192.168.4.1/action/move_stepper --data "{\"channel\": 0, \"target\": -700, \"speed\": 0.1}"
+
+
+LOGS_MAIN::Motion
+
+Refining with pose %f %f %f
+Proposed refinement from lidar too far: %f %f %f
+Warning: obstacle found
+Lidar board refined position to (X=%f, Y=%f, T=%f)
+Finished final rotation; idling
+Finished initial rotation; going to translate
+Finished translation; going to perform final rotation
+Finishing rotation with error of %f
+Wrote motor speed %f %f %f"
+
+
+LOGS_LIDAR
+UART: Timeout while fetching lidar UART packet
+Motor: Could not retrieve motor speed
