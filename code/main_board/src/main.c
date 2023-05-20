@@ -40,6 +40,7 @@ void app_main() {
     init_motion_control(read_switch(GPIO_CHANNEL_SIDE));
     init_lua_executor();
     init_udp_logger();
+    switch_on_led();
 
     while(1) {
         vTaskDelay(100);

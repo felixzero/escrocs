@@ -58,7 +58,11 @@ void send_to_i2c(int port, uint8_t slave_addr, void *buffer, size_t length)
     i2c_master_stop(i2c_handle);
 
     // Send to I2C bus
-    ESP_ERROR_CHECK_WITHOUT_ABORT(i2c_master_cmd_begin(port, i2c_handle, I2C_TIMEOUT_MS / portTICK_PERIOD_MS));
+    esp_err_t err = i2c_master_cmd_begin(port, i2c_handle, I2C_TIMEOUT_MS / portTICK_PERIOD_MS);
+    ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+    if (err != ESP_OK) {
+        i2c_reset_tx_fifo(port);
+    }
     i2c_cmd_link_delete(i2c_handle);
 }
 
@@ -74,7 +78,11 @@ void request_from_i2c(int port, uint8_t slave_addr, void *buffer, size_t length)
     i2c_master_read(i2c_handle, buffer + length - 1, 1, 1);
     i2c_master_stop(i2c_handle);
 
-    ESP_ERROR_CHECK_WITHOUT_ABORT(i2c_master_cmd_begin(port, i2c_handle, I2C_TIMEOUT_MS / portTICK_PERIOD_MS));
+    esp_err_t err = i2c_master_cmd_begin(port, i2c_handle, I2C_TIMEOUT_MS / portTICK_PERIOD_MS);
+    ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+    if (err != ESP_OK) {
+        i2c_reset_rx_fifo(port);
+    }
     i2c_cmd_link_delete(i2c_handle);
 }
 

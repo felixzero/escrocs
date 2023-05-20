@@ -141,6 +141,7 @@ static void motion_control_task(void *parameters)
             motion_data, &motion_target, &current_pose,
             &min_scanning_angle, &max_scanning_angle, &needs_detection
         );
+        
         if (motion_target.perform_detection && needs_detection) {
             set_ultrasonic_scan_angle(min_scanning_angle, max_scanning_angle);
         } else {

@@ -253,12 +253,17 @@ void motion_control_scanning_angles(
 
     translation_state_t *state = (translation_state_t*)data->current_state;
 
-    //float way_to_go = (state->target_x - current_pose->x) * cosf(current_pose->theta)
-    //    + (state->target_y - current_pose->y) * sinf(current_pose->theta);
+    float way_to_go = (state->target_x - current_pose->x) * cosf(current_pose->theta)
+        + (state->target_y - current_pose->y) * sinf(current_pose->theta);
 
     *perform_detection = true;
-    *min_angle = -data->tuning->ultrasonic_detection_angle;
-    *max_angle = data->tuning->ultrasonic_detection_angle;
+    if (way_to_go > 0) {
+        *min_angle = M_PI / 2 - 0.5 - data->tuning->ultrasonic_detection_angle;
+        *max_angle = M_PI / 2 - 0.5  + data->tuning->ultrasonic_detection_angle;
+    } else {
+        *min_angle = -M_PI / 2 - 0.5 - data->tuning->ultrasonic_detection_angle;
+        *max_angle = -M_PI / 2 - 0.5  + data->tuning->ultrasonic_detection_angle;
+    }
 }
 
 static float optimal_target_angle(const pose_t *target_pose, const pose_t *current_pose)

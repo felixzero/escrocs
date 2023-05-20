@@ -155,7 +155,7 @@ void motion_control_scanning_angles(
     *max_angle = 0;
     *perform_detection = false;
 
-    if (distance_to_target < data->tuning->obstacle_no_detection_distance) {
+    /*if (distance_to_target < data->tuning->obstacle_no_detection_distance) {
         return;
     }
 
@@ -167,13 +167,20 @@ void motion_control_scanning_angles(
         || (estimated_x_obstacle > TERRAIN_SIZE_X) || (estimated_y_obstacle > TERRAIN_SIZE_X)
     ) {
         return;
+    }*/
+
+    static int iteration = 0;
+    if (iteration % 10 == 0) {
+        ESP_LOGI(TAG, "TTTT: %f %f", angle_to_target, current_pose->theta);
     }
 
     *perform_detection = true;
     *min_angle = angle_to_target
+        - current_pose->theta
         - data->tuning->ultrasonic_detection_angle
         - data->tuning->ultrasonic_detection_angle_offset;
     *max_angle = angle_to_target
+        - current_pose->theta
         + data->tuning->ultrasonic_detection_angle
         - data->tuning->ultrasonic_detection_angle_offset;
 }

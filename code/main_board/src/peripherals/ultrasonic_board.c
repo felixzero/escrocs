@@ -14,6 +14,8 @@
 #define I2C_REG_CRITICAL_THRESHOLD      0x03
 #define I2C_REG_OBSTRUCTION             0x04
 
+#define OBSTRUCTION_DISTANCE 40
+
 esp_err_t init_ultrasonic_board(void)
 {
     ESP_LOGI(TAG, "Initializing ultrasonic detection subsystem.");
@@ -25,16 +27,18 @@ esp_err_t init_ultrasonic_board(void)
     }
 
     disable_ultrasonic_detection();
+    write_i2c_register(I2C_PORT_MOTOR, I2C_ADDR, I2C_REG_OBSTRUCTION, OBSTRUCTION_DISTANCE);
     return ESP_OK;
 }
 
 void set_ultrasonic_scan_angle(float min_angle, float max_angle)
 {
     uint16_t bit_field = 0;
+    static int iteration = 0;
 
     for (
-        int channel = floorf(min_angle / NUMBER_OF_SECTORS * 2 * M_PI);
-        channel <= ceilf(max_angle / NUMBER_OF_SECTORS * 2 * M_PI);
+        int channel = floorf(min_angle * NUMBER_OF_SECTORS / 2 / M_PI);
+        channel <= ceilf(max_angle * NUMBER_OF_SECTORS / 2 / M_PI);
         channel++
     ) {
         bit_field |= (1 << ((2 * NUMBER_OF_SECTORS - 1 - channel) % NUMBER_OF_SECTORS));
