@@ -92,6 +92,20 @@ def move_stepper():
     print(r)
     print(r.text)
 
+def set_pump():
+    if not ping(selectedHost.get()):
+        can1.itemconfig(ping_oval, fill = "red")
+        tkinter.messagebox.showerror("Error","ESCROBOT @"+ selectedHost.get() + " is offline.")
+        return;
+    if pump_state.get() == 'OFF':
+        val = False
+    else:
+        val = True
+        
+    r = requests.post("http://" + selectedHost.get() + "/" + 'action/set_pump', data = '{"channel": ' + pump_selected.get() + ', "value": ' + str(val).lower() +'}')
+    print("move_stepper")
+    print(r)
+    print(r.text)
 
 def lower_pump_to_floor():
     if not ping(selectedHost.get()):
@@ -281,7 +295,7 @@ lblSp.grid(row=2,column=0)
 
 channel_selected = tkinter.StringVar()
 chcombobox = ttk.Combobox(stepPane, textvariable=channel_selected)
-chcombobox['values'] = ('0', '1', '2', '3')
+chcombobox['values'] = ('0', '1', '2')
 channel_selected.set('0')
 
 chcombobox.grid(row=0, column=1)
@@ -310,42 +324,39 @@ stepPane.grid(row=1, column=1, sticky=W+E)
 #--------------------------------------------------------
 
 #------ Pump controls -----------------------------------
-##pumpPane = ttk.Frame(win, relief=GROOVE)
-##pumpPane['padding'] = (10,5,10,5)
-##pumpPane.rowconfigure(0, pad=10)
-##pumpPane.rowconfigure(1, pad=10)
-##pumpPane.rowconfigure(2, pad=10)
-##
-##lblCh = Label(pumpPane, text="Channel: ")
-##lblCh.grid(row=0,column=0)
-##lblTa = Label(pumpPane, text="State: ")
-##lblTa.grid(row=1,column=0)
-##
-##channel_selected = tkinter.StringVar()
-##chcombobox = ttk.Combobox(pumpPane, textvariable=channel_selected)
-##chcombobox['values'] = ('0', '1', '2', '3')
-##channel_selected.set('0')
-##
-##chcombobox.grid(row=0, column=1)
-##
-##target_selected = tkinter.StringVar()
-##target_selected.set('0')
-##entryTarget = Entry(pumpPane, textvariable=target_selected)
-##entryTarget.grid(row=1, column=1)
-##
-##speed_selected = tkinter.StringVar()
-##speed_selected.set('0.15')
-##entrySpeed = Entry(pumpPane, textvariable=speed_selected)
-##entrySpeed.grid(row=2, column=1)
-##
-###btnM=Button(pumpPane,text="Move stepper", command=lambda: move_stepper())
-###btnM.grid(row=3, column=0, columnspan=2, sticky=W+E);
-##
-##pumpPane.grid(row=2, column=1, sticky=W+E)
+pumpPane = ttk.Frame(win, relief=GROOVE)
+pumpPane['padding'] = (10,5,10,5)
+pumpPane.rowconfigure(0, pad=10)
+pumpPane.rowconfigure(1, pad=10)
+pumpPane.rowconfigure(2, pad=10)
+
+lblCh = Label(pumpPane, text="Channel: ")
+lblCh.grid(row=0,column=0)
+lblTa = Label(pumpPane, text="State: ")
+lblTa.grid(row=1,column=0)
+
+pump_selected = tkinter.StringVar()
+pchcombobox = ttk.Combobox(pumpPane, textvariable=pump_selected)
+pchcombobox['values'] = ('0', '1', '2')
+pump_selected.set('0')
+
+pchcombobox.grid(row=0, column=1)
+
+pump_state = tkinter.StringVar()
+pschcombobox = ttk.Combobox(pumpPane, textvariable=pump_state)
+pschcombobox['values'] = ('OFF', 'ON')
+pump_state.set('OFF')
+
+pschcombobox.grid(row=1, column=1)
+
+btnP=Button(pumpPane,text="Set pump", command=lambda: set_pump())
+btnP.grid(row=3, column=0, columnspan=2, sticky=W+E);
+
+pumpPane.grid(row=2, column=1, sticky=W+E)
 #--------------------------------------------------------
 
 textExample = scrolledtext.ScrolledText(win, wrap = WORD)
-textExample.grid(row=2, column=0, sticky=N+S+W+E)
+textExample.grid(row=2, rowspan=2, column=0, sticky=N+S+W+E)
 
 terrain=Canvas(win, bg='white')
 terrain.grid(row=3,column=3);
