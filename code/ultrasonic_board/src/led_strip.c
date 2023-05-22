@@ -29,7 +29,7 @@ void write_led_strip_values(uint8_t *values, bool *enabled, uint8_t critical_thr
         if (!enabled[i]) {
             led_strip_payload[3 * i + 0] = 0;
             led_strip_payload[3 * i + 1] = 0;
-            led_strip_payload[3 * i + 2] = 0;
+            led_strip_payload[3 * i + 2] = 255;
             continue;
         }
 

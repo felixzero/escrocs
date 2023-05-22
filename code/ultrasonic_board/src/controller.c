@@ -2,11 +2,12 @@
 #include "led_strip.h"
 #include "ultrasound.h"
 #include "controller.h"
+#include "i2c_registers.h"
 
 #include <stdbool.h>
 #include <avr/io.h>
 
-#define DEFAULT_CRITICAL_DISTANCE 100
+#define DEFAULT_CRITICAL_DISTANCE 40
 #define REPETITION_RATE 156 // 156 ticks = 20 ms
 
 bool enabled_channels[NUMBER_OF_US];
@@ -43,12 +44,22 @@ void perform_ultrasound_scan(yield_fn yield)
             continue;
         }
         TCNT0 = 0;
-        ultrasound_distances[i] = pulse_ultrasound(i);
+        ultrasound_distances[i] = pulse_ultrasound(i, yield);
         yield();
 
-        while (TCNT0 < REPETITION_RATE);
-        yield();
+        while (TCNT0 < REPETITION_RATE) {
+            if (TCNT0 > REPETITION_RATE - 20)
+                can_update_led = true;
+            yield();
+        }
+        can_update_led = false;
     }
-    write_led_strip_values(ultrasound_distances, enabled_channels, critical_threshold_distance);
-    led_strip_bit_banging();
+    // FIXME: Causes race conditions with the I2C bus; to be put back when fixed
+    if (should_update_led || 1) {
+        write_led_strip_values(ultrasound_distances, enabled_channels, critical_threshold_distance);
+        yield();
+        led_strip_bit_banging();
+        yield();
+        should_update_led = false;
+    }
 }

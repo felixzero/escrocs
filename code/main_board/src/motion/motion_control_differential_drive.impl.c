@@ -234,17 +234,21 @@ static bool handle_translation(void *data, const pose_t *current_pose)
     }
 }
 
-bool motion_control_is_obstacle_near(
+void motion_control_scanning_angles(
     void *motion_data,
     motion_status_t *motion_target,
     const pose_t *current_pose,
-    float *obstacle_distances_by_angle
+    float *min_angle,
+    float *max_angle,
+    bool *perform_detection
 ) {
-    struct differential_drive_data_t* data = (struct differential_drive_data_t*)motion_data;
+    struct differential_drive_data_t* data = (struct differential_drive_data_t*)motion_data;    
+
+    *perform_detection = false;
 
     // If not performing a translation, skip obstacle check
     if ((data->current_state == NULL) || (motion_target->motion_step != MOTION_STEP_TRANSLATION)) {
-        return false;
+        return;
     }
 
     translation_state_t *state = (translation_state_t*)data->current_state;
@@ -252,21 +256,13 @@ bool motion_control_is_obstacle_near(
     float way_to_go = (state->target_x - current_pose->x) * cosf(current_pose->theta)
         + (state->target_y - current_pose->y) * sinf(current_pose->theta);
 
-    ESP_LOGI(TAG, "Obstacles: %f %f %f %f %f %f %f %f",
-        obstacle_distances_by_angle[0], obstacle_distances_by_angle[1], obstacle_distances_by_angle[2], obstacle_distances_by_angle[3],
-        obstacle_distances_by_angle[4], obstacle_distances_by_angle[5], obstacle_distances_by_angle[6], obstacle_distances_by_angle[7]
-    );
-
-    if (way_to_go < 0) {
-        return (
-            (obstacle_distances_by_angle[0] < data->tuning->obstacle_distance_back)
-            || (obstacle_distances_by_angle[7] < data->tuning->obstacle_distance_back)
-        );
+    *perform_detection = true;
+    if (way_to_go > 0) {
+        *min_angle = M_PI / 2 - 0.5 - data->tuning->ultrasonic_detection_angle;
+        *max_angle = M_PI / 2 - 0.5  + data->tuning->ultrasonic_detection_angle;
     } else {
-        return (
-            (obstacle_distances_by_angle[3] < data->tuning->obstacle_distance_front)
-            || (obstacle_distances_by_angle[4] < data->tuning->obstacle_distance_front)
-        );
+        *min_angle = -M_PI / 2 - 0.5 - data->tuning->ultrasonic_detection_angle;
+        *max_angle = -M_PI / 2 - 0.5  + data->tuning->ultrasonic_detection_angle;
     }
 }
 

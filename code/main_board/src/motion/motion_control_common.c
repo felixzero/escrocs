@@ -4,6 +4,7 @@
 #include "motion/motor_board.h"
 #include "system/task_priority.h"
 #include "peripherals/lidar_board.h"
+#include "peripherals/ultrasonic_board.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -19,12 +20,10 @@
 #define MAX_LIDAR_REFINEMENT_T 0.3
 
 static QueueHandle_t input_target_queue, overwrite_pose_queue, output_status_queue, tuning_queue;
-static QueueHandle_t input_lidar_queue, output_pose_lidar_queue, output_obstacle_lidar_queue;
 
 static bool reversed_side;
 
 static void motion_control_task(void *parameters);
-static void lidar_communication_task(void *args);
 static pose_t apply_reverse_transformation(const pose_t *pose, bool reversed_side);
 
 void init_motion_control(bool reversed)
@@ -38,10 +37,6 @@ void init_motion_control(bool reversed)
     overwrite_pose_queue = xQueueCreate(1, sizeof(pose_t));
     output_status_queue = xQueueCreate(1, sizeof(motion_status_t));
     tuning_queue = xQueueCreate(1, sizeof(motion_control_tuning_t));
-    input_lidar_queue = xQueueCreate(1, sizeof(pose_t));
-    output_pose_lidar_queue = xQueueCreate(1, sizeof(pose_t));
-    output_obstacle_lidar_queue = xQueueCreate(1, sizeof(float*));
-    xTaskCreate(lidar_communication_task, "lidar_communication", TASK_STACK_SIZE, NULL, LIDAR_COMMUNICATION_PRIORITY, &task);
     xTaskCreate(motion_control_task, "motion_control", TASK_STACK_SIZE, NULL, MOTION_CONTROL_PRIORITY, &task);
 }
 
@@ -117,7 +112,6 @@ static void motion_control_task(void *parameters)
     read_encoders(&previous_encoder);
     motion_control_on_init(&motion_data, &tuning);
     int iteration = 0;
-    unsigned int obstacle_frames = 0, clear_frames = 0;
 
     while (true) {
         vTaskDelayUntil(&iteration_time, MOTION_PERIOD_MS / portTICK_PERIOD_MS);
@@ -136,54 +130,30 @@ static void motion_control_task(void *parameters)
         read_encoders(&encoder);
         motion_control_update_pose(motion_data, &current_pose, &previous_encoder, &encoder);
         previous_encoder = encoder;
-        xQueueOverwrite(input_lidar_queue, &current_pose);
 
         if (iteration % 100 == 0) {
             ESP_LOGI(TAG, "Pose: %f %f %f", current_pose.x, current_pose.y, current_pose.theta);
         }
 
-        // Retrieve absolute pose from lidar
-        /*pose_t lidar_pose;
-        if (xQueueReceive(output_pose_lidar_queue, &lidar_pose, 0)) {
-            if (
-                (fabsf(current_pose.x - lidar_pose.x) < MAX_LIDAR_REFINEMENT_XY)
-                && (fabsf(current_pose.y - lidar_pose.y) < MAX_LIDAR_REFINEMENT_XY)
-                && (fabsf(current_pose.theta - lidar_pose.theta) < MAX_LIDAR_REFINEMENT_T)
-            ) {
-                ESP_LOGD(TAG, "Refining with pose %f %f %f", lidar_pose.x, lidar_pose.y, lidar_pose.theta);
-                current_pose.x = tuning.lidar_filter * lidar_pose.x + (1.0 - tuning.lidar_filter) * current_pose.x;
-                current_pose.y = tuning.lidar_filter * lidar_pose.y + (1.0 - tuning.lidar_filter) * current_pose.y;
-                current_pose.theta = tuning.lidar_filter * lidar_pose.theta + (1.0 - tuning.lidar_filter) * current_pose.theta;
-            } else {
-                ESP_LOGW(TAG, "Proposed refinement from lidar too far: %f %f %f", lidar_pose.x, lidar_pose.y, lidar_pose.theta);
-            }
-        }*/
-
-        float *obstacle_distances_by_angle;
-        if (xQueueReceive(output_obstacle_lidar_queue, &obstacle_distances_by_angle, 0)) {
-            if (
-                motion_target.perform_detection
-                && motion_control_is_obstacle_near(motion_data, &motion_target, &current_pose, obstacle_distances_by_angle)
-            ) {
-                if (clear_frames == 0) {
-                    obstacle_frames = OBSTACLE_FRAMES_TO_CLEAR;
-                    ESP_LOGW(TAG, "Warning: obstacle found");
-                } else {
-                    clear_frames = 1;
-                }
-            } else if (obstacle_frames > 0) {
-                obstacle_frames--;
-            }
-
-            free(obstacle_distances_by_angle);
+        float min_scanning_angle, max_scanning_angle;
+        bool needs_detection;
+        motion_control_scanning_angles(
+            motion_data, &motion_target, &current_pose,
+            &min_scanning_angle, &max_scanning_angle, &needs_detection
+        );
+        
+        if (motion_target.perform_detection && needs_detection) {
+            set_ultrasonic_scan_angle(min_scanning_angle, max_scanning_angle);
+        } else {
+            disable_ultrasonic_detection();
         }
 
+        bool obstacle_detected = ultrasonic_has_obstacle() && needs_detection && motion_target.perform_detection;
         // Calculate new motor targets
-        if ((motion_target.motion_step == MOTION_STEP_DONE) || (obstacle_frames > 0)) {
+        if ((motion_target.motion_step == MOTION_STEP_DONE) || obstacle_detected) {
             write_motor_speed(0.0, 0.0, 0.0);
         } else {
             motion_control_on_motor_loop(motion_data, &motion_target, &current_pose);
-            clear_frames = 1;
         }
 
         // Broadcast current pose
@@ -207,34 +177,4 @@ static pose_t apply_reverse_transformation(const pose_t *pose, bool reversed_sid
         reversed_pose.theta = fmodf(M_PI - pose->theta, 2.0 * M_PI);
     }
     return reversed_pose;
-}
-
-static void lidar_communication_task(void *args)
-{
-    TickType_t iteration_time = xTaskGetTickCount();
-
-    for (int i = 0; true; i++) {
-        pose_t current_pose, lidar_pose;
-
-        vTaskDelayUntil(&iteration_time, LIDAR_PERIOD_MS / portTICK_PERIOD_MS);
-        xQueueReceive(input_lidar_queue, &current_pose, portMAX_DELAY);
-
-        float *obstacle_distances_by_angle = malloc(NUMBER_OF_CLUSTER_ANGLES * sizeof(float));
-        if (!refine_pose(&current_pose, &lidar_pose, obstacle_distances_by_angle)) {
-            free(obstacle_distances_by_angle);
-            continue;
-        }
-
-        if (i % 20 == 0) {
-            ESP_LOGI(
-                TAG, "Lidar board refined position to (X=%f, Y=%f, T=%f)",
-                lidar_pose.x, lidar_pose.y, lidar_pose.theta
-            );
-        }
-
-        xQueueOverwrite(output_pose_lidar_queue, &lidar_pose);
-        if (xQueueSend(output_obstacle_lidar_queue, &obstacle_distances_by_angle, 0) != pdTRUE) {
-            free(obstacle_distances_by_angle);
-        }
-    }
 }

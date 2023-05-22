@@ -7,6 +7,9 @@
 #define INFO_VALUE 0x99
 #define ERROR_VALUE 0xAA
 
+bool can_update_led = true;
+bool should_update_led = true;
+
 uint8_t read_i2c_register(uint8_t reg)
 {
     if ((reg >= I2C_REG_VALUE_CHANNEL_0) || (reg >= I2C_REG_VALUE_CHANNEL_0 + NUMBER_OF_US)) {
@@ -37,6 +40,8 @@ uint8_t read_i2c_register(uint8_t reg)
     case I2C_REG_CRITICAL_THRESHOLD:
         return critical_threshold_distance;
     case I2C_REG_OBSTRUCTION:
+        if (can_update_led)
+            should_update_led = true;
         return is_path_obstructed();
     default:
         return ERROR_VALUE;

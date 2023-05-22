@@ -135,11 +135,13 @@ void motion_control_on_motor_loop(void *motion_data, motion_status_t *motion_tar
     ESP_LOGD(TAG, "Wrote motor speed %f %f %f", motor_setpoints[0], motor_setpoints[1], motor_setpoints[2]);
 }
 
-bool motion_control_is_obstacle_near(
+void motion_control_scanning_angles(
     void *motion_data,
     motion_status_t *motion_target,
     const pose_t *current_pose,
-    float *obstacle_distances_by_angle
+    float *min_angle,
+    float *max_angle,
+    bool *perform_detection
 ) {
     struct holonomic_data_t* data = (struct holonomic_data_t*)motion_data;
     const pose_t target_pose = motion_target->pose;
@@ -149,8 +151,12 @@ bool motion_control_is_obstacle_near(
         + (target_pose.y - current_pose->y) * (target_pose.y - current_pose->y)
     );
 
-    if (distance_to_target < data->tuning->obstacle_no_detection_distance) {
-        return false;
+    *min_angle = 0;
+    *max_angle = 0;
+    *perform_detection = false;
+
+    /*if (distance_to_target < data->tuning->obstacle_no_detection_distance) {
+        return;
     }
 
     float estimated_x_obstacle = current_pose->x + distance_to_target * cosf(angle_to_target);
@@ -160,23 +166,23 @@ bool motion_control_is_obstacle_near(
         (estimated_x_obstacle < 0) || (estimated_y_obstacle < 0)
         || (estimated_x_obstacle > TERRAIN_SIZE_X) || (estimated_y_obstacle > TERRAIN_SIZE_X)
     ) {
-        return false;
+        return;
+    }*/
+
+    static int iteration = 0;
+    if (iteration % 10 == 0) {
+        ESP_LOGI(TAG, "TTTT: %f %f", angle_to_target, current_pose->theta);
     }
 
-    int index_of_direction = (int)floorf(
-        fmodf(
-        3 * NUMBER_OF_CLUSTER_ANGLES / 2
-        - (angle_to_target - current_pose->theta) * NUMBER_OF_CLUSTER_ANGLES / 2 / M_PI,
-        NUMBER_OF_CLUSTER_ANGLES
-        )
-    );
-    float distance_to_obstacle = obstacle_distances_by_angle[index_of_direction];
-
-    bool result = ((distance_to_obstacle < data->tuning->obstacle_distance) && (distance_to_obstacle > 15));
-    if (result) {
-        ESP_LOGI(TAG, "Obstacle at distance: %f with angle %d", distance_to_obstacle * 10, index_of_direction);
-    }
-    return result;
+    *perform_detection = true;
+    *min_angle = angle_to_target
+        - current_pose->theta
+        - data->tuning->ultrasonic_detection_angle
+        - data->tuning->ultrasonic_detection_angle_offset;
+    *max_angle = angle_to_target
+        - current_pose->theta
+        + data->tuning->ultrasonic_detection_angle
+        - data->tuning->ultrasonic_detection_angle_offset;
 }
 
 static float apply_friction_non_linearity(float setpoint, const motion_control_tuning_t *tuning)

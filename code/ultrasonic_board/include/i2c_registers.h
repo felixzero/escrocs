@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #define I2C_REG_INFO                    0x00
 #define I2C_REG_ENABLED_CHANNELS_1      0x01
@@ -25,3 +26,5 @@
 uint8_t read_i2c_register(uint8_t reg);
 
 void write_i2c_register(uint8_t reg, uint8_t value);
+
+extern bool should_update_led, can_update_led;

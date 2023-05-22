@@ -2,9 +2,9 @@
 
 // X-Macro definition of motion control fields
 #define MOTION_CONTROL_TUNING_FIELDS \
-    X(lidar_filter, 0.1) \
-    X(obstacle_distance, 45.0) \
     X(obstacle_no_detection_distance, 5.0) \
+    X(ultrasonic_detection_angle, 0.5) \
+    X(ultrasonic_detection_angle_offset, 0.0) \
     X(wheel_radius, 32.5) \
     X(robot_radius, 139.0) \
     X(max_speed, 0.7) \
