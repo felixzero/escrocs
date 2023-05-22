@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "load_compensated_motors.h": "c",
+        "i2c_registers.h": "c",
+        "basic_io.h": "c"
+    }
+}
