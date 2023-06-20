@@ -1,3 +1,4 @@
 (sym_lib_table
-  (lib (name custom)(type Legacy)(uri ${KIPRJMOD}/custom.lib)(options "")(descr ""))
+  (lib (name "custom")(type "Legacy")(uri "${KIPRJMOD}/custom.lib")(options "")(descr ""))
+  (lib (name "stepper_board-rescue")(type "Legacy")(uri "${KIPRJMOD}/stepper_board-rescue.lib")(options "")(descr ""))
 )

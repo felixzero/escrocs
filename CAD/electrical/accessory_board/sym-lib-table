@@ -1,3 +1,4 @@
 (sym_lib_table
-  (lib (name customlib)(type Legacy)(uri ${KIPRJMOD}/customlib.lib)(options "")(descr ""))
+  (lib (name "customlib")(type "Legacy")(uri "${KIPRJMOD}/customlib.lib")(options "")(descr ""))
+  (lib (name "accessory_board-rescue")(type "Legacy")(uri "${KIPRJMOD}/accessory_board-rescue.lib")(options "")(descr ""))
 )

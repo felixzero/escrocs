@@ -1,4 +1,0 @@
-(sym_lib_table
-  (lib (name "gun_board-rescue")(type "Legacy")(uri "${KIPRJMOD}/gun_board-rescue.lib")(options "")(descr ""))
-  (lib (name "gun_board")(type "KiCad")(uri "${KIPRJMOD}/gun_board.kicad_sym")(options "")(descr ""))
-)

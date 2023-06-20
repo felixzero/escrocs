@@ -1,4 +1,0 @@
-(fp_lib_table
-  (lib (name custom)(type KiCad)(uri ${KIPRJMOD}/custom.pretty)(options "")(descr ""))
-  (lib (name lidar_board)(type KiCad)(uri /home/felixzero/escrocs/CAD/electrical/lidar_board_v2/lidar_board.pretty)(options "")(descr ""))
-)
