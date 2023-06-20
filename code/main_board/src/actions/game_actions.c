@@ -4,6 +4,7 @@
 #include "peripherals/stepper_board.h"
 #include "peripherals/gpio.h"
 #include "peripherals/peripherals.h"
+#include "peripherals/lcd_screen.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -98,5 +99,19 @@ struct GAME_ACTION_OUTPUT_STRUCT_NAME(sleep) game_action_sleep(struct GAME_ACTIO
 {
     vTaskDelay((int)(args.delay * 100));
     struct GAME_ACTION_OUTPUT_STRUCT_NAME(sleep) result;
+    return result;
+}
+
+struct GAME_ACTION_OUTPUT_STRUCT_NAME(display_score) game_action_display_score(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(display_score) args)
+{
+    lcd_printf(1, "Score: %d", args.score);
+    struct GAME_ACTION_OUTPUT_STRUCT_NAME(display_score) result;
+    return result;
+}
+
+struct GAME_ACTION_OUTPUT_STRUCT_NAME(print) game_action_print(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(print) args)
+{
+    lcd_printf(0, args.message);
+    struct GAME_ACTION_OUTPUT_STRUCT_NAME(print) result;
     return result;
 }

@@ -7,6 +7,8 @@
 #include "peripherals/gpio.h"
 #include "peripherals/peripherals.h"
 #include "peripherals/ultrasonic_board.h"
+#include "peripherals/lcd_screen.h"
+#include "peripherals/rotary_encoder.h"
 #include "motion/motion_control.h"
 #include "actions/strategy.h"
 #include "motion/motor_board.h"
@@ -28,8 +30,8 @@ void app_main() {
     init_stepper_board();
 #endif
     init_gpio();
-    init_ultrasonic_board();
-    init_peripherals();
+    //init_ultrasonic_board();
+    //init_peripherals();
 
 #ifdef CONFIG_ESP_ROBOT_HOLONOMIC
     set_peripherals_servo_channel(0, 6500);
@@ -37,12 +39,16 @@ void app_main() {
     set_peripherals_servo_channel(2, 6500);
 #endif
 
-    init_motion_control(read_switch(GPIO_CHANNEL_SIDE));
-    init_lua_executor();
-    init_udp_logger();
+    //init_motion_control(read_switch(GPIO_CHANNEL_SIDE));
+    //init_lua_executor();
+    //init_udp_logger();
+    //init_lcd_screen();
+    //init_rotary_encoder();
     switch_on_led();
 
+    switch_buzzer_on();
     while(1) {
-        vTaskDelay(100);
+        vTaskDelay(20);
+        switch_buzzer_off();
     }
 }

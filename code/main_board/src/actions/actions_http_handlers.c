@@ -65,6 +65,14 @@ if (item == NULL || !cJSON_IsBool(item)) { \
 } \
 args.parameter_name = cJSON_IsTrue(item);
 
+#define X_STR_ARGS(parameter_name) \
+item = cJSON_GetObjectItem(root, #parameter_name); \
+if (item == NULL || !cJSON_IsString(item)) { \
+    httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Could not retrieve parameter " #parameter_name "\n"); \
+    return ESP_OK; \
+} \
+args.parameter_name = cJSON_GetStringValue(item);
+
 #define X_FLOAT_OUTPUT(parameter_name) \
 entry = cJSON_CreateNumber(output.parameter_name); \
 cJSON_AddItemToObject(root, #parameter_name, entry);

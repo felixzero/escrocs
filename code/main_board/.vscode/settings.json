@@ -54,7 +54,11 @@
         "streambuf": "c",
         "spiffs.h": "c",
         "lidar_board.h": "c",
-        "gpio.h": "c"
+        "gpio.h": "c",
+        "lcd_screen.h": "c",
+        "sstream": "cpp",
+        "rotary_encoder.h": "c",
+        "pcnt.h": "c"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }

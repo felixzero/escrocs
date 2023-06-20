@@ -13,3 +13,6 @@ void init_gpio(void);
 bool read_switch(int channel);
 
 void switch_on_led(void);
+
+void switch_buzzer_on(void);
+void switch_buzzer_off(void);
