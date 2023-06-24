@@ -2,9 +2,8 @@
 
 #include "motion/motion_control.h"
 #include "peripherals/stepper_board.h"
-#include "peripherals/gpio.h"
+#include "peripherals/user_interface.h"
 #include "peripherals/peripherals.h"
-#include "peripherals/lcd_screen.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>

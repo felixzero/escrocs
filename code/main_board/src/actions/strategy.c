@@ -2,7 +2,7 @@
 #include "actions_lua_functions.h"
 #include "system/spiffs.h"
 #include "system/task_priority.h"
-#include "peripherals/gpio.h"
+#include "peripherals/user_interface.h"
 #include "peripherals/stepper_board.h"
 #include "motion/motion_control.h"
 
