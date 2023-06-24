@@ -54,6 +54,13 @@ struct GAME_ACTION_OUTPUT_STRUCT_NAME(is_motion_done) game_action_is_motion_done
     return result;
 }
 
+struct GAME_ACTION_OUTPUT_STRUCT_NAME(is_motion_path_blocked) game_action_is_motion_path_blocked(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(is_motion_path_blocked) args)
+{
+    struct GAME_ACTION_OUTPUT_STRUCT_NAME(is_motion_path_blocked) result;
+    result.motion_blocked = is_motion_path_blocked();
+    return result;
+}
+
 #define PERIPHERAL_CHANNEL_OFFSET 10
 struct GAME_ACTION_OUTPUT_STRUCT_NAME(set_pump) game_action_set_pump(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(set_pump) args)
 {

@@ -18,6 +18,7 @@ typedef struct {
 typedef struct {
     pose_t pose;
     bool perform_detection;
+    bool obstacle_detected;
     int motion_step;
 } motion_status_t;
 
@@ -57,6 +58,11 @@ void stop_motion(void);
  * Check if the robot is still in motion
  */
 bool is_motion_done(void);
+
+/**
+ * Check if the robot is blocked by an ultrasound emergency detection
+ */
+bool is_motion_path_blocked(void);
 
 /**
  * Apply feedback control tuning parameters
