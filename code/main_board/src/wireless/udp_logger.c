@@ -1,4 +1,4 @@
-#include "wireless/udp_logger.h"
+#include "udp_logger.h"
 #include "system/task_priority.h"
 
 #include <freertos/FreeRTOS.h>

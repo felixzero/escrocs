@@ -1,5 +1,5 @@
-#include "actions/game_actions.h"
-#include "actions/actions_lua_functions.h"
+#include "game_actions.h"
+#include "actions_lua_functions.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>

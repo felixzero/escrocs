@@ -11,14 +11,12 @@
 #include "peripherals/rotary_encoder.h"
 #include "motion/motion_control.h"
 #include "actions/strategy.h"
-#include "motion/motor_board.h"
+#include "peripherals/motor_board.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <esp_log.h>
 
-
-#include "peripherals/lidar_board.h"
 void app_main() {
     ESP_LOGI("main", "Starting ESCRObot application...\n");
     init_i2c_master();

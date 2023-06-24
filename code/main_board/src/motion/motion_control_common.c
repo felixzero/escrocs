@@ -1,9 +1,8 @@
-#include "motion/motion_control.h"
-#include "motion/motion_control.impl.h"
+#include "motion_control.h"
+#include "motion_control.impl.h"
 
-#include "motion/motor_board.h"
+#include "peripherals/motor_board.h"
 #include "system/task_priority.h"
-#include "peripherals/lidar_board.h"
 #include "peripherals/ultrasonic_board.h"
 
 #include <freertos/FreeRTOS.h>

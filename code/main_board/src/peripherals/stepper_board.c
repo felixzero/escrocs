@@ -1,4 +1,4 @@
-#include "peripherals/stepper_board.h"
+#include "stepper_board.h"
 #include "system/i2c_master.h"
 
 #include <esp_log.h>

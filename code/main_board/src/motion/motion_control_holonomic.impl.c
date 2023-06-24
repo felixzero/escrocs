@@ -1,5 +1,4 @@
-#include "motion/motion_control.impl.h"
-#include "peripherals/lidar_board.h"
+#include "motion_control.impl.h"
 
 // This file is only compiled for holonomic robots
 #ifdef CONFIG_ESP_ROBOT_HOLONOMIC

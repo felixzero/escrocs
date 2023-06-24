@@ -1,4 +1,4 @@
-#include "actions/game_actions.h"
+#include "game_actions.h"
 
 #include "motion/motion_control.h"
 #include "peripherals/stepper_board.h"

@@ -1,4 +1,4 @@
-#include "peripherals/lcd_screen.h"
+#include "lcd_screen.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>

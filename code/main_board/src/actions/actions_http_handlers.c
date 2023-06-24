@@ -1,4 +1,4 @@
-#include "actions/game_actions.h"
+#include "game_actions.h"
 
 #include <esp_err.h>
 #include <esp_log.h>

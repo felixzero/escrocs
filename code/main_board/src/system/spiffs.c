@@ -1,4 +1,4 @@
-#include "system/spiffs.h"
+#include "spiffs.h"
 
 #include <esp_log.h>
 #include <esp_spiffs.h>

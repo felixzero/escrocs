@@ -4,8 +4,8 @@
 #define MOTION_PERIOD_MS 10
 #define LIDAR_PERIOD_MS 200
 
-#include "motion/motion_control.h"
-#include "motion/motor_board.h"
+#include "motion_control.h"
+#include "peripherals/motor_board.h"
 
 void motion_control_on_motion_target_set(motion_status_t *motion_target, const pose_t *target, const pose_t *current_pose);
 void motion_control_on_init(void **motion_data, motion_control_tuning_t *tuning);

@@ -1,4 +1,4 @@
-#include "peripherals/rotary_encoder.h"
+#include "rotary_encoder.h"
 
 #include <driver/gpio.h>
 #include <driver/pulse_cnt.h>

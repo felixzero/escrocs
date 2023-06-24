@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "system/i2c_master.h"
+#include "i2c_master.h"
 
 #define I2C_SDA_PIN_MOTOR 18
 #define I2C_SCL_PIN_MOTOR 19

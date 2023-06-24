@@ -1,4 +1,4 @@
-#include "peripherals/ultrasonic_board.h"
+#include "ultrasonic_board.h"
 #include "system/i2c_master.h"
 
 #include <esp_log.h>
@@ -34,7 +34,6 @@ esp_err_t init_ultrasonic_board(void)
 void set_ultrasonic_scan_angle(float min_angle, float max_angle)
 {
     uint16_t bit_field = 0;
-    static int iteration = 0;
 
     for (
         int channel = floorf(min_angle * NUMBER_OF_SECTORS / 2 / M_PI);

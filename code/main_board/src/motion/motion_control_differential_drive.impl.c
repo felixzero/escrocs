@@ -1,4 +1,4 @@
-#include "motion/motion_control.impl.h"
+#include "motion_control.impl.h"
 
 // This file is only compiled for differential drive robots
 #ifdef CONFIG_ESP_ROBOT_DIFFERENTIAL_DRIVE

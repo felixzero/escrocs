@@ -1,5 +1,5 @@
-#include "actions/strategy.h"
-#include "actions/actions_lua_functions.h"
+#include "strategy.h"
+#include "actions_lua_functions.h"
 #include "system/spiffs.h"
 #include "system/task_priority.h"
 #include "peripherals/gpio.h"
