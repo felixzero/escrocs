@@ -54,6 +54,12 @@ void request_full_ultrasonic_scan(void)
     write_i2c_register(I2C_PORT_MOTOR, I2C_ADDR, I2C_REG_ENABLED_CHANNELS_2, 0xFF);
 }
 
+void wait_for_next_full_scan(void)
+{
+    // FIXME: Actually synchronize
+    vTaskDelay(10);
+}
+
 bool ultrasonic_has_obstacle(void)
 {
     return read_i2c_register(I2C_PORT_MOTOR, I2C_ADDR, I2C_REG_OBSTRUCTION);

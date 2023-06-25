@@ -26,6 +26,10 @@
 #define IS_MOTION_PATH_BLOCKED_ARGUMENTS // nothing
 #define IS_MOTION_PATH_BLOCKED_OUTPUT \
     X_BOOL_OUTPUT(motion_blocked)
+#define PERFORM_DETECTION_SCAN_ARGUMENTS // nothing
+#define PERFORM_DETECTION_SCAN_OUTPUT \
+    X_FLOAT_ARRAY_OUTPUT(distances) \
+    X_FLOAT_ARRAY_OUTPUT(angles)
 #define SET_PUMP_ARGUMENTS \
     X_INT_ARGS(channel) \
     X_BOOL_ARGS(value)
@@ -69,6 +73,7 @@
     X(stop_motion, game_action_stop_motion, STOP_MOTION_ARGUMENTS, STOP_MOTION_OUTPUT) \
     X(is_motion_done, game_action_is_motion_done, IS_MOTION_DONE_ARGUMENTS, IS_MOTION_DONE_OUTPUT) \
     X(is_motion_path_blocked, game_action_is_motion_path_blocked, IS_MOTION_PATH_BLOCKED_ARGUMENTS, IS_MOTION_PATH_BLOCKED_OUTPUT) \
+    X(perform_detection_scan, game_action_perform_detection_scan, PERFORM_DETECTION_SCAN_ARGUMENTS, PERFORM_DETECTION_SCAN_OUTPUT) \
     X(set_pump, game_action_set_pump, SET_PUMP_ARGUMENTS, SET_PUMP_OUTPUT) \
     X(move_stepper, game_action_move_stepper, MOVE_STEPPER_ARGUMENTS, MOVE_STEPPER_OUTPUT) \
     X(reset_stepper, game_action_reset_stepper, RESET_STEPPER_ARGUMENTS, RESET_STEPPER_OUTPUT) \
@@ -97,6 +102,9 @@ struct GAME_ACTION_OUTPUT_STRUCT_NAME(action_name) { \
 #define X_FLOAT_OUTPUT(x) float x;
 #define X_INT_OUTPUT(x) int x;
 #define X_BOOL_OUTPUT(x) bool x;
+#define X_FLOAT_ARRAY_OUTPUT(x) \
+float *x; \
+int x##_size;
 DEFINE_GAME_ACTION_FUNCTIONS
 #undef X
 #undef X_FLOAT_ARGS
@@ -106,6 +114,7 @@ DEFINE_GAME_ACTION_FUNCTIONS
 #undef X_FLOAT_OUTPUT
 #undef X_INT_OUTPUT
 #undef X_BOOL_OUTPUT
+#undef X_FLOAT_ARRAY_OUTPUT
 
 // Define function prototypes
 #define X(action_name, function, ARGUMENTS, OUTPUT) \

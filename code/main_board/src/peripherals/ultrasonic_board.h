@@ -18,6 +18,11 @@ void set_ultrasonic_scan_angle(float min_angle, float max_angle);
 void request_full_ultrasonic_scan(void);
 
 /**
+ * Blocks the current task until the ultrasound mast has performed a complete scan
+ */
+void wait_for_next_full_scan(void);
+
+/**
  * Returns true if the ultrasonic mast detects an obstacle in its critical distance
  */
 bool ultrasonic_has_obstacle(void);

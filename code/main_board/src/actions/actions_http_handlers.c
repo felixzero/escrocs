@@ -85,6 +85,15 @@ cJSON_AddItemToObject(root, #parameter_name, entry);
 entry = cJSON_CreateBool(output.parameter_name); \
 cJSON_AddItemToObject(root, #parameter_name, entry);
 
+#define X_FLOAT_ARRAY_OUTPUT(parameter_name) \
+entry = cJSON_CreateArray(); \
+for (int i = 0; i < output.parameter_name##_size; ++i) { \
+    cJSON *element = cJSON_CreateNumber(output.parameter_name[i]); \
+    cJSON_AddItemToArray(entry, element); \
+} \
+cJSON_AddItemToObject(root, #parameter_name, entry); \
+free(output.parameter_name);
+
 DEFINE_GAME_ACTION_FUNCTIONS
 #undef X
 

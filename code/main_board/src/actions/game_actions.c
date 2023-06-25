@@ -4,6 +4,7 @@
 #include "peripherals/stepper_board.h"
 #include "peripherals/user_interface.h"
 #include "peripherals/peripherals.h"
+#include "peripherals/ultrasonic_board.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -58,6 +59,20 @@ struct GAME_ACTION_OUTPUT_STRUCT_NAME(is_motion_path_blocked) game_action_is_mot
 {
     struct GAME_ACTION_OUTPUT_STRUCT_NAME(is_motion_path_blocked) result;
     result.motion_blocked = is_motion_path_blocked();
+    return result;
+}
+
+struct GAME_ACTION_OUTPUT_STRUCT_NAME(perform_detection_scan) game_action_perform_detection_scan(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(perform_detection_scan) args)
+{
+    struct GAME_ACTION_OUTPUT_STRUCT_NAME(perform_detection_scan) result;
+    result.distances = malloc(NUMBER_OF_SECTORS * sizeof(float));
+    result.angles = malloc(NUMBER_OF_SECTORS * sizeof(float));
+    request_full_ultrasonic_scan();
+    wait_for_next_full_scan();
+    for (int i = 0; i < NUMBER_OF_SECTORS; ++i) {
+        result.distances[i] = ultrasonic_get_distance_by_sector(i);
+        result.angles[i] = ultrasonic_get_angle_by_sector(i);
+    }
     return result;
 }
 

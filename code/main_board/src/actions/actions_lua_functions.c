@@ -71,6 +71,13 @@ OUTPUT \
 #define X_BOOL_OUTPUT(parameter_name) \
     lua_pushboolean(L, output.parameter_name); \
     number_of_return_values++;
+#define X_FLOAT_ARRAY_OUTPUT(parameter_name) \
+    lua_newtable(L); \
+    for (int i = 0; i < output.parameter_name##_size; ++i) { \
+        lua_pushnumber(L, output.parameter_name[i]); \
+        lua_rawseti(L, -2, i + 1); \
+    } \
+    free(output.parameter_name);
 
 DEFINE_GAME_ACTION_FUNCTIONS
 #undef X
