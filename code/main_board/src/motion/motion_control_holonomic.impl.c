@@ -169,9 +169,6 @@ void motion_control_scanning_angles(
     }*/
 
     static int iteration = 0;
-    if (iteration % 10 == 0) {
-        ESP_LOGI(TAG, "TTTT: %f %f", angle_to_target, current_pose->theta);
-    }
 
     *perform_detection = true;
     *min_angle = angle_to_target
