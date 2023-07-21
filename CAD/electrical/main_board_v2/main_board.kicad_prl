@@ -62,11 +62,11 @@
       35,
       36
     ],
-    "visible_layers": "c00ffff_ffffffff",
+    "visible_layers": "ffdffff_ffffffff",
     "zone_display_mode": 0
   },
   "meta": {
-    "filename": "motor_board_v3.kicad_prl",
+    "filename": "main_board.kicad_prl",
     "version": 3
   },
   "project": {
