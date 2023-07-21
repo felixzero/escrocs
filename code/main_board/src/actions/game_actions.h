@@ -23,6 +23,13 @@
 #define IS_MOTION_DONE_ARGUMENTS // nothing
 #define IS_MOTION_DONE_OUTPUT \
     X_BOOL_OUTPUT(motion_done)
+#define IS_MOTION_PATH_BLOCKED_ARGUMENTS // nothing
+#define IS_MOTION_PATH_BLOCKED_OUTPUT \
+    X_BOOL_OUTPUT(motion_blocked)
+#define PERFORM_DETECTION_SCAN_ARGUMENTS // nothing
+#define PERFORM_DETECTION_SCAN_OUTPUT \
+    X_FLOAT_ARRAY_OUTPUT(distances) \
+    X_FLOAT_ARRAY_OUTPUT(angles)
 #define SET_PUMP_ARGUMENTS \
     X_INT_ARGS(channel) \
     X_BOOL_ARGS(value)
@@ -52,6 +59,12 @@
 #define SLEEP_ARGUMENTS \
     X_FLOAT_ARGS(delay)
 #define SLEEP_OUTPUT // nothing
+#define DISPLAY_SCORE_ARGUMENTS \
+    X_INT_ARGS(score)
+#define DISPLAY_SCORE_OUTPUT // nothing
+#define PRINT_ARGUMENTS \
+    X_STR_ARGS(message)
+#define PRINT_OUTPUT // nothing
 
 #define DEFINE_GAME_ACTION_FUNCTIONS \
     X(set_pose, game_action_set_pose, SET_POSE_ARGUMENTS, SET_POSE_OUTPUT) \
@@ -59,12 +72,16 @@
     X(overwrite_pose, game_action_overwrite_pose, OVERWRITE_POSE_ARGUMENTS, OVERWRITE_POSE_OUTPUT) \
     X(stop_motion, game_action_stop_motion, STOP_MOTION_ARGUMENTS, STOP_MOTION_OUTPUT) \
     X(is_motion_done, game_action_is_motion_done, IS_MOTION_DONE_ARGUMENTS, IS_MOTION_DONE_OUTPUT) \
+    X(is_motion_path_blocked, game_action_is_motion_path_blocked, IS_MOTION_PATH_BLOCKED_ARGUMENTS, IS_MOTION_PATH_BLOCKED_OUTPUT) \
+    X(perform_detection_scan, game_action_perform_detection_scan, PERFORM_DETECTION_SCAN_ARGUMENTS, PERFORM_DETECTION_SCAN_OUTPUT) \
     X(set_pump, game_action_set_pump, SET_PUMP_ARGUMENTS, SET_PUMP_OUTPUT) \
     X(move_stepper, game_action_move_stepper, MOVE_STEPPER_ARGUMENTS, MOVE_STEPPER_OUTPUT) \
     X(reset_stepper, game_action_reset_stepper, RESET_STEPPER_ARGUMENTS, RESET_STEPPER_OUTPUT) \
     X(move_servo, game_action_move_servo, MOVE_SERVO_ARGUMENTS, MOVE_SERVO_OUTPUT) \
     X(get_button, game_action_get_button, GET_BUTTON_ARGUMENTS, GET_BUTTON_OUTPUT) \
-    X(sleep, game_action_sleep, SLEEP_ARGUMENTS, SLEEP_OUTPUT)
+    X(sleep, game_action_sleep, SLEEP_ARGUMENTS, SLEEP_OUTPUT) \
+    X(display_score, game_action_display_score, DISPLAY_SCORE_ARGUMENTS, DISPLAY_SCORE_OUTPUT) \
+    X(print, game_action_print, PRINT_ARGUMENTS, PRINT_OUTPUT)
 
 // Define data parameter structures
 #define GAME_ACTION_ARGUMENTS_STRUCT_NAME(action_name) game_action_##action_name##_input_data_t
@@ -81,17 +98,23 @@ struct GAME_ACTION_OUTPUT_STRUCT_NAME(action_name) { \
 #define X_FLOAT_ARGS(x) float x;
 #define X_INT_ARGS(x) int x;
 #define X_BOOL_ARGS(x) bool x;
+#define X_STR_ARGS(x) const char *x;
 #define X_FLOAT_OUTPUT(x) float x;
 #define X_INT_OUTPUT(x) int x;
 #define X_BOOL_OUTPUT(x) bool x;
+#define X_FLOAT_ARRAY_OUTPUT(x) \
+float *x; \
+int x##_size;
 DEFINE_GAME_ACTION_FUNCTIONS
 #undef X
 #undef X_FLOAT_ARGS
 #undef X_INT_ARGS
 #undef X_BOOL_ARGS
+#undef X_STR_ARGS
 #undef X_FLOAT_OUTPUT
 #undef X_INT_OUTPUT
 #undef X_BOOL_OUTPUT
+#undef X_FLOAT_ARRAY_OUTPUT
 
 // Define function prototypes
 #define X(action_name, function, ARGUMENTS, OUTPUT) \

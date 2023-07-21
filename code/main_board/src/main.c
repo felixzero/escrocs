@@ -4,19 +4,17 @@
 #include "wireless/httpd.h"
 #include "wireless/udp_logger.h"
 #include "peripherals/stepper_board.h"
-#include "peripherals/gpio.h"
 #include "peripherals/peripherals.h"
 #include "peripherals/ultrasonic_board.h"
+#include "peripherals/user_interface.h"
 #include "motion/motion_control.h"
 #include "actions/strategy.h"
-#include "motion/motor_board.h"
+#include "peripherals/motor_board.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <esp_log.h>
 
-
-#include "peripherals/lidar_board.h"
 void app_main() {
     ESP_LOGI("main", "Starting ESCRObot application...\n");
     init_i2c_master();
@@ -24,10 +22,8 @@ void app_main() {
     init_wifi_system();
     init_http_server();
     vTaskDelay(200);
-#ifdef CONFIG_ESP_ROBOT_HOLONOMIC
     init_stepper_board();
-#endif
-    init_gpio();
+    init_user_interface();
     init_ultrasonic_board();
     init_peripherals();
 
@@ -43,6 +39,6 @@ void app_main() {
     switch_on_led();
 
     while(1) {
-        vTaskDelay(100);
+        vTaskDelay(20);
     }
 }

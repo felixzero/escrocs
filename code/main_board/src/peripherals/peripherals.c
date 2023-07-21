@@ -1,4 +1,4 @@
-#include "peripherals/peripherals.h"
+#include "peripherals.h"
 #include "system/i2c_master.h"
 
 #include <stdint.h>

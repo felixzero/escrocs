@@ -1,9 +1,8 @@
-#include "motion/motion_control.h"
-#include "motion/motion_control.impl.h"
+#include "motion_control.h"
+#include "motion_control.impl.h"
 
-#include "motion/motor_board.h"
+#include "peripherals/motor_board.h"
 #include "system/task_priority.h"
-#include "peripherals/lidar_board.h"
 #include "peripherals/ultrasonic_board.h"
 
 #include <freertos/FreeRTOS.h>
@@ -83,6 +82,14 @@ bool is_motion_done(void)
     return status.motion_step == MOTION_STEP_DONE;
 }
 
+bool is_motion_path_blocked(void)
+{
+    motion_status_t status;
+    xQueuePeek(output_status_queue, &status, 0);
+    
+    return status.obstacle_detected && status.perform_detection;
+}
+
 void set_motion_control_tuning(const motion_control_tuning_t *tuning)
 {
     xQueueOverwrite(tuning_queue, tuning);
@@ -148,9 +155,9 @@ static void motion_control_task(void *parameters)
             disable_ultrasonic_detection();
         }
 
-        bool obstacle_detected = ultrasonic_has_obstacle() && needs_detection && motion_target.perform_detection;
+        motion_target.obstacle_detected = ultrasonic_has_obstacle() && needs_detection && motion_target.perform_detection;
         // Calculate new motor targets
-        if ((motion_target.motion_step == MOTION_STEP_DONE) || obstacle_detected) {
+        if ((motion_target.motion_step == MOTION_STEP_DONE) || motion_target.obstacle_detected) {
             write_motor_speed(0.0, 0.0, 0.0);
         } else {
             motion_control_on_motor_loop(motion_data, &motion_target, &current_pose);

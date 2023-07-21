@@ -1,6 +1,6 @@
-#include "wireless/httpd.h"
+#include "httpd.h"
 #include "system/task_priority.h"
-#include "wireless/ota.h"
+#include "ota.h"
 #include "actions/actions_http_handlers.h"
 #include "actions/game_actions.h"
 #include "actions/strategy.h"

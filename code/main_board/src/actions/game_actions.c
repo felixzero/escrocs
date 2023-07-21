@@ -1,9 +1,10 @@
-#include "actions/game_actions.h"
+#include "game_actions.h"
 
 #include "motion/motion_control.h"
 #include "peripherals/stepper_board.h"
-#include "peripherals/gpio.h"
+#include "peripherals/user_interface.h"
 #include "peripherals/peripherals.h"
+#include "peripherals/ultrasonic_board.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -54,6 +55,27 @@ struct GAME_ACTION_OUTPUT_STRUCT_NAME(is_motion_done) game_action_is_motion_done
     return result;
 }
 
+struct GAME_ACTION_OUTPUT_STRUCT_NAME(is_motion_path_blocked) game_action_is_motion_path_blocked(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(is_motion_path_blocked) args)
+{
+    struct GAME_ACTION_OUTPUT_STRUCT_NAME(is_motion_path_blocked) result;
+    result.motion_blocked = is_motion_path_blocked();
+    return result;
+}
+
+struct GAME_ACTION_OUTPUT_STRUCT_NAME(perform_detection_scan) game_action_perform_detection_scan(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(perform_detection_scan) args)
+{
+    struct GAME_ACTION_OUTPUT_STRUCT_NAME(perform_detection_scan) result;
+    result.distances = malloc(NUMBER_OF_SECTORS * sizeof(float));
+    result.angles = malloc(NUMBER_OF_SECTORS * sizeof(float));
+    request_full_ultrasonic_scan();
+    wait_for_next_full_scan();
+    for (int i = 0; i < NUMBER_OF_SECTORS; ++i) {
+        result.distances[i] = ultrasonic_get_distance_by_sector(i);
+        result.angles[i] = ultrasonic_get_angle_by_sector(i);
+    }
+    return result;
+}
+
 #define PERIPHERAL_CHANNEL_OFFSET 10
 struct GAME_ACTION_OUTPUT_STRUCT_NAME(set_pump) game_action_set_pump(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(set_pump) args)
 {
@@ -98,5 +120,19 @@ struct GAME_ACTION_OUTPUT_STRUCT_NAME(sleep) game_action_sleep(struct GAME_ACTIO
 {
     vTaskDelay((int)(args.delay * 100));
     struct GAME_ACTION_OUTPUT_STRUCT_NAME(sleep) result;
+    return result;
+}
+
+struct GAME_ACTION_OUTPUT_STRUCT_NAME(display_score) game_action_display_score(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(display_score) args)
+{
+    lcd_printf(1, "Score: %d", args.score);
+    struct GAME_ACTION_OUTPUT_STRUCT_NAME(display_score) result;
+    return result;
+}
+
+struct GAME_ACTION_OUTPUT_STRUCT_NAME(print) game_action_print(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(print) args)
+{
+    lcd_printf(0, args.message);
+    struct GAME_ACTION_OUTPUT_STRUCT_NAME(print) result;
     return result;
 }

@@ -1,4 +1,4 @@
-#include "actions/game_actions.h"
+#include "game_actions.h"
 
 #include <esp_err.h>
 #include <esp_log.h>
@@ -65,6 +65,14 @@ if (item == NULL || !cJSON_IsBool(item)) { \
 } \
 args.parameter_name = cJSON_IsTrue(item);
 
+#define X_STR_ARGS(parameter_name) \
+item = cJSON_GetObjectItem(root, #parameter_name); \
+if (item == NULL || !cJSON_IsString(item)) { \
+    httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Could not retrieve parameter " #parameter_name "\n"); \
+    return ESP_OK; \
+} \
+args.parameter_name = cJSON_GetStringValue(item);
+
 #define X_FLOAT_OUTPUT(parameter_name) \
 entry = cJSON_CreateNumber(output.parameter_name); \
 cJSON_AddItemToObject(root, #parameter_name, entry);
@@ -76,6 +84,15 @@ cJSON_AddItemToObject(root, #parameter_name, entry);
 #define X_BOOL_OUTPUT(parameter_name) \
 entry = cJSON_CreateBool(output.parameter_name); \
 cJSON_AddItemToObject(root, #parameter_name, entry);
+
+#define X_FLOAT_ARRAY_OUTPUT(parameter_name) \
+entry = cJSON_CreateArray(); \
+for (int i = 0; i < output.parameter_name##_size; ++i) { \
+    cJSON *element = cJSON_CreateNumber(output.parameter_name[i]); \
+    cJSON_AddItemToArray(entry, element); \
+} \
+cJSON_AddItemToObject(root, #parameter_name, entry); \
+free(output.parameter_name);
 
 DEFINE_GAME_ACTION_FUNCTIONS
 #undef X
