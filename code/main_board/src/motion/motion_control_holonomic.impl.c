@@ -50,7 +50,7 @@ void motion_control_on_new_target_received(void *motion_data, pose_t *current_po
 {
     struct holonomic_data_t* data = (struct holonomic_data_t*)motion_data;
     ESP_LOGI(TAG, "Received new motion target.");
-    data->elapsed_time = 0.0;
+    //data->elapsed_time = 0.0;
 }
 
 void motion_control_on_tuning_updated(void *motion_data, motion_control_tuning_t *tuning)
@@ -91,6 +91,7 @@ void motion_control_on_motor_loop(void *motion_data, motion_status_t *motion_tar
         (fabsf(target_pose.theta - current_pose->theta) < ALLOWED_ERROR_T)) {
         ESP_LOGI(TAG, "Motion finished at (X=%f, Y=%f, T=%f)", current_pose->x, current_pose->y, current_pose->theta);
         motion_target->motion_step = MOTION_STEP_DONE;
+        data->elapsed_time = 0.0;
     }
 
     float u_setpoint = POSITION_TO_ENCODER(
