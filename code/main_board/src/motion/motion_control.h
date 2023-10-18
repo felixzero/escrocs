@@ -21,9 +21,7 @@ typedef struct {
     int motion_step;
 } motion_status_t;
 
-#ifdef CONFIG_ESP_ROBOT_DIFFERENTIAL_DRIVE
-#include "motion/motion_control_differential_drive.h"
-#elif defined(CONFIG_ESP_ROBOT_HOLONOMIC)
+#if defined(CONFIG_ESP_ROBOT_HOLONOMIC)
 #include "motion/motion_control_holonomic.h"
 #endif
 
