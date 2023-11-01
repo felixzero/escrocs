@@ -1,5 +1,10 @@
 {
     "files.associations": {
-        "delay.h": "c"
+        "steppers.h": "c",
+        "interrupt.h": "c",
+        "crc_computation.h": "c",
+        "stdbool.h": "c",
+        "com_registers.h": "c",
+        "modbus_rtu_slave.h": "c"
     }
 }
