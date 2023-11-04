@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 void init_led_strip(void);
-void write_led_strip_values(uint8_t *values, bool *enabled, uint8_t critical_threshold);
+void write_led_strip_values(uint16_t *values, bool *enabled, uint16_t critical_threshold, uint16_t graphical_max_value);
 
 extern void led_strip_bit_banging();
-extern volatile uint8_t led_strip_payload[];
+

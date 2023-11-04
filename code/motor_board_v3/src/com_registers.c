@@ -5,9 +5,9 @@ static int16_t stepper_speed_0 = 0;
 static int16_t stepper_speed_1 = 0;
 static int16_t stepper_speed_2 = 0;
 
-const char vendor_name[] = "E.S.C.Ro.C.S.";
-const char product_code[] = "Motor board";
-const char revision[] = "V3";
+const char modbus_vendor_name[] = "E.S.C.Ro.C.S.";
+const char modbus_product_code[] = "Motor board";
+const char modbus_revision[] = "V3";
 
 #define MAX_SPEED_PERIOD 16000L
 

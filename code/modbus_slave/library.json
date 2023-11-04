@@ -1,0 +1,8 @@
+{
+    "name": "modbus_slave",
+    "version": "1.0.0",
+    "description": "Handling of the Modbus protocol for ATMega chips as slave",
+    "license": "GPL3",
+    "frameworks": "*",
+    "platforms": "atmelavr"
+}

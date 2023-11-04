@@ -2,24 +2,46 @@
 #include "led_strip.h"
 #include "ultrasound.h"
 #include "controller.h"
-#include "i2c_registers.h"
 
 #include <stdbool.h>
 #include <avr/io.h>
 
-#define DEFAULT_CRITICAL_DISTANCE 40
-#define REPETITION_RATE 156 // 156 ticks = 20 ms
+#define DEFAULT_CRITICAL_DISTANCE_MM        400
+#define DEFAULT_SAFE_DISTANCE_MM            1000
+
+#define DEFAULT_REPETITION_PERIOD_MS        20
+#define REPETION_TIMER_FREQUENCY            (F_CPU / 1024)
+#define REPETITION_PERIOD_MS_TO_TICKS(t)    (uint16_t)((uint32_t)(t) * REPETION_TIMER_FREQUENCY / 1000)
+
+#define DEFAULT_TIMEOUT_DISTANCE_MM         2000
+#define SPEED_OF_SOUND_DM_PER_S             3432
+
+#define US_FROM_DISTANCE(d_mm)              (uint16_t)((uint32_t)(d_mm) * 20000 / SPEED_OF_SOUND_DM_PER_S)
+#define DISTANCE_FROM_US(us_us)             (uint16_t)((uint32_t)(us_us) * SPEED_OF_SOUND_DM_PER_S / 20000)
 
 bool enabled_channels[NUMBER_OF_US];
-uint8_t ultrasound_distances[NUMBER_OF_US];
-uint8_t critical_threshold_distance;
+uint16_t ultrasound_distances[NUMBER_OF_US];
+
+uint16_t critical_threshold_distance = DEFAULT_CRITICAL_DISTANCE_MM;
+uint16_t safe_distance = DEFAULT_SAFE_DISTANCE_MM;
+uint8_t repetition_period = DEFAULT_REPETITION_PERIOD_MS;
+uint16_t timeout_distance = DEFAULT_TIMEOUT_DISTANCE_MM;
+enum controller_state_t controller_state = ULTRASOUND_BOARD_IDLE;
+
+static void perform_ultrasound_scan(void);
+static void update_led_ribbon(void);
+
+#define LED_STATUS_BUSY() (PORTB |= _BV(1))
+#define LED_STATUS_IDLE() (PORTB &= ~_BV(1))
 
 void init_controller(void)
 {
+    // Set status LED as output
+    DDRB |= _BV(1);
+
     for (uint8_t i = 0; i < NUMBER_OF_US; ++i) {
         enabled_channels[i] = true;
         ultrasound_distances[i] = 0;
-        critical_threshold_distance = DEFAULT_CRITICAL_DISTANCE;
     }
 
     // Enable repetition timer with /1024 prescaler (7.81 kHz)
@@ -29,37 +51,56 @@ void init_controller(void)
 bool is_path_obstructed(void)
 {
     for (uint8_t i = 0; i < NUMBER_OF_US; ++i) {
-        if ((ultrasound_distances[i] < critical_threshold_distance) && enabled_channels[i]) {
+        if ((ultrasound_distances[i] < US_FROM_DISTANCE(critical_threshold_distance)) && enabled_channels[i]) {
             return true;
         }
     }
     return false;
 }
 
-void perform_ultrasound_scan(yield_fn yield)
+void run_controller_state_machine(void)
+{
+    switch (controller_state) {
+    case ULTRASOUND_BOARD_IDLE:
+        LED_STATUS_IDLE();
+        return;
+    case ULTRASOUND_BOARD_SCANNING:
+        LED_STATUS_BUSY();
+        perform_ultrasound_scan();
+        controller_state = ULTRASOUND_BOARD_IDLE;
+        return;
+    case ULTRASOUND_BOARD_UPDATING_LED:
+        LED_STATUS_BUSY();
+        update_led_ribbon();
+        controller_state = ULTRASOUND_BOARD_IDLE;
+        return;
+    case ULTRASOUND_BOARD_FULL_UPDATE:
+        LED_STATUS_BUSY();
+        perform_ultrasound_scan();
+        controller_state = ULTRASOUND_BOARD_UPDATING_LED;
+    }
+}
+
+static void perform_ultrasound_scan(void)
 {
     for (uint8_t i = 0; i < NUMBER_OF_LED; ++i) {
         if (!enabled_channels[i]) {
-            yield();
             continue;
         }
         TCNT0 = 0;
-        ultrasound_distances[i] = pulse_ultrasound(i, yield);
-        yield();
 
-        while (TCNT0 < REPETITION_RATE) {
-            if (TCNT0 > REPETITION_RATE - 20)
-                can_update_led = true;
-            yield();
+        uint16_t value = ULTRASOUND_TIMEOUT;
+        if (pulse_ultrasound(i, &value, US_FROM_DISTANCE(timeout_distance))) {
+            value = DISTANCE_FROM_US(value);
         }
-        can_update_led = false;
+        ultrasound_distances[i] = value;
+
+        while (TCNT0 < REPETITION_PERIOD_MS_TO_TICKS(repetition_period));
     }
-    // FIXME: Causes race conditions with the I2C bus; to be put back when fixed
-    if (should_update_led || 1) {
-        write_led_strip_values(ultrasound_distances, enabled_channels, critical_threshold_distance);
-        yield();
-        led_strip_bit_banging();
-        yield();
-        should_update_led = false;
-    }
+}
+
+static void update_led_ribbon(void)
+{
+    write_led_strip_values(ultrasound_distances, enabled_channels, critical_threshold_distance, safe_distance);
+    led_strip_bit_banging();
 }

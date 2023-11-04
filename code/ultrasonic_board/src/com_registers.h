@@ -1,0 +1,28 @@
+#pragma once
+
+#include <stdint.h>
+#include <stdbool.h>
+
+#include "com_registers_def.h"
+#include "global_definitions.h"
+
+#define RS485_BAUD_RATE                 1000000
+
+#define MODBUS_SLAVE_ADDR               0x45
+
+#define MODBUS_CONFIG_CRITICAL_DISTANCE 0010
+#define MODBUS_CONFIG_SAFE_DISTANCE     0011
+#define MODBUS_CONFIG_REPETITION_PERIOD 0020
+#define MODBUS_CONFIG_TIMEOUT           0021
+
+#define MODBUS_COIL_CHANNELS_START      1000
+#define MODBUS_COIL_CHANNELS_END        (MODBUS_COIL_CHANNELS_START + NUMBER_OF_US)
+
+#define MODBUS_DISTANCE_INPUT_REG_START 2000
+#define MODBUS_DISTANCE_INPUT_REG_END   (MODBUS_DISTANCE_INPUT_REG_START + NUMBER_OF_US)
+
+#define MODBUS_COIL_PULSE               3000
+#define MODBUS_COIL_UPDATE_LED          3001
+#define MODBUS_COIL_PULSE_AND_UPDATE    3002
+
+#define MODBUS_OBSTRUCTED_STATUS        4000
