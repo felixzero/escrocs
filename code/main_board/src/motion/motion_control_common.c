@@ -1,7 +1,7 @@
 #include "motion/motion_control.h"
 #include "motion/motion_control.impl.h"
 
-#include "motion/motor_board.h"
+#include "../peripherals/motor_board_v3.h"
 #include "system/task_priority.h"
 #include "peripherals/lidar_board.h"
 #include "peripherals/ultrasonic_board.h"
@@ -11,6 +11,7 @@
 #include <freertos/queue.h>
 #include <esp_log.h>
 #include <math.h>
+#include <string.h>
 
 #define TAG "Motion control"
 
@@ -37,7 +38,7 @@ void init_motion_control(bool reversed)
     overwrite_pose_queue = xQueueCreate(1, sizeof(pose_t));
     output_status_queue = xQueueCreate(1, sizeof(motion_status_t));
     tuning_queue = xQueueCreate(1, sizeof(motion_control_tuning_t));
-    xTaskCreate(motion_control_task, "motion_control", TASK_STACK_SIZE, NULL, MOTION_CONTROL_PRIORITY, &task);
+    xTaskCreatePinnedToCore(motion_control_task, "motion_control", TASK_STACK_SIZE, NULL, MOTION_CONTROL_PRIORITY, &task, TIME_CRITICAL_CORE);
 }
 
 pose_t get_current_pose(void)
@@ -101,7 +102,7 @@ static void motion_control_task(void *parameters)
         .motion_step = MOTION_STEP_DONE
     };
     motion_control_tuning_t tuning;
-    encoder_measurement_t previous_encoder;
+    encoder_measurement_t previous_encoder = { 0 };
     void *motion_data = NULL;
 
     // Set default tuning parameters
@@ -109,7 +110,7 @@ static void motion_control_task(void *parameters)
     MOTION_CONTROL_TUNING_FIELDS
     #undef X
 
-    read_encoders(&previous_encoder);
+    while (read_encoders(&previous_encoder) != ESP_OK);
     motion_control_on_init(&motion_data, &tuning);
     int iteration = 0;
 
@@ -125,13 +126,15 @@ static void motion_control_task(void *parameters)
             motion_control_on_tuning_updated(motion_data, &tuning);
         }
         
-        // Update pose according to encoders
+        // Update pose according to encoders; in case of communication failure, keep previous values
         encoder_measurement_t encoder;
+        memcpy(&encoder, &previous_encoder, sizeof(encoder));
         read_encoders(&encoder);
         motion_control_update_pose(motion_data, &current_pose, &previous_encoder, &encoder);
         previous_encoder = encoder;
 
-        if (iteration % 100 == 0) {
+        if (iteration % 10 == 0) {
+            ESP_LOGI(TAG, "Encoders: %f %f %f", encoder.channel1, encoder.channel2, encoder.channel3);
             ESP_LOGI(TAG, "Pose: %f %f %f", current_pose.x, current_pose.y, current_pose.theta);
         }
 
@@ -142,13 +145,14 @@ static void motion_control_task(void *parameters)
             &min_scanning_angle, &max_scanning_angle, &needs_detection
         );
         
-        if (motion_target.perform_detection && needs_detection) {
+        /*if (motion_target.perform_detection && needs_detection) {
             set_ultrasonic_scan_angle(min_scanning_angle, max_scanning_angle);
         } else {
             disable_ultrasonic_detection();
-        }
+        }*/
 
-        bool obstacle_detected = ultrasonic_has_obstacle() && needs_detection && motion_target.perform_detection;
+        //bool obstacle_detected = ultrasonic_has_obstacle() && needs_detection && motion_target.perform_detection;
+        bool obstacle_detected = false;
         // Calculate new motor targets
         if ((motion_target.motion_step == MOTION_STEP_DONE) || obstacle_detected) {
             write_motor_speed(0.0, 0.0, 0.0);

@@ -89,7 +89,7 @@ void init_ota_rebooter(void)
     // Create FreeRTOS task
     TaskHandle_t task;
     reboot_request_queue = xQueueCreate(1, sizeof(int));
-    xTaskCreate(rebooter_task, "rebooter_task", TASK_STACK_SIZE, NULL, OTA_REBOOT_PRIORITY, &task);
+    xTaskCreatePinnedToCore(rebooter_task, "rebooter_task", TASK_STACK_SIZE, NULL, OTA_REBOOT_PRIORITY, &task, LOW_CRITICITY_CORE);
 }
 
 static void restart_in(int ticks_to_wait)

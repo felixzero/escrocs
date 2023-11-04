@@ -54,7 +54,10 @@
         "streambuf": "c",
         "spiffs.h": "c",
         "lidar_board.h": "c",
-        "gpio.h": "c"
+        "gpio.h": "c",
+        "stdint.h": "c",
+        "modbus_rtu_crc_table.h": "c",
+        "ultrasonic_board.h": "c"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }

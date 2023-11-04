@@ -47,7 +47,7 @@ void init_udp_logger(void)
 
     TaskHandle_t task;
     network_log_queue = xQueueCreate(MAX_MESSAGE_NUMBER, sizeof(char*));
-    xTaskCreate(network_logger_task, "network_logger", TASK_STACK_SIZE, NULL, LOGGER_PRIORITY, &task);
+    xTaskCreatePinnedToCore(network_logger_task, "network_logger", TASK_STACK_SIZE, NULL, LOGGER_PRIORITY, &task, LOW_CRITICITY_CORE);
 
     esp_log_set_vprintf(logger_function);
 }

@@ -40,8 +40,8 @@ void init_lua_executor(void)
     // Create FreeRTOS task
     TaskHandle_t task;
     file_to_execute_queue = xQueueCreate(1, sizeof(char*));
-    xTaskCreate(lua_executor_task, "lua_executor", TASK_STACK_SIZE, NULL, LUA_PRIORITY, &task);
-    xTaskCreate(trigger_timer_task, "trigger_timer", TASK_STACK_SIZE, NULL, TRIGGER_TIMER_PRIORITY, &task);
+    xTaskCreatePinnedToCore(lua_executor_task, "lua_executor", TASK_STACK_SIZE, NULL, LUA_PRIORITY, &task, LOW_CRITICITY_CORE);
+    xTaskCreatePinnedToCore(trigger_timer_task, "trigger_timer", TASK_STACK_SIZE, NULL, TRIGGER_TIMER_PRIORITY, &task, LOW_CRITICITY_CORE);
 }
 
 static void lua_executor_task(void *parameters)

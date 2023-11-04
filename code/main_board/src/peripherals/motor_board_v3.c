@@ -18,6 +18,7 @@
 
 void init_motor_board_v3(void)
 {
+    ESP_LOGI(TAG, "Initializing motor board subsystem.");
     static char id[MAX_ID_LEN] = "";
     ESP_ERROR_CHECK_WITHOUT_ABORT(modbus_read_device_identification(MOTOR_BOARD_MODBUS_ADDR, 0x00, id, MAX_ID_LEN - 1));
     ESP_LOGI(TAG, "Vendor name: %s", id);

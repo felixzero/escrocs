@@ -60,6 +60,7 @@ void init_http_server(void)
 {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.max_uri_handlers = 64;
+    config.core_id = LOW_CRITICITY_CORE;
     httpd_handle_t server = NULL;
     if (httpd_start(&server, &config) != ESP_OK) {
         ESP_LOGE(TAG, "Failed to start HTTP server");
