@@ -5,22 +5,23 @@
 #include <freertos/FreeRTOS.h>
 #include <string.h>
 #include <driver/uart.h>
+#include <hal/uart_hal.h>
 #include <esp_err.h>
 #include <esp_log.h>
 
 #define TAG "Modbus RTU"
 
-#define UART_NUM UART_NUM_1
-#define UART_BAUD_RATE 1000000
-#define BUFFER_SIZE 1024
-#define RECEIVE_TIMEOUT_TICKS 1
-#define ECHO_READ_TOUT 3
-#define MAX_QUERY_SIZE 64
-#define MAX_RESPONSE_SIZE 64
+#define UART_NUM                UART_NUM_1
+#define UART_BAUD_RATE          1000000
+#define BUFFER_SIZE             1024
+#define RECEIVE_TIMEOUT_TICKS   1
+#define ECHO_READ_TOUT          3
+#define MAX_QUERY_SIZE          64
+#define MAX_RESPONSE_SIZE       64
 
-#define TX_PIN 22
-#define RX_PIN 21
-#define TXE_PIN 4
+#define TX_PIN                  22
+#define RX_PIN                  21
+#define TXE_PIN                 4
 
 static esp_err_t read_coil_or_input_status(
     uint8_t slave_addr,
@@ -36,51 +37,54 @@ static esp_err_t read_registers(
     uint16_t *output,
     uint8_t function_code
 );
-static esp_err_t query_modbus_rtu(size_t message_len, uint8_t slave_addr, uint8_t function_code);
+static esp_err_t query_modbus_rtu(size_t message_len, uint8_t slave_addr, uint8_t function_code, uint8_t *query_buffer, uint8_t *response_buffer);
 static void send_raw_rs485(const void *buffer, size_t len);
 static size_t receive_raw_rs485(void *buffer, size_t expected_len);
 
-static uint8_t query_buffer[MAX_QUERY_SIZE], response_buffer[MAX_RESPONSE_SIZE];
 #define QUERY_BUFFER_DATA (&query_buffer[2])
 #define RESPONSE_BUFFER_DATA (&response_buffer[2])
 
 static SemaphoreHandle_t modbus_mutex;
+static uart_hal_context_t hal_context;
+static spinlock_t spinlock = portMUX_INITIALIZER_UNLOCKED;
+static QueueHandle_t uart_packet_queue;
+static uint8_t rx_buffer[128];
 
-static void install_uart_task(void *parameters)
+static void IRAM_ATTR uart_intr_handle(void *arg);
+
+void init_modbus_rtu_master(void)
 {
+    ESP_LOGI(TAG, "Initializing Modbus subsystem");
+
+    uart_packet_queue = xQueueCreate(1, sizeof(int));
+
     // Configure UART to RS485 transceiver
     uart_config_t uart_config = {
         .baud_rate = UART_BAUD_RATE,
         .data_bits = UART_DATA_8_BITS,
         .parity = UART_PARITY_DISABLE,
         .stop_bits = UART_STOP_BITS_2,
-        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
-        .source_clk = UART_SCLK_DEFAULT
+        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
     };
-    ESP_ERROR_CHECK(uart_driver_install(UART_NUM, 2 * BUFFER_SIZE, 0, 0, NULL, ESP_INTR_FLAG_LEVEL3 | ESP_INTR_FLAG_IRAM));
-    ESP_ERROR_CHECK(uart_set_mode(UART_NUM, UART_MODE_RS485_HALF_DUPLEX));
+    ESP_ERROR_CHECK(uart_driver_install(UART_NUM, 2 * BUFFER_SIZE, 0, 0, NULL, 0));
     ESP_ERROR_CHECK(uart_param_config(UART_NUM, &uart_config));
     ESP_ERROR_CHECK(uart_set_pin(UART_NUM, TX_PIN, RX_PIN, TXE_PIN, UART_PIN_NO_CHANGE));
     ESP_ERROR_CHECK(uart_set_rx_timeout(UART_NUM, ECHO_READ_TOUT));
-    uart_set_always_rx_timeout(UART_NUM, true);
+
+    // Unregister software UART ISR and register ours
+    uart_intr_config_t intr_config = {
+        .intr_enable_mask = UART_TX_DONE_INT_ENA_M | UART_RXFIFO_TOUT_INT_ENA_M,
+    };
+
+    hal_context.dev = UART_LL_GET_HW(UART_NUM);
+    ESP_ERROR_CHECK(uart_isr_free(UART_NUM));
+    ESP_ERROR_CHECK(uart_isr_register(UART_NUM, uart_intr_handle, NULL, ESP_INTR_FLAG_IRAM, NULL));
+    ESP_ERROR_CHECK(uart_intr_config(UART_NUM, &intr_config));
 
     modbus_mutex = xSemaphoreCreateMutex();
     if (!modbus_mutex) {
         ESP_LOGE(TAG, "Could not create mutex");
     }
-
-    TaskHandle_t parent_task = (TaskHandle_t)parameters;
-    xTaskNotifyGive(parent_task);
-    vTaskDelete(NULL);
-}
-
-void init_modbus_rtu_master(void)
-{
-    // Install UART on the time critical core
-    TaskHandle_t task;
-    TaskHandle_t current_task = xTaskGetCurrentTaskHandle();
-    xTaskCreatePinnedToCore(install_uart_task, "install_uart", TASK_STACK_SIZE, current_task, 1, &task, TIME_CRITICAL_CORE);
-    ulTaskNotifyTake(true, portMAX_DELAY);
 }
 
 esp_err_t modbus_read_coil_status(uint8_t slave_addr, uint16_t starting_coil_address, uint16_t number_of_coils_to_read, bool *output)
@@ -105,26 +109,32 @@ esp_err_t modbus_read_input_registers(uint8_t slave_addr, uint16_t starting_addr
 
 esp_err_t modbus_force_single_coil(uint8_t slave_addr, uint16_t address, bool value)
 {
+    uint8_t query_buffer[MAX_QUERY_SIZE], response_buffer[MAX_RESPONSE_SIZE];
+
     QUERY_BUFFER_DATA[0] = address >> 8;
     QUERY_BUFFER_DATA[1] = address & 0xFF;
     QUERY_BUFFER_DATA[2] = value ? 0xFF : 0x00;
     QUERY_BUFFER_DATA[3] = 0;
 
-    return query_modbus_rtu(4, slave_addr, 0x05);
+    return query_modbus_rtu(4, slave_addr, 0x05, query_buffer, response_buffer);
 }
 
 esp_err_t modbus_preset_single_register(uint8_t slave_addr, uint16_t address, uint16_t value)
 {
+    uint8_t query_buffer[MAX_QUERY_SIZE], response_buffer[MAX_RESPONSE_SIZE];
+
     QUERY_BUFFER_DATA[0] = address >> 8;
     QUERY_BUFFER_DATA[1] = address & 0xFF;
     QUERY_BUFFER_DATA[2] = value >> 8;
     QUERY_BUFFER_DATA[3] = value & 0xFF;
 
-    return query_modbus_rtu(4, slave_addr, 0x06);
+    return query_modbus_rtu(4, slave_addr, 0x06, query_buffer, response_buffer);
 }
 
 esp_err_t modbus_force_multiple_coils(uint8_t slave_addr, uint16_t starting_coil_address, uint16_t number_of_coils_to_write, bool *input)
 {
+    uint8_t query_buffer[MAX_QUERY_SIZE], response_buffer[MAX_RESPONSE_SIZE];
+
     QUERY_BUFFER_DATA[0] = starting_coil_address >> 8;
     QUERY_BUFFER_DATA[1] = starting_coil_address & 0xFF;
     QUERY_BUFFER_DATA[2] = number_of_coils_to_write >> 8;
@@ -140,11 +150,13 @@ esp_err_t modbus_force_multiple_coils(uint8_t slave_addr, uint16_t starting_coil
         }
     }
 
-    return query_modbus_rtu(5 + byte_count, slave_addr, 0x0F);
+    return query_modbus_rtu(5 + byte_count, slave_addr, 0x0F, query_buffer, response_buffer);
 }
 
 esp_err_t modbus_preset_multiple_registers(uint8_t slave_addr, uint16_t starting_address, uint16_t number_of_registers_to_write, uint16_t *input)
 {
+    uint8_t query_buffer[MAX_QUERY_SIZE], response_buffer[MAX_RESPONSE_SIZE];
+
     QUERY_BUFFER_DATA[0] = starting_address >> 8;
     QUERY_BUFFER_DATA[1] = starting_address & 0xFF;
     QUERY_BUFFER_DATA[2] = number_of_registers_to_write >> 8;
@@ -156,16 +168,18 @@ esp_err_t modbus_preset_multiple_registers(uint8_t slave_addr, uint16_t starting
         QUERY_BUFFER_DATA[6 + 2 * i] = input[i] & 0xFF;
     }
 
-    return query_modbus_rtu(5 + byte_count, slave_addr, 0x10);
+    return query_modbus_rtu(5 + byte_count, slave_addr, 0x10, query_buffer, response_buffer);
 }
 
 esp_err_t modbus_read_device_identification(uint8_t slave_addr, uint8_t object_id, char *identification, size_t max_length)
 {
+    uint8_t query_buffer[MAX_QUERY_SIZE], response_buffer[MAX_RESPONSE_SIZE];
+
     QUERY_BUFFER_DATA[0] = 0x0E; // MEI type for device identification, read Modbus application protocol 1.1b3, p43
     QUERY_BUFFER_DATA[1] = 0x04; // One specific object
     QUERY_BUFFER_DATA[2] = object_id;
 
-    esp_err_t err = query_modbus_rtu(3, slave_addr, 0x2B);
+    esp_err_t err = query_modbus_rtu(3, slave_addr, 0x2B, query_buffer, response_buffer);
     if (err != ESP_OK) {
         return err;
     }
@@ -193,12 +207,14 @@ static esp_err_t read_coil_or_input_status(
     uint8_t function_code
 )
 {
+    uint8_t query_buffer[MAX_QUERY_SIZE], response_buffer[MAX_RESPONSE_SIZE];
+
     QUERY_BUFFER_DATA[0] = starting_address >> 8;
     QUERY_BUFFER_DATA[1] = starting_address & 0xFF;
     QUERY_BUFFER_DATA[2] = number_to_read >> 8;
     QUERY_BUFFER_DATA[3] = number_to_read & 0xFF;
 
-    esp_err_t err = query_modbus_rtu(4, slave_addr, function_code);
+    esp_err_t err = query_modbus_rtu(4, slave_addr, function_code, query_buffer, response_buffer);
     if (err != ESP_OK) {
         return err;
     }
@@ -222,12 +238,14 @@ static esp_err_t read_registers(
     uint8_t function_code
 )
 {
+    uint8_t query_buffer[MAX_QUERY_SIZE], response_buffer[MAX_RESPONSE_SIZE];
+
     QUERY_BUFFER_DATA[0] = starting_address >> 8;
     QUERY_BUFFER_DATA[1] = starting_address & 0xFF;
     QUERY_BUFFER_DATA[2] = number_of_registers_to_read >> 8;
     QUERY_BUFFER_DATA[3] = number_of_registers_to_read & 0xFF;
 
-    esp_err_t err = query_modbus_rtu(4, slave_addr, function_code);
+    esp_err_t err = query_modbus_rtu(4, slave_addr, function_code, query_buffer, response_buffer);
     if (err != ESP_OK) {
         return err;
     }
@@ -243,7 +261,7 @@ static esp_err_t read_registers(
     return ESP_OK;
 }
 
-static esp_err_t query_modbus_rtu(size_t message_len, uint8_t slave_addr, uint8_t function_code)
+static esp_err_t query_modbus_rtu(size_t message_len, uint8_t slave_addr, uint8_t function_code, uint8_t *query_buffer, uint8_t *response_buffer)
 {
     query_buffer[0] = slave_addr;
     query_buffer[1] = function_code;
@@ -268,6 +286,7 @@ static esp_err_t query_modbus_rtu(size_t message_len, uint8_t slave_addr, uint8_
         return ESP_ERR_INVALID_ARG;
     }
     if ((response_buffer[0] != slave_addr) || (response_buffer[1] != function_code)) {
+        ESP_LOG_BUFFER_HEX_LEVEL(TAG, response_buffer, received_len, ESP_LOG_INFO);
         return ESP_ERR_INVALID_RESPONSE;
     }
 
@@ -276,12 +295,48 @@ static esp_err_t query_modbus_rtu(size_t message_len, uint8_t slave_addr, uint8_
 
 static void send_raw_rs485(const void *buffer, size_t len)
 {
-    ESP_ERROR_CHECK_WITHOUT_ABORT(uart_flush(UART_NUM));
-    uart_write_bytes(UART_NUM, buffer, len);
-    ESP_ERROR_CHECK_WITHOUT_ABORT(uart_wait_tx_done(UART_NUM, RECEIVE_TIMEOUT_TICKS));
+    uint32_t write_size = 0;
+    int rx_buffer_length = 0;
+
+    uart_hal_read_rxfifo(&hal_context, rx_buffer, &rx_buffer_length);
+    uart_hal_set_rts(&hal_context, 0);
+    uart_hal_write_txfifo(&hal_context, buffer, len, &write_size);
 }
 
 static size_t receive_raw_rs485(void *buffer, size_t expected_len)
 {
-    return uart_read_bytes(UART_NUM, buffer, expected_len, RECEIVE_TIMEOUT_TICKS);
+    int rx_buffer_length = 0;
+
+    xQueueReceive(uart_packet_queue, &rx_buffer_length, RECEIVE_TIMEOUT_TICKS);
+    uart_hal_read_rxfifo(&hal_context, rx_buffer, &rx_buffer_length);
+    memcpy(buffer, rx_buffer, rx_buffer_length);
+    return rx_buffer_length;
+}
+
+static void IRAM_ATTR uart_intr_handle(void *arg)
+{
+    uint32_t uart_intr_status = uart_hal_get_intsts_mask(&hal_context);
+    BaseType_t higher_priority_task_awaken = false;
+
+    if (uart_intr_status & UART_INTR_TX_DONE) {
+        portENTER_CRITICAL_ISR(&spinlock);
+        uart_hal_set_rts(&hal_context, 1);
+        uart_hal_clr_intsts_mask(&hal_context, UART_INTR_TX_DONE);
+        portEXIT_CRITICAL_ISR(&spinlock);
+        return;
+    } else if (uart_intr_status & UART_INTR_RXFIFO_TOUT) {
+        portENTER_CRITICAL_ISR(&spinlock);
+        int packet_size = uart_hal_get_rxfifo_len(&hal_context);
+        xQueueSendFromISR(uart_packet_queue, &packet_size, &higher_priority_task_awaken);
+        uart_hal_clr_intsts_mask(&hal_context, UART_INTR_RXFIFO_TOUT);
+        portEXIT_CRITICAL_ISR(&spinlock);
+
+        if (higher_priority_task_awaken) {
+            portYIELD_FROM_ISR();
+        }
+        return;
+    } else {
+        uart_hal_clr_intsts_mask(&hal_context, uart_intr_status);
+        return;
+    }
 }

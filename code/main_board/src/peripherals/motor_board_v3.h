@@ -20,6 +20,14 @@ esp_err_t read_encoders(encoder_measurement_t *measurement);
 
 /**
  * Set motor control voltages
- * @param speed in range [0, 1]
+ * @param speed in range [0, 1] or in RPM
  */
-esp_err_t write_motor_speed(float speed1, float speed2, float speed3);
+esp_err_t write_motor_speed_raw(float speed1, float speed2, float speed3);
+esp_err_t write_motor_speed_rpm(float speed1, float speed2, float speed3);
+
+/**
+ * Enable or disable control of the stepper motors.
+ * This can be used to save battery during long idling times.
+ */
+esp_err_t enable_motors(void);
+esp_err_t disable_motors(void);

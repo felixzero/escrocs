@@ -1,15 +1,18 @@
 #include "actions/game_actions.h"
-
+#include "system/task_priority.h"
 #include "motion/motion_control.h"
 #include "peripherals/stepper_board.h"
-#include "peripherals/gpio.h"
+#include "peripherals/user_interface.h"
 #include "peripherals/peripherals.h"
+#include "peripherals/motor_board_v3.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
 struct GAME_ACTION_OUTPUT_STRUCT_NAME(set_pose) game_action_set_pose(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(set_pose) args)
 {
+    enable_motors_and_set_timer();
+
     pose_t target;
     target.x = args.x;
     target.y = args.y;

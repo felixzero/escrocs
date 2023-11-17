@@ -57,7 +57,9 @@
         "gpio.h": "c",
         "stdint.h": "c",
         "modbus_rtu_crc_table.h": "c",
-        "ultrasonic_board.h": "c"
+        "ultrasonic_board.h": "c",
+        "holonomic_wheel_base.h": "c",
+        "motor_board_v3.h": "c"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }

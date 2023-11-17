@@ -1,9 +1,8 @@
-#include "motion/motion_control.h"
-#include "motion/motion_control.impl.h"
+#include "motion_control.h"
+#include "holonomic_wheel_base.h"
 
 #include "../peripherals/motor_board_v3.h"
 #include "system/task_priority.h"
-#include "peripherals/lidar_board.h"
 #include "peripherals/ultrasonic_board.h"
 
 #include <freertos/FreeRTOS.h>
@@ -15,21 +14,21 @@
 
 #define TAG "Motion control"
 
-#define OBSTACLE_FRAMES_TO_CLEAR 10
-#define MAP_LENGTH 300.0
-#define MAX_LIDAR_REFINEMENT_XY 300.0
-#define MAX_LIDAR_REFINEMENT_T 0.3
-
-static QueueHandle_t input_target_queue, overwrite_pose_queue, output_status_queue, tuning_queue;
+#define MOTOR_DISABLING_TIMEOUT (100000 / portTICK_PERIOD_MS)
 
 static bool reversed_side;
 
+static TaskHandle_t motor_disabler_task_handle;
+static QueueHandle_t input_target_queue, overwrite_pose_queue, output_status_queue;
+
+static void motor_disabler_task(void *parameters);
 static void motion_control_task(void *parameters);
 static pose_t apply_reverse_transformation(const pose_t *pose, bool reversed_side);
 
 void init_motion_control(bool reversed)
 {
-    write_motor_speed(0.0, 0.0, 0.0);
+    disable_motors();
+    write_motor_speed_raw(0.0, 0.0, 0.0);
     reversed_side = reversed;
 
     // Create FreeRTOS task
@@ -37,8 +36,17 @@ void init_motion_control(bool reversed)
     input_target_queue = xQueueCreate(1, sizeof(motion_status_t));
     overwrite_pose_queue = xQueueCreate(1, sizeof(pose_t));
     output_status_queue = xQueueCreate(1, sizeof(motion_status_t));
-    tuning_queue = xQueueCreate(1, sizeof(motion_control_tuning_t));
     xTaskCreatePinnedToCore(motion_control_task, "motion_control", TASK_STACK_SIZE, NULL, MOTION_CONTROL_PRIORITY, &task, TIME_CRITICAL_CORE);
+
+    xTaskCreatePinnedToCore(
+        motor_disabler_task,
+        "motor_disabler",
+        TASK_STACK_SIZE,
+        NULL,
+        DISABLE_MOTOR_PRIORITY,
+        &motor_disabler_task_handle,
+        TIME_CRITICAL_CORE
+    );
 }
 
 pose_t get_current_pose(void)
@@ -53,8 +61,12 @@ void set_motion_target(const pose_t *target, bool perform_detection)
     motion_status_t motion_target;
     motion_target.perform_detection = perform_detection;
     pose_t current_pose = get_current_pose();
-    pose_t setpoint_pose = apply_reverse_transformation(target, reversed_side);
-    motion_control_on_motion_target_set(&motion_target, &setpoint_pose, &current_pose);
+
+    motion_target.pose.x = isnan(target->x) ? current_pose.x : target->x;
+    motion_target.pose.y = isnan(target->y) ? current_pose.y : target->y;
+    motion_target.pose.theta = isnan(target->theta) ? current_pose.theta : target->theta;
+
+    motion_target.motion_step = MOTION_STEP_RUNNING;
 
     // Send request to task
     ESP_LOGI(TAG, "Setting target to: %f %f %f", target->x, target->y, target->theta);
@@ -84,11 +96,6 @@ bool is_motion_done(void)
     return status.motion_step == MOTION_STEP_DONE;
 }
 
-void set_motion_control_tuning(const motion_control_tuning_t *tuning)
-{
-    xQueueOverwrite(tuning_queue, tuning);
-}
-
 static void motion_control_task(void *parameters)
 {
     TickType_t iteration_time = xTaskGetTickCount();
@@ -103,15 +110,15 @@ static void motion_control_task(void *parameters)
     };
     motion_control_tuning_t tuning;
     encoder_measurement_t previous_encoder = { 0 };
-    void *motion_data = NULL;
 
-    // Set default tuning parameters
-    #define X(name, value) tuning.name = value;
-    MOTION_CONTROL_TUNING_FIELDS
-    #undef X
+    holonomic_wheel_base_set_values(&tuning);
 
-    while (read_encoders(&previous_encoder) != ESP_OK);
-    motion_control_on_init(&motion_data, &tuning);
+    while (read_encoders(&previous_encoder) != ESP_OK) {
+        ESP_LOGW(TAG, "Error while reading encoders; retrying...");
+    }
+    struct motion_data_t motion_data;
+    motion_data.tuning = &tuning;
+    
     int iteration = 0;
 
     while (true) {
@@ -120,17 +127,14 @@ static void motion_control_task(void *parameters)
         // Retrieve latest parameters
         xQueueReceive(overwrite_pose_queue, &current_pose, 0);
         if (xQueueReceive(input_target_queue, &motion_target, 0)) {
-            motion_control_on_new_target_received(motion_data, &current_pose);
-        }
-        if (xQueueReceive(tuning_queue, &tuning, 0)) {
-            motion_control_on_tuning_updated(motion_data, &tuning);
+            motion_data.elapsed_time_ms = 0;
         }
         
         // Update pose according to encoders; in case of communication failure, keep previous values
         encoder_measurement_t encoder;
         memcpy(&encoder, &previous_encoder, sizeof(encoder));
         read_encoders(&encoder);
-        motion_control_update_pose(motion_data, &current_pose, &previous_encoder, &encoder);
+        holonomic_wheel_base_update_pose(&motion_data, &current_pose, &previous_encoder, &encoder);
         previous_encoder = encoder;
 
         if (iteration % 10 == 0) {
@@ -140,10 +144,14 @@ static void motion_control_task(void *parameters)
 
         float min_scanning_angle, max_scanning_angle;
         bool needs_detection;
-        motion_control_scanning_angles(
-            motion_data, &motion_target, &current_pose,
+        holonomic_wheel_base_get_detection_scanning_angles(
+            &motion_data, &motion_target, &current_pose,
             &min_scanning_angle, &max_scanning_angle, &needs_detection
         );
+
+        // FIXME
+        //set_ultrasonic_scan_angle(0, 2 * M_PI);
+        //ultrasonic_perform_scan();
         
         /*if (motion_target.perform_detection && needs_detection) {
             set_ultrasonic_scan_angle(min_scanning_angle, max_scanning_angle);
@@ -155,9 +163,10 @@ static void motion_control_task(void *parameters)
         bool obstacle_detected = false;
         // Calculate new motor targets
         if ((motion_target.motion_step == MOTION_STEP_DONE) || obstacle_detected) {
-            write_motor_speed(0.0, 0.0, 0.0);
+            write_motor_speed_raw(0.0, 0.0, 0.0);
         } else {
-            motion_control_on_motor_loop(motion_data, &motion_target, &current_pose);
+            enable_motors_and_set_timer();
+            holonomic_wheel_base_apply_speed_to_motors(&motion_data, &motion_target, &current_pose);
         }
 
         // Broadcast current pose
@@ -181,4 +190,20 @@ static pose_t apply_reverse_transformation(const pose_t *pose, bool reversed_sid
         reversed_pose.theta = fmodf(M_PI - pose->theta, 2.0 * M_PI);
     }
     return reversed_pose;
+}
+
+static void motor_disabler_task(void *parameters)
+{
+    while (true) {
+        if (!ulTaskNotifyTake(true, MOTOR_DISABLING_TIMEOUT)) {
+            disable_motors();
+        }
+        vTaskDelay(1);
+    }
+}
+
+void enable_motors_and_set_timer(void)
+{
+    enable_motors();
+    xTaskNotifyGive(motor_disabler_task_handle);
 }

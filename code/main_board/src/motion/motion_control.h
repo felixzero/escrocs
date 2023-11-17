@@ -21,10 +21,6 @@ typedef struct {
     int motion_step;
 } motion_status_t;
 
-#if defined(CONFIG_ESP_ROBOT_HOLONOMIC)
-#include "motion/motion_control_holonomic.h"
-#endif
-
 /**
  * Init motion control subsystem
  */
@@ -56,7 +52,4 @@ void stop_motion(void);
  */
 bool is_motion_done(void);
 
-/**
- * Apply feedback control tuning parameters
- */
-void set_motion_control_tuning(const motion_control_tuning_t *tuning);
+void enable_motors_and_set_timer(void);

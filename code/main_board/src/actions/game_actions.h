@@ -98,4 +98,3 @@ DEFINE_GAME_ACTION_FUNCTIONS
 struct GAME_ACTION_OUTPUT_STRUCT_NAME(action_name) game_action_ ## action_name(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(action_name) args);
 DEFINE_GAME_ACTION_FUNCTIONS
 #undef X
-

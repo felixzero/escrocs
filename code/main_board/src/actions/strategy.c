@@ -2,9 +2,10 @@
 #include "actions/actions_lua_functions.h"
 #include "system/spiffs.h"
 #include "system/task_priority.h"
-#include "peripherals/gpio.h"
+#include "peripherals/user_interface.h"
 #include "peripherals/stepper_board.h"
 #include "motion/motion_control.h"
+#include "peripherals/motor_board_v3.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -67,11 +68,12 @@ static void trigger_timer_task(void *parameters)
 {
     bool has_key_been_inserted = false;
     while (true) {
-        if (!has_key_been_inserted && !read_switch(GPIO_CHANNEL_TRIGGER)) {
+        if (!has_key_been_inserted && !read_trigger_key_status()) {
             ESP_LOGI(TAG, "Starting key has been inserted");
             has_key_been_inserted = true;
-        } else if (has_key_been_inserted && read_switch(GPIO_CHANNEL_TRIGGER)) {
+        } else if (has_key_been_inserted && read_trigger_key_status()) {
             ESP_LOGI(TAG, "Starting key has been removed; starting strategy");
+            enable_motors_and_set_timer();
             char *strategy_file_name = malloc(sizeof(STRATEGY_PATH_PREFIX) + MAX_STRATEGY_NAME_LENGTH);
             sprintf(strategy_file_name, "%s%s", STRATEGY_PATH_PREFIX, DEFAULT_STRATEGY_NAME);
 
@@ -97,6 +99,7 @@ static void end_match(void)
     ESP_LOGI(TAG, "Match ended after %d ms", MATCH_DURATION_MS);
     set_lua_action_function_enable_status(false);
     stop_motion();
+    disable_motors();
     for (int i = 0; i < 3; i++) {
         set_stepper_board_pump(i, false);
     }
