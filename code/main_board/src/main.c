@@ -32,7 +32,5 @@ void app_main() {
     init_lua_executor();
     init_udp_logger();
 
-    while (1) {
-        vTaskDelay(portMAX_DELAY);
-    }
+    vTaskDelay(portMAX_DELAY);
 }

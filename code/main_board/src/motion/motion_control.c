@@ -14,7 +14,7 @@
 
 #define TAG "Motion control"
 
-#define MOTOR_DISABLING_TIMEOUT (100000 / portTICK_PERIOD_MS)
+#define MOTOR_DISABLING_TIMEOUT pdMS_TO_TICKS(5000)
 
 static bool reversed_side;
 
@@ -36,7 +36,6 @@ void init_motion_control(bool reversed)
     input_target_queue = xQueueCreate(1, sizeof(motion_status_t));
     overwrite_pose_queue = xQueueCreate(1, sizeof(pose_t));
     output_status_queue = xQueueCreate(1, sizeof(motion_status_t));
-    xTaskCreatePinnedToCore(motion_control_task, "motion_control", TASK_STACK_SIZE, NULL, MOTION_CONTROL_PRIORITY, &task, TIME_CRITICAL_CORE);
 
     xTaskCreatePinnedToCore(
         motor_disabler_task,
@@ -45,8 +44,9 @@ void init_motion_control(bool reversed)
         NULL,
         DISABLE_MOTOR_PRIORITY,
         &motor_disabler_task_handle,
-        TIME_CRITICAL_CORE
+        LOW_CRITICITY_CORE
     );
+    xTaskCreatePinnedToCore(motion_control_task, "motion_control", TASK_STACK_SIZE, NULL, MOTION_CONTROL_PRIORITY, &task, TIME_CRITICAL_CORE);
 }
 
 pose_t get_current_pose(void)
@@ -160,9 +160,8 @@ static void motion_control_task(void *parameters)
         }*/
 
         //bool obstacle_detected = ultrasonic_has_obstacle() && needs_detection && motion_target.perform_detection;
-        bool obstacle_detected = false;
         // Calculate new motor targets
-        if ((motion_target.motion_step == MOTION_STEP_DONE) || obstacle_detected) {
+        if (motion_target.motion_step == MOTION_STEP_DONE) {
             write_motor_speed_raw(0.0, 0.0, 0.0);
         } else {
             enable_motors_and_set_timer();
@@ -195,15 +194,19 @@ static pose_t apply_reverse_transformation(const pose_t *pose, bool reversed_sid
 static void motor_disabler_task(void *parameters)
 {
     while (true) {
-        if (!ulTaskNotifyTake(true, MOTOR_DISABLING_TIMEOUT)) {
+        uint32_t notified_value;
+        if (!xTaskNotifyWait(0, ULONG_MAX, &notified_value, MOTOR_DISABLING_TIMEOUT)) {
+            ESP_LOGI(TAG, "Disabling stepper motors");
             disable_motors();
+            ESP_LOGI(TAG, "Enabled status: %d", are_motors_enabled());
         }
-        vTaskDelay(1);
+
+        vTaskDelay(10);
     }
 }
 
 void enable_motors_and_set_timer(void)
 {
     enable_motors();
-    xTaskNotifyGive(motor_disabler_task_handle);
+    xTaskNotify(motor_disabler_task_handle, 1, eSetValueWithoutOverwrite);
 }

@@ -78,3 +78,10 @@ esp_err_t disable_motors(void)
 
     return err;
 }
+
+bool are_motors_enabled(void)
+{
+    bool output;
+    ESP_ERROR_CHECK_WITHOUT_ABORT(modbus_read_coil_status(MOTOR_BOARD_MODBUS_ADDR, MOTOR_BOARD_ENABLE_COIL, 1, &output));
+    return output;
+}

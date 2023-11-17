@@ -4,7 +4,6 @@
 #define MOTION_STEP_RUNNING 1
 
 #define MOTION_PERIOD_MS 10
-#define LIDAR_PERIOD_MS 200
 
 #include "motion/motion_control.h"
 #include "../peripherals/motor_board_v3.h"

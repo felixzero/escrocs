@@ -336,6 +336,9 @@ static void IRAM_ATTR uart_intr_handle(void *arg)
         }
         return;
     } else {
+        // Unexpected interrupt, clearing RX FIFO to reset device
+        int rx_buffer_length;
+        uart_hal_read_rxfifo(&hal_context, rx_buffer, &rx_buffer_length);
         uart_hal_clr_intsts_mask(&hal_context, uart_intr_status);
         return;
     }

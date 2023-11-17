@@ -11,8 +11,6 @@
 
 struct GAME_ACTION_OUTPUT_STRUCT_NAME(set_pose) game_action_set_pose(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(set_pose) args)
 {
-    enable_motors_and_set_timer();
-
     pose_t target;
     target.x = args.x;
     target.y = args.y;

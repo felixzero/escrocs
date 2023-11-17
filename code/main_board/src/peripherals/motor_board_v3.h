@@ -1,6 +1,7 @@
 #pragma once
 
 #include <esp_err.h>
+#include <stdbool.h>
 
 /**
  * Position of each channel, in degree
@@ -31,3 +32,4 @@ esp_err_t write_motor_speed_rpm(float speed1, float speed2, float speed3);
  */
 esp_err_t enable_motors(void);
 esp_err_t disable_motors(void);
+bool are_motors_enabled(void);
