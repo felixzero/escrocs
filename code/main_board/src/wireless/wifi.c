@@ -11,19 +11,32 @@
 
 static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data);
 
-void init_wifi_system(void)
+esp_err_t init_wifi_system(void)
 {
     // Initialize NVS
-    esp_err_t ret = nvs_flash_init();
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+    esp_err_t err = nvs_flash_init();
+    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
       ESP_ERROR_CHECK(nvs_flash_erase());
-      ret = nvs_flash_init();
+      err = nvs_flash_init();
     }
-    ESP_ERROR_CHECK(ret);
+    if (err) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
     
     // Initialize Wifi AP
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    err = esp_netif_init();
+    if (err) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
+
+    err = esp_event_loop_create_default();
+    if (err) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
+
     esp_netif_t* wifi_ap = esp_netif_create_default_wifi_ap();
 
     // Setting IP configuration
@@ -36,9 +49,17 @@ void init_wifi_system(void)
 	esp_netif_dhcps_start(wifi_ap);
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+    err = esp_wifi_init(&cfg);
+    if (err) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
 
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL, NULL));
+    err = esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL, NULL);
+    if (err) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
 
     wifi_config_t wifi_config = {
         .ap = {
@@ -51,12 +72,28 @@ void init_wifi_system(void)
         },
     };
 
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
-    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &wifi_config));
-    ESP_ERROR_CHECK(esp_wifi_start());
+    err = esp_wifi_set_mode(WIFI_MODE_AP);
+    if (err) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
+
+    err = esp_wifi_set_config(WIFI_IF_AP, &wifi_config);
+    if (err) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
+
+    err = esp_wifi_start();
+    if (err) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
 
     ESP_LOGI(TAG, "wifi_init_softap finished. SSID:%s password:%s channel:%d",
              CONFIG_ESP_WIFI_SSID, CONFIG_ESP_WIFI_PASSWORD, CONFIG_ESP_WIFI_CHANNEL);
+
+    return ESP_OK;
 }
 
 static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)

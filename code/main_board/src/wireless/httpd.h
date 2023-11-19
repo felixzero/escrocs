@@ -1,6 +1,8 @@
 #pragma once
 
+#include <esp_err.h>
+
 /**
  * Initialize HTTP subsystem, including OTA
  */
-void init_http_server(void);
+esp_err_t init_http_server(void);

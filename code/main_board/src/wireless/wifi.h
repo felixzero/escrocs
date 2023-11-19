@@ -1,4 +1,6 @@
 #pragma once
 
-void init_wifi_system(void);
+#include <esp_err.h>
+
+esp_err_t init_wifi_system(void);
 

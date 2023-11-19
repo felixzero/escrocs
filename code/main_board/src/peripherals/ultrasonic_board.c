@@ -24,19 +24,41 @@
 #define MODBUS_COIL_PULSE_AND_UPDATE    3002
 #define MODBUS_OBSTRUCTED_STATUS        4000
 
-void init_ultrasonic_board(void)
+esp_err_t init_ultrasonic_board(void)
 {
+    esp_err_t err;
+
     ESP_LOGI(TAG, "Initializing ultrasonic detection subsystem.");
     static char id[MAX_ID_LEN] = "";
-    ESP_ERROR_CHECK_WITHOUT_ABORT(modbus_read_device_identification(MODBUS_ADDRESS, 0x00, id, MAX_ID_LEN - 1));
+    err = modbus_read_device_identification(MODBUS_ADDRESS, 0x00, id, MAX_ID_LEN - 1);
+    if (err) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
     ESP_LOGI(TAG, "Vendor name: %s", id);
-    ESP_ERROR_CHECK_WITHOUT_ABORT(modbus_read_device_identification(MODBUS_ADDRESS, 0x01, id, MAX_ID_LEN - 1));
+
+    err = modbus_read_device_identification(MODBUS_ADDRESS, 0x01, id, MAX_ID_LEN - 1);
+    if (err) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
     ESP_LOGI(TAG, "Product code: %s", id);
-    ESP_ERROR_CHECK_WITHOUT_ABORT(modbus_read_device_identification(MODBUS_ADDRESS, 0x02, id, MAX_ID_LEN - 1));
+
+    err = modbus_read_device_identification(MODBUS_ADDRESS, 0x02, id, MAX_ID_LEN - 1);
+    if (err) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
     ESP_LOGI(TAG, "Revision: %s", id);
 
-    ESP_ERROR_CHECK_WITHOUT_ABORT(modbus_preset_single_register(MODBUS_ADDRESS, MODBUS_CONFIG_CRITICAL_DISTANCE, CRITICAL_DISTANCE_MM));
+    err = modbus_preset_single_register(MODBUS_ADDRESS, MODBUS_CONFIG_CRITICAL_DISTANCE, CRITICAL_DISTANCE_MM);
+    if (err) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
     disable_ultrasonic_detection();
+
+    return ESP_OK;
 }
 
 void set_ultrasonic_scan_angle(float min_angle, float max_angle)

@@ -1,7 +1,8 @@
-#include "user_interface.h"
+#include "display.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include <freertos/semphr.h>
 #include <stdint.h>
 #include <stdarg.h>
 #include <esp_log.h>
@@ -38,10 +39,13 @@ static void lcd_write_4bits(uint8_t value);
 static void init_rotary_encoder(void);
 static void init_gpio(void);
 
-//static pcnt_unit_t encoder_pcnt_unit = NULL;
+static pcnt_unit_t encoder_pcnt_unit = 0;
+static SemaphoreHandle_t lcd_mutex;
 
-void init_user_interface(void)
+void init_display(void)
 {
+    lcd_mutex = xSemaphoreCreateMutex();
+
     init_lcd_screen();
     init_rotary_encoder();
     init_gpio();
@@ -57,6 +61,8 @@ void lcd_printf(int row, const char *format_str, ...)
     int message_length = vsnprintf(buffer, NUMBER_OF_COLUMNS + 1, format_str, args);
     va_end(args);
 
+    xSemaphoreTake(lcd_mutex, portMAX_DELAY);
+
     // Move cursor
     lcd_write_8bits(row ? 0x80 + LINE_OFFSET : 0x80, 0);
 
@@ -68,15 +74,18 @@ void lcd_printf(int row, const char *format_str, ...)
     for (; i < NUMBER_OF_COLUMNS; i++) {
         lcd_write_8bits(' ', 1);
     }
+
+    xSemaphoreGive(lcd_mutex);
 }
 
 
 rotary_encoder_event_t poll_rotary_encoder_event(void)
 {
-    /*static int last_encoder_count = 0, last_switch_level = 1;
-    int current_count, current_switch_level;
+    static int last_encoder_count = 0, last_switch_level = 1;
+    int current_switch_level;
+    int16_t current_count;
 
-    ESP_ERROR_CHECK_WITHOUT_ABORT(pcnt_unit_get_count(encoder_pcnt_unit, &current_count));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(pcnt_get_counter_value(encoder_pcnt_unit, &current_count));
     current_switch_level = gpio_get_level(GPIO_CHANNEL_ENCODER_SW);
 
     if ((current_switch_level == 0) && (last_switch_level == 1)) {
@@ -91,7 +100,7 @@ rotary_encoder_event_t poll_rotary_encoder_event(void)
     } else if (current_count < last_encoder_count - 1) {
         last_encoder_count = current_count;
         return ROTARY_ENCODER_TURN_CW;
-    }*/
+    }
 
     return ROTARY_ENCODER_NO_EVENT;
 }
@@ -169,7 +178,7 @@ static void lcd_write_4bits(uint8_t value)
 
 static void init_rotary_encoder(void)
 {
-    /*gpio_config_t config = {
+    gpio_config_t config = {
         .pin_bit_mask = (1ULL << GPIO_CHANNEL_ENCODER_SW),
         .mode = GPIO_MODE_INPUT,
         .pull_up_en = 1,
@@ -178,33 +187,24 @@ static void init_rotary_encoder(void)
     };
     gpio_config(&config);
 
-    pcnt_unit_config_t unit_config = {
-        .low_limit = INT16_MIN,
-        .high_limit = INT16_MAX,
+    pcnt_config_t dev_config = {
+        .pulse_gpio_num = GPIO_CHANNEL_ENCODER_CLK,
+        .ctrl_gpio_num = GPIO_CHANNEL_ENCODER_DT,
+        .channel = PCNT_CHANNEL_0,
+        .unit = encoder_pcnt_unit,
+        .pos_mode = PCNT_COUNT_DEC,
+        .neg_mode = PCNT_COUNT_INC,
+        .lctrl_mode = PCNT_MODE_REVERSE,
+        .hctrl_mode = PCNT_MODE_KEEP,
+        .counter_h_lim = INT16_MAX,
+        .counter_l_lim = INT16_MIN
     };
-    ESP_ERROR_CHECK_WITHOUT_ABORT(pcnt_new_unit(&unit_config, &encoder_pcnt_unit));
-
-    pcnt_chan_config_t chan_config = {
-        .edge_gpio_num = GPIO_CHANNEL_ENCODER_CLK,
-        .level_gpio_num = GPIO_CHANNEL_ENCODER_DT, 
-    };
-    pcnt_channel_handle_t pcnt_channel = NULL;
-    ESP_ERROR_CHECK_WITHOUT_ABORT(pcnt_new_channel(encoder_pcnt_unit, &chan_config, &pcnt_channel));
-
-    ESP_ERROR_CHECK_WITHOUT_ABORT(
-        pcnt_channel_set_edge_action(pcnt_channel, PCNT_CHANNEL_EDGE_ACTION_DECREASE, PCNT_CHANNEL_EDGE_ACTION_INCREASE)
-    );
-    ESP_ERROR_CHECK_WITHOUT_ABORT(
-        pcnt_channel_set_level_action(pcnt_channel, PCNT_CHANNEL_LEVEL_ACTION_KEEP, PCNT_CHANNEL_LEVEL_ACTION_INVERSE)
-    );
-
-    pcnt_glitch_filter_config_t filter_config = {
-        .max_glitch_ns = GLITCH_FILTER_NS,
-    };
-    ESP_ERROR_CHECK_WITHOUT_ABORT(pcnt_unit_set_glitch_filter(encoder_pcnt_unit, &filter_config));
-
-    ESP_ERROR_CHECK_WITHOUT_ABORT(pcnt_unit_enable(encoder_pcnt_unit));
-    ESP_ERROR_CHECK_WITHOUT_ABORT(pcnt_unit_start(encoder_pcnt_unit));*/
+    ESP_ERROR_CHECK_WITHOUT_ABORT(pcnt_unit_config(&dev_config));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(pcnt_set_filter_value(encoder_pcnt_unit, GLITCH_FILTER_NS * 80 / 1000));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(pcnt_filter_enable(encoder_pcnt_unit));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(pcnt_counter_pause(encoder_pcnt_unit));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(pcnt_counter_clear(encoder_pcnt_unit));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(pcnt_counter_resume(encoder_pcnt_unit));
 }
 
 static void init_gpio(void)

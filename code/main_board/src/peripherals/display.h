@@ -9,7 +9,7 @@ typedef enum {
     ROTARY_ENCODER_PRESSED
 } rotary_encoder_event_t;
 
-void init_user_interface(void);
+void init_display(void);
 
 void lcd_printf(int row, const char *format_str, ...);
 

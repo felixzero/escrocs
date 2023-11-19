@@ -12,7 +12,7 @@ typedef struct {
     float channel3;
 } encoder_measurement_t;
 
-void init_motor_board_v3(void);
+esp_err_t init_motor_board_v3(void);
 
 /**
  * Read the current encoder positions

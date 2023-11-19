@@ -25,10 +25,21 @@ static void motor_disabler_task(void *parameters);
 static void motion_control_task(void *parameters);
 static pose_t apply_reverse_transformation(const pose_t *pose, bool reversed_side);
 
-void init_motion_control(bool reversed)
+esp_err_t init_motion_control(bool reversed)
 {
-    disable_motors();
-    write_motor_speed_raw(0.0, 0.0, 0.0);
+    esp_err_t err;
+
+    err = disable_motors();
+    if (err) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
+
+    err = write_motor_speed_raw(0.0, 0.0, 0.0);
+    if (err) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
     reversed_side = reversed;
 
     // Create FreeRTOS task
@@ -47,6 +58,8 @@ void init_motion_control(bool reversed)
         LOW_CRITICITY_CORE
     );
     xTaskCreatePinnedToCore(motion_control_task, "motion_control", TASK_STACK_SIZE, NULL, MOTION_CONTROL_PRIORITY, &task, TIME_CRITICAL_CORE);
+
+    return ESP_OK;
 }
 
 pose_t get_current_pose(void)

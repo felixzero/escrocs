@@ -17,16 +17,35 @@
 
 #define CLAMP_ABS(x, clamp) ((fabsf(x) > (clamp)) ? (clamp) * (x) / fabsf(x) : (x))
 
-void init_motor_board_v3(void)
+esp_err_t init_motor_board_v3(void)
 {
+    esp_err_t err;
+
     ESP_LOGI(TAG, "Initializing motor board subsystem.");
     static char id[MAX_ID_LEN] = "";
-    ESP_ERROR_CHECK_WITHOUT_ABORT(modbus_read_device_identification(MOTOR_BOARD_MODBUS_ADDR, 0x00, id, MAX_ID_LEN - 1));
+    err = modbus_read_device_identification(MOTOR_BOARD_MODBUS_ADDR, 0x00, id, MAX_ID_LEN - 1);
+    if (err) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
     ESP_LOGI(TAG, "Vendor name: %s", id);
-    ESP_ERROR_CHECK_WITHOUT_ABORT(modbus_read_device_identification(MOTOR_BOARD_MODBUS_ADDR, 0x01, id, MAX_ID_LEN - 1));
+
+
+    err = modbus_read_device_identification(MOTOR_BOARD_MODBUS_ADDR, 0x01, id, MAX_ID_LEN - 1);
+    if (err) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
     ESP_LOGI(TAG, "Product code: %s", id);
-    ESP_ERROR_CHECK_WITHOUT_ABORT(modbus_read_device_identification(MOTOR_BOARD_MODBUS_ADDR, 0x02, id, MAX_ID_LEN - 1));
+
+    err = modbus_read_device_identification(MOTOR_BOARD_MODBUS_ADDR, 0x02, id, MAX_ID_LEN - 1);
+    if (err) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
     ESP_LOGI(TAG, "Revision: %s", id);
+
+    return ESP_OK;
 }
 
 esp_err_t read_encoders(encoder_measurement_t *measurement)

@@ -2,10 +2,9 @@
 #include "actions/actions_lua_functions.h"
 #include "system/spiffs.h"
 #include "system/task_priority.h"
-#include "peripherals/user_interface.h"
-#include "peripherals/stepper_board.h"
-#include "motion/motion_control.h"
+#include "peripherals/display.h"
 #include "peripherals/motor_board_v3.h"
+#include "motion/motion_control.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -19,15 +18,19 @@
 #include "lua/lualib.h"
 
 
-#define TAG "Strategy"
-#define DEFAULT_STRATEGY_NAME "default"
-#define MAX_STRATEGY_NAME_LENGTH 16
-#define STRATEGY_PATH_PREFIX "/storage/"
-#define BLOCK_SIZE 512
-#define TRIGGER_POLLING_MS 500
-#define MATCH_DURATION_MS 99000
+#define TAG                         "Strategy"
+#define DEFAULT_STRATEGY_NAME       "default"
+#define MAX_STRATEGY_NAME_LENGTH    32
+#define STRATEGY_PATH_PREFIX        "/storage/"
+#define BLOCK_SIZE                  512
+#define TRIGGER_POLLING_MS          500
+#define MATCH_DURATION_MS           89000
+#define LUA_ON_INIT_FUNCTION        "on_init"
+#define LUA_ON_RUN_FUNCTION         "on_run"
+#define LUA_ON_END_FUNCTION         "on_end"
 
-static QueueHandle_t file_to_execute_queue;
+static QueueHandle_t file_to_execute_queue, on_run_queue, on_end_queue;
+static TaskHandle_t lua_executor_task_handle;
 
 static void get_strategy_file_name_from_query(httpd_req_t *req, char *name);
 static void lua_executor_task(void *parameters);
@@ -41,8 +44,27 @@ void init_lua_executor(void)
     // Create FreeRTOS task
     TaskHandle_t task;
     file_to_execute_queue = xQueueCreate(1, sizeof(char*));
-    xTaskCreatePinnedToCore(lua_executor_task, "lua_executor", TASK_STACK_SIZE, NULL, LUA_PRIORITY, &task, LOW_CRITICITY_CORE);
+    on_run_queue = xQueueCreate(1, sizeof(int));
+    on_end_queue = xQueueCreate(1, sizeof(int));
+    xTaskCreatePinnedToCore(lua_executor_task, "lua_executor", TASK_STACK_SIZE, NULL, LUA_PRIORITY, &lua_executor_task_handle, LOW_CRITICITY_CORE);
     xTaskCreatePinnedToCore(trigger_timer_task, "trigger_timer", TASK_STACK_SIZE, NULL, TRIGGER_TIMER_PRIORITY, &task, LOW_CRITICITY_CORE);
+}
+
+void pick_strategy_by_spiffs_index(int index)
+{
+    char strategy_name[MAX_STRATEGY_NAME_LENGTH];
+    list_spiffs_files(index, strategy_name, MAX_STRATEGY_NAME_LENGTH);
+    
+    char *strategy_file_name = malloc(sizeof(STRATEGY_PATH_PREFIX) + MAX_STRATEGY_NAME_LENGTH);
+    sprintf(strategy_file_name, "%s%s", STRATEGY_PATH_PREFIX, strategy_name);
+    ESP_LOGI(TAG, "Picked strategy with name %s (index %d)", strategy_file_name, index);
+
+    struct stat st;
+    if (stat(strategy_file_name, &st) == 0) {
+        xQueueOverwrite(file_to_execute_queue, &strategy_file_name);
+    } else {
+        ESP_LOGE(TAG, "No default strategy given; ignoring");
+    }
 }
 
 static void lua_executor_task(void *parameters)
@@ -58,7 +80,19 @@ static void lua_executor_task(void *parameters)
         register_lua_action_functions(L);
         if (lua_pcall(L, 0, LUA_MULTRET, 0) != LUA_OK) {
             ESP_LOGE(TAG, "Lua error: %s", lua_tostring(L, -1));
+            lcd_printf(1, "Lua error");
         }
+        lua_getglobal(L, LUA_ON_INIT_FUNCTION);
+        lua_call(L, 0, 0);
+
+        int queue_buffer;
+        xQueueReceive(on_run_queue, &queue_buffer, portMAX_DELAY);
+        lua_getglobal(L, LUA_ON_RUN_FUNCTION);
+        lua_call(L, 0, 0);
+
+        xQueueReceive(on_end_queue, &queue_buffer, portMAX_DELAY);
+        lua_getglobal(L, LUA_ON_END_FUNCTION);
+        lua_call(L, 0, 0);
 
         free(filename);
     }
@@ -67,42 +101,51 @@ static void lua_executor_task(void *parameters)
 static void trigger_timer_task(void *parameters)
 {
     bool has_key_been_inserted = false;
-    while (true) {
-        if (!has_key_been_inserted && !read_trigger_key_status()) {
-            ESP_LOGI(TAG, "Starting key has been inserted");
+    while (!has_key_been_inserted) {
+        if (read_trigger_key_status()) {
+            lcd_printf(1, "Key missing");
+        } else {
+            lcd_printf(1, "Key inserted");
             has_key_been_inserted = true;
-        } else if (has_key_been_inserted && read_trigger_key_status()) {
-            ESP_LOGI(TAG, "Starting key has been removed; starting strategy");
-            enable_motors_and_set_timer();
-            char *strategy_file_name = malloc(sizeof(STRATEGY_PATH_PREFIX) + MAX_STRATEGY_NAME_LENGTH);
-            sprintf(strategy_file_name, "%s%s", STRATEGY_PATH_PREFIX, DEFAULT_STRATEGY_NAME);
-
-            struct stat st;
-            if (stat(strategy_file_name, &st) == 0) {
-                xQueueOverwrite(file_to_execute_queue, &strategy_file_name);
-                TickType_t match_start_time = xTaskGetTickCount();
-                vTaskDelayUntil(&match_start_time, MATCH_DURATION_MS / portTICK_PERIOD_MS);
-                end_match();
-            } else {
-                ESP_LOGE(TAG, "No default strategy given; ignoring");
-            }
-
-            has_key_been_inserted = false;
         }
-        
-        vTaskDelay(TRIGGER_POLLING_MS / portTICK_PERIOD_MS);
+        vTaskDelay(pdMS_TO_TICKS(TRIGGER_POLLING_MS));
     }
+
+    while (!read_trigger_key_status()) {
+        vTaskDelay(pdMS_TO_TICKS(TRIGGER_POLLING_MS));
+    }
+
+    lcd_printf(0, "00:00");
+    lcd_printf(1, "");
+
+    ESP_LOGI(TAG, "Starting key has been removed; starting strategy");
+    enable_motors_and_set_timer();
+
+    int queue_buffer = 1;
+    xQueueOverwrite(on_run_queue, &queue_buffer);
+    TickType_t match_start_time = xTaskGetTickCount();
+    while (pdTICKS_TO_MS(xTaskGetTickCount() - match_start_time) < (MATCH_DURATION_MS - 1000)) {
+        int elapsed_seconds = pdTICKS_TO_MS(xTaskGetTickCount() - match_start_time) / 1000;
+        lcd_printf(0, "%02d:%02d", elapsed_seconds / 60, elapsed_seconds % 60);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+    vTaskDelayUntil(&match_start_time, MATCH_DURATION_MS / portTICK_PERIOD_MS);
+
+    end_match();
+
+    vTaskDelete(NULL);
 }
 
 static void end_match(void)
 {
     ESP_LOGI(TAG, "Match ended after %d ms", MATCH_DURATION_MS);
-    set_lua_action_function_enable_status(false);
+    int queue_buffer = 1;
+    xQueueOverwrite(on_end_queue, &queue_buffer);
+    vTaskDelay(pdMS_TO_TICKS(TRIGGER_POLLING_MS));
     stop_motion();
     disable_motors();
-    for (int i = 0; i < 3; i++) {
-        set_stepper_board_pump(i, false);
-    }
+    lcd_printf(0, "Done");
+    set_lua_action_function_enable_status(false);
 }
 
 esp_err_t get_strategy_handler(httpd_req_t *req)
@@ -154,6 +197,7 @@ esp_err_t put_strategy_handler(httpd_req_t *req)
         fwrite(data_buffer, 1, data_read, strategy_file);
         written_length += data_read;
     }
+    add_spiffs_file_entry(strategy_name);
 
     httpd_resp_send(req, "All is fine, captain!\n", HTTPD_RESP_USE_STRLEN);
     fclose(strategy_file);

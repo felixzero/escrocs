@@ -25,20 +25,20 @@ static struct sockaddr_in server_addr;
 static int logger_function(const char *message, va_list args);
 static void network_logger_task(void *args);
 
-void init_udp_logger(void)
+esp_err_t init_udp_logger(void)
 {
     ESP_LOGI(TAG, "Initializing UDP logger");
 
     socket_fd = socket(AF_INET, SOCK_DGRAM, 0);
     if (socket_fd < 0) {
         ESP_LOGW(TAG, "Failed to create UDP logger socket");
-        return;
+        return ESP_FAIL;
     }
 
     int broadcast_enable = 1;
     if (setsockopt(socket_fd, SOL_SOCKET, SO_BROADCAST, &broadcast_enable, sizeof(broadcast_enable)) < 0) {
         ESP_LOGW(TAG, "Cannot create broadcast socket");
-        return;
+        return ESP_FAIL;
     }
 
     server_addr.sin_family = AF_INET;
@@ -50,6 +50,8 @@ void init_udp_logger(void)
     xTaskCreatePinnedToCore(network_logger_task, "network_logger", TASK_STACK_SIZE, NULL, LOGGER_PRIORITY, &task, LOW_CRITICITY_CORE);
 
     esp_log_set_vprintf(logger_function);
+
+    return ESP_OK;
 }
 
 static int logger_function(const char *fmt, va_list args)

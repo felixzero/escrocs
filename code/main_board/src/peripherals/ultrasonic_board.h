@@ -6,7 +6,7 @@
 /**
  * Init ultrasound subsystem
  */
-void init_ultrasonic_board(void);
+esp_err_t init_ultrasonic_board(void);
 
 /**
  * Set the scanning action perimeter (angles in radian)

@@ -5,6 +5,8 @@
 
 void init_lua_executor(void);
 
+void pick_strategy_by_spiffs_index(int index);
+
 /**
  * HTTPD handlers to manage /strategy routes
  */

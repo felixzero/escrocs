@@ -15,13 +15,4 @@ menu "ESCROCS Configuration"
     config ESP_WIFI_SUBNET
         int "IP subnet (3rd byte)"
         default 4
-
-    choice ROBOT_TYPE_CHOICE
-        prompt "Choose the type of robot"
-        config ESP_ROBOT_DIFFERENTIAL_DRIVE
-            bool "Differential drive"
-        config ESP_ROBOT_HOLONOMIC
-            bool "Holonomic"
-    endchoice
-
 endmenu

@@ -48,25 +48,37 @@ static httpd_uri_t fixed_uri_handlers[] = {
 
 #define FIXED_URI_HANDLERS_LENGTH (sizeof(fixed_uri_handlers) / sizeof(fixed_uri_handlers[0]))
 
-void init_http_server(void)
+esp_err_t init_http_server(void)
 {
+    esp_err_t err;
+
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.max_uri_handlers = 64;
     config.core_id = LOW_CRITICITY_CORE;
     httpd_handle_t server = NULL;
     if (httpd_start(&server, &config) != ESP_OK) {
         ESP_LOGE(TAG, "Failed to start HTTP server");
-        vTaskDelete(NULL);
+        return ESP_FAIL;
     }
 
     for (int i = 0; i < FIXED_URI_HANDLERS_LENGTH; ++i) {
-        httpd_register_uri_handler(server, &fixed_uri_handlers[i]);
+        err = httpd_register_uri_handler(server, &fixed_uri_handlers[i]);
+        if (err) {
+            ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+            return err;
+        }
     }
 
     for (int i = 0; i < game_actions_uri_handlers_size(); ++i) {
-        httpd_register_uri_handler(server, &get_game_actions_uri_handlers()[i]);
+        err = httpd_register_uri_handler(server, &get_game_actions_uri_handlers()[i]);
+        if (err) {
+            ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+            return err;
+        }
     }
     ESP_LOGI(TAG, "HTTP server properly initiated");
 
     init_ota_rebooter();
+
+    return ESP_OK;
 }

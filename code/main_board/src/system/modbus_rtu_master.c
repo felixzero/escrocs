@@ -52,13 +52,20 @@ static uint8_t rx_buffer[128];
 
 static void IRAM_ATTR uart_intr_handle(void *arg);
 
-void init_modbus_rtu_master(void)
+esp_err_t init_modbus_rtu_master(void)
 {
+    esp_err_t err = ESP_OK;
     ESP_LOGI(TAG, "Initializing Modbus subsystem");
 
     uart_packet_queue = xQueueCreate(1, sizeof(int));
 
     // Configure UART to RS485 transceiver
+    err = uart_driver_install(UART_NUM, 2 * BUFFER_SIZE, 0, 0, NULL, 0);
+    if (err) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
+
     uart_config_t uart_config = {
         .baud_rate = UART_BAUD_RATE,
         .data_bits = UART_DATA_8_BITS,
@@ -66,25 +73,55 @@ void init_modbus_rtu_master(void)
         .stop_bits = UART_STOP_BITS_2,
         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
     };
-    ESP_ERROR_CHECK(uart_driver_install(UART_NUM, 2 * BUFFER_SIZE, 0, 0, NULL, 0));
-    ESP_ERROR_CHECK(uart_param_config(UART_NUM, &uart_config));
-    ESP_ERROR_CHECK(uart_set_pin(UART_NUM, TX_PIN, RX_PIN, TXE_PIN, UART_PIN_NO_CHANGE));
-    ESP_ERROR_CHECK(uart_set_rx_timeout(UART_NUM, ECHO_READ_TOUT));
+    err = uart_param_config(UART_NUM, &uart_config);
+    if (err) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
+
+    err = uart_set_pin(UART_NUM, TX_PIN, RX_PIN, TXE_PIN, UART_PIN_NO_CHANGE);
+    if (err) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
+
+    err = uart_set_rx_timeout(UART_NUM, ECHO_READ_TOUT);
+    if (err) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
 
     // Unregister software UART ISR and register ours
     uart_intr_config_t intr_config = {
         .intr_enable_mask = UART_TX_DONE_INT_ENA_M | UART_RXFIFO_TOUT_INT_ENA_M,
     };
-
     hal_context.dev = UART_LL_GET_HW(UART_NUM);
-    ESP_ERROR_CHECK(uart_isr_free(UART_NUM));
-    ESP_ERROR_CHECK(uart_isr_register(UART_NUM, uart_intr_handle, NULL, ESP_INTR_FLAG_IRAM, NULL));
-    ESP_ERROR_CHECK(uart_intr_config(UART_NUM, &intr_config));
+
+    err = uart_isr_free(UART_NUM);
+    if (err) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
+
+    err = uart_isr_register(UART_NUM, uart_intr_handle, NULL, ESP_INTR_FLAG_IRAM, NULL);
+    if (err) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
+
+    err = uart_intr_config(UART_NUM, &intr_config);
+    if (err) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
 
     modbus_mutex = xSemaphoreCreateMutex();
     if (!modbus_mutex) {
         ESP_LOGE(TAG, "Could not create mutex");
+        return ESP_FAIL;
     }
+
+    return ESP_OK;
 }
 
 esp_err_t modbus_read_coil_status(uint8_t slave_addr, uint16_t starting_coil_address, uint16_t number_of_coils_to_read, bool *output)

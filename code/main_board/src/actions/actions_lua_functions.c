@@ -55,6 +55,12 @@ OUTPUT \
         lua_error(L); \
     } \
     args.parameter_name = lua_toboolean(L, arg_id++);
+#define X_STR_ARGS(parameter_name) \
+    if (!lua_isstring(L, arg_id)) { \
+        lua_pushstring(L, "Invalid argument: not a valid string for " # parameter_name); \
+        lua_error(L); \
+    } \
+    args.parameter_name = lua_tostring(L, arg_id++);
 
 #define X_FLOAT_OUTPUT(parameter_name) \
     lua_pushnumber(L, output.parameter_name); \

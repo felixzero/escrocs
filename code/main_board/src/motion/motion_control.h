@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <sdkconfig.h>
+#include <esp_err.h>
 
 /**
  * Pose of the robot
@@ -24,7 +25,7 @@ typedef struct {
 /**
  * Init motion control subsystem
  */
-void init_motion_control(bool reversed_side);
+esp_err_t init_motion_control(bool reversed_side);
 
 /**
  * Set a (x, y, theta) target in (mm, mm, deg)

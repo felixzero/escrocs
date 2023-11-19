@@ -125,7 +125,7 @@ uint8_t handle_modbus_request(
             tx_buffer,
             rx_size,
             address_in_message,
-            size_or_value_in_message
+            rx_buffer[4]
         );
         break;
     case 0x06:

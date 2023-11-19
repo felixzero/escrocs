@@ -2,7 +2,7 @@
 #include "system/task_priority.h"
 #include "motion/motion_control.h"
 #include "peripherals/stepper_board.h"
-#include "peripherals/user_interface.h"
+#include "peripherals/display.h"
 #include "peripherals/peripherals.h"
 #include "peripherals/motor_board_v3.h"
 
@@ -97,7 +97,14 @@ struct GAME_ACTION_OUTPUT_STRUCT_NAME(get_button) game_action_get_button(struct 
 
 struct GAME_ACTION_OUTPUT_STRUCT_NAME(sleep) game_action_sleep(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(sleep) args)
 {
-    vTaskDelay((int)(args.delay * 100));
+    vTaskDelay(pdMS_TO_TICKS((int)(args.delay * 1000)));
     struct GAME_ACTION_OUTPUT_STRUCT_NAME(sleep) result;
+    return result;
+}
+
+struct GAME_ACTION_OUTPUT_STRUCT_NAME(print) game_action_print(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(print) args)
+{
+    lcd_printf(1, args.message);
+    struct GAME_ACTION_OUTPUT_STRUCT_NAME(print) result;
     return result;
 }
