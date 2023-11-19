@@ -49,7 +49,9 @@
         }
       },
       "diff_pair_dimensions": [],
-      "drc_exclusions": [],
+      "drc_exclusions": [
+        "courtyards_overlap|143031001|80836001|e768610e-c72b-4053-bf23-757fa87fa691|f6d87b96-e8d2-4e67-9e1f-d4fbcbc8c2b1"
+      ],
       "meta": {
         "filename": "board_design_settings.json",
         "version": 2
@@ -80,8 +82,8 @@
         "padstack": "error",
         "pth_inside_courtyard": "ignore",
         "shorting_items": "error",
-        "silk_over_copper": "warning",
-        "silk_overlap": "warning",
+        "silk_over_copper": "ignore",
+        "silk_overlap": "ignore",
         "skew_out_of_range": "error",
         "through_hole_pad_without_hole": "error",
         "too_many_vias": "error",

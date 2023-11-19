@@ -1,0 +1,70 @@
+DesignatorVal              Package                                      MidX   MidY    RotatioLayer
+C1        100u             CP_Elec_8x10                                 37.4650-33.6550180.000top  
+C2        100n             C_0805_2012Metric                            31.7500-37.1450 90.000top  
+C4        100n             C_0805_2012Metric                            43.8150-30.0990  0.000top  
+C12       100n             C_0805_2012Metric                            12.0650-41.9100 90.000top  
+C13       100n             C_0805_2012Metric                            13.3350-52.0700  0.000top  
+C14       100n             C_0805_2012Metric                             6.3500-49.5300-90.000top  
+C201      100u             CP_Elec_8x10                                 23.4950 -4.4450  0.000top  
+C202      100u             CP_Elec_8x10                                 32.3850-11.4300  0.000top  
+C203      100n             C_0805_2012Metric                            15.8750-16.5100180.000top  
+C204      2000u            CP_Elec_10x10.5                              24.7650-33.6550  0.000top  
+C205      100u             CP_Elec_8x10                                 42.5450-17.1450180.000top  
+C206      100n             C_0805_2012Metric                            48.2600-22.2250  0.000top  
+C301      100n             C_0805_2012Metric                            76.8350-41.2750  0.000top  
+D4        Status           LED_0603_1608Metric                          81.2800-31.7500 90.000top  
+D8        PSM712           SOT-23                                       46.9900-41.2750-90.000top  
+D201      SS54             D_SMA                                        14.6050-11.4300-90.000top  
+D202      SMF30A           D_SMF                                        10.7950 -6.3500180.000top  
+D203      SS54             D_SMA                                         9.5250-21.5900180.000top  
+D204      5V_power         LED_0603_1608Metric                          68.5800-31.7500 90.000top  
+D205      3V3_power        LED_0603_1608Metric                          74.9300-31.7500 90.000top  
+D206      SMF30A           D_SMF                                        49.4030-19.9390  0.000top  
+F201      Polyfuse         Fuse_1812_4532Metric                         15.2400 -4.4450 90.000top  
+FB201     FerriteBead      L_0805_2012Metric                            17.7800 -9.5250-90.000top  
+J1        Battery_in       BarrelJack_Horizontal                        10.4450-13.0125  0.000top  
+J3        Trigger          Molex_KK-254_AE-6410-02A_1x02_P2.54mm_Vertica 0.0000-21.6100  0.000top  
+J4        Side_select      Molex_KK-254_AE-6410-02A_1x02_P2.54mm_Vertica 0.0000-28.5950  0.000top  
+J7        I2C_Peripheral   Molex_KK-254_AE-6410-04A_1x04_P2.54mm_Vertica78.7400-27.9400 90.000top  
+J8        I2C_Peripheral   Molex_KK-254_AE-6410-04A_1x04_P2.54mm_Vertica71.7750-27.9400 90.000top  
+J9        I2C_Motor        Molex_KK-254_AE-6410-04A_1x04_P2.54mm_Vertica71.7750-16.5100 90.000top  
+J10       I2C_Motor        Molex_KK-254_AE-6410-04A_1x04_P2.54mm_Vertica78.7600-16.5100 90.000top  
+J13       RS485            Molex_KK-254_AE-6410-04A_1x04_P2.54mm_Vertica34.9250-50.8200  0.000top  
+J14       RS485            Molex_KK-254_AE-6410-04A_1x04_P2.54mm_Vertica34.9250-43.8350  0.000top  
+L1        10u              L_12x12mm_H6mm                               24.7650-45.8470  0.000top  
+L201      100u             L_12x12mm_H6mm                               11.4300-31.7500-90.000top  
+Q301      Q_NPN_BEC        SOT-23                                       64.7700-37.4650  0.000top  
+Q302      Q_NPN_BEC        SOT-23                                       62.8650-45.7200180.000top  
+R1                     300 R_1206_3216Metric                            38.1000 -1.9050  0.000top  
+R2        1k               R_0603_1608Metric                            36.1950-39.2575  0.000top  
+R3        1k               R_0603_1608Metric                            41.2750-39.3700  0.000top  
+R4                     300 R_1206_3216Metric                            78.1050-31.1150  0.000top  
+R5        33k              R_0603_1608Metric                            67.3100-26.4800 90.000top  
+R6        33k              R_0603_1608Metric                            67.3100-15.0500 90.000top  
+R9                     620 R_0603_1608Metric                            12.7000-44.4500  0.000top  
+R10                    620 R_0603_1608Metric                            12.7000-50.0525180.000top  
+R11       10k              R_0603_1608Metric                            12.7000-48.2600180.000top  
+R12       10k              R_0603_1608Metric                            12.7000-46.3550  0.000top  
+R13       10k              R_0603_1608Metric                             3.8100-47.6250  0.000top  
+R14                    620 R_0603_1608Metric                             3.8100-49.5300  0.000top  
+R201                   300 R_1206_3216Metric                            65.4050-31.1150  0.000top  
+R202                   300 R_1206_3216Metric                            71.7550-31.1150  0.000top  
+R301      82k              R_0603_1608Metric                            76.8350-39.2575  0.000top  
+R302      36k              R_0603_1608Metric                            77.3575-43.8150 90.000top  
+R303      10k              R_0603_1608Metric                            65.4050-34.9250180.000top  
+R304      10k              R_0603_1608Metric                            66.0400-42.5450-90.000top  
+R305      10k              R_0603_1608Metric                            59.0550-46.9900  0.000top  
+R306      10k              R_0603_1608Metric                            77.4700-50.8000180.000top  
+R307                   100 R_0603_1608Metric                            67.8325-35.5600 90.000top  
+R308                   100 R_0603_1608Metric                            67.8325-40.8773-90.000top  
+RV1       LCD_contrast     Potentiometer_Bourns_3314J_Vertical          59.0550-10.7950-90.000top  
+U4        PCA9306DC1       VSSOP-8_2.3x2mm_P0.5mm                       66.0400-23.4950  0.000top  
+U5        PCA9306DC1       VSSOP-8_2.3x2mm_P0.5mm                       66.0400-12.0650  0.000top  
+U8        MAX485E          SOIC-8_3.9x4.9mm_P1.27mm                     47.6250-34.9250-90.000top  
+U9        SRV05-4          SOT-23-6                                     53.3400-46.9900180.000top  
+U11       SRV05-4          SOT-23-6                                     66.0400-19.0500-90.000top  
+U201      LM2576S-5        TO-263-5_TabPin3                             26.6700-21.5900  0.000top  
+U202      AMS1117-3.3      SOT-223-3_TabPin2                            40.0050-25.4000  0.000top  
+U301      SRV05-4          SOT-23-6                                     73.6600-50.8000  0.000top  
+U302      CP2102N-Axx-xQFN QFN-28-1EP_5x5mm_P0.5mm_EP3.35x3.35mm        71.7550-38.1000 90.000top  
+## End                                                                                        

@@ -1,0 +1,13 @@
+### Module positions - created on sam. 04 nov. 2023 21:56:41 ###
+### Printed by Pcbnew version 6.0.11+dfsg-1
+## Unit = mm, Angle = deg.
+## Side : bottom
+# Ref     Val             Package                                              PosX       PosY       Rot  Side
+J2        UART_PGM        Molex_KK-254_AE-6410-04A_1x04_P2.54mm_Vertical   -49.5500   -43.1800  -90.0000  bottom
+J301      USB_B           USB_B_TE_5787834_Vertical                        -72.4100   -43.8725  180.0000  bottom
+SW3       Input_encoder   RotaryEncoder_Alps_EC11E-Switch_Vertical_H20mm   -15.5050   -44.4900  180.0000  bottom
+SW301     BOOT            SW_Push_1P1T_NO_6x6mm_H9.5mm                     -59.6900   -50.1650  180.0000  bottom
+SW302     RESET           SW_Push_1P1T_NO_6x6mm_H9.5mm                     -59.6900   -43.1800  180.0000  bottom
+U3        ESP32-WROOM-32  ESP32-WROOM-32U                                  -48.2600   -24.7650    0.0000  bottom
+U7        LCD-016N002L    WC1602A                                          -72.3900    -5.0800  180.0000  bottom
+## End
