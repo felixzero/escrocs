@@ -5,7 +5,7 @@
 #include <freertos/task.h>
 
 #define OK_MESSAGE_LENGTH_MS    500
-#define ERR_MESSAGE_LENGTH_MS   portMAX_DELAY
+#define ERR_MESSAGE_LENGTH_MS   5000
 
 #define BLINKING_PERIOD         300
 #define BLINKING_NUMBER         2

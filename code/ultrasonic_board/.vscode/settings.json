@@ -8,6 +8,8 @@
         "stdint.h": "c",
         "i2c_registers.h": "c",
         "controller.h": "c",
-        "i2c.h": "c"
+        "i2c.h": "c",
+        "modbus_rtu_slave.h": "c",
+        "led_strip.h": "c"
     }
 }

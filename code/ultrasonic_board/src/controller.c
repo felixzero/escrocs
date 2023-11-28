@@ -9,7 +9,7 @@
 #define DEFAULT_CRITICAL_DISTANCE_MM        400
 #define DEFAULT_SAFE_DISTANCE_MM            1000
 
-#define DEFAULT_REPETITION_PERIOD_MS        20
+#define DEFAULT_REPETITION_PERIOD_MS        30
 #define REPETION_TIMER_FREQUENCY            (F_CPU / 1024)
 #define REPETITION_PERIOD_MS_TO_TICKS(t)    (uint16_t)((uint32_t)(t) * REPETION_TIMER_FREQUENCY / 1000)
 
@@ -40,7 +40,7 @@ void init_controller(void)
     DDRB |= _BV(1);
 
     for (uint8_t i = 0; i < NUMBER_OF_US; ++i) {
-        enabled_channels[i] = true;
+        enabled_channels[i] = false;
         ultrasound_distances[i] = 0;
     }
 
@@ -51,7 +51,7 @@ void init_controller(void)
 bool is_path_obstructed(void)
 {
     for (uint8_t i = 0; i < NUMBER_OF_US; ++i) {
-        if ((ultrasound_distances[i] < US_FROM_DISTANCE(critical_threshold_distance)) && enabled_channels[i]) {
+        if ((ultrasound_distances[i] < critical_threshold_distance) && enabled_channels[i]) {
             return true;
         }
     }

@@ -6,7 +6,7 @@
 #include "com_registers_def.h"
 #include "global_definitions.h"
 
-#define RS485_BAUD_RATE                 1000000
+#define RS485_BAUD_RATE                 500000
 
 #define MODBUS_SLAVE_ADDR               0x45
 

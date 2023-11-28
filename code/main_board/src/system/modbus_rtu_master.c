@@ -12,9 +12,11 @@
 #define TAG "Modbus RTU"
 
 #define UART_NUM                UART_NUM_1
-#define UART_BAUD_RATE          1000000
+#define UART_BAUD_RATE          500000
 #define BUFFER_SIZE             1024
 #define RECEIVE_TIMEOUT_TICKS   1
+#define RECEIVE_TIMEOUT_US      1000
+#define RECEIVE_POLL_US         500
 #define ECHO_READ_TOUT          3
 #define MAX_QUERY_SIZE          64
 #define MAX_RESPONSE_SIZE       64
@@ -47,8 +49,6 @@ static size_t receive_raw_rs485(void *buffer, size_t expected_len);
 static SemaphoreHandle_t modbus_mutex;
 static uart_hal_context_t hal_context;
 static spinlock_t spinlock = portMUX_INITIALIZER_UNLOCKED;
-static QueueHandle_t uart_packet_queue;
-static uint8_t rx_buffer[128];
 
 static void IRAM_ATTR uart_intr_handle(void *arg);
 
@@ -56,8 +56,6 @@ esp_err_t init_modbus_rtu_master(void)
 {
     esp_err_t err = ESP_OK;
     ESP_LOGI(TAG, "Initializing Modbus subsystem");
-
-    uart_packet_queue = xQueueCreate(1, sizeof(int));
 
     // Configure UART to RS485 transceiver
     err = uart_driver_install(UART_NUM, 2 * BUFFER_SIZE, 0, 0, NULL, 0);
@@ -85,16 +83,7 @@ esp_err_t init_modbus_rtu_master(void)
         return err;
     }
 
-    err = uart_set_rx_timeout(UART_NUM, ECHO_READ_TOUT);
-    if (err) {
-        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
-        return err;
-    }
-
     // Unregister software UART ISR and register ours
-    uart_intr_config_t intr_config = {
-        .intr_enable_mask = UART_TX_DONE_INT_ENA_M | UART_RXFIFO_TOUT_INT_ENA_M,
-    };
     hal_context.dev = UART_LL_GET_HW(UART_NUM);
 
     err = uart_isr_free(UART_NUM);
@@ -109,6 +98,9 @@ esp_err_t init_modbus_rtu_master(void)
         return err;
     }
 
+    uart_intr_config_t intr_config = {
+        .intr_enable_mask = UART_TX_DONE_INT_ENA_M
+    };
     err = uart_intr_config(UART_NUM, &intr_config);
     if (err) {
         ESP_ERROR_CHECK_WITHOUT_ABORT(err);
@@ -333,50 +325,42 @@ static esp_err_t query_modbus_rtu(size_t message_len, uint8_t slave_addr, uint8_
 static void send_raw_rs485(const void *buffer, size_t len)
 {
     uint32_t write_size = 0;
-    int rx_buffer_length = 0;
 
-    uart_hal_read_rxfifo(&hal_context, rx_buffer, &rx_buffer_length);
+    uart_hal_rxfifo_rst(&hal_context);
     uart_hal_set_rts(&hal_context, 0);
     uart_hal_write_txfifo(&hal_context, buffer, len, &write_size);
 }
 
 static size_t receive_raw_rs485(void *buffer, size_t expected_len)
 {
-    int rx_buffer_length = 0;
+    int rx_buffer_length = 0, length = 0;
+    int64_t start_listening_time = esp_timer_get_time();
 
-    xQueueReceive(uart_packet_queue, &rx_buffer_length, RECEIVE_TIMEOUT_TICKS);
-    uart_hal_read_rxfifo(&hal_context, rx_buffer, &rx_buffer_length);
-    memcpy(buffer, rx_buffer, rx_buffer_length);
+    while ((rx_buffer_length == 0) || (length != 0)) {
+        length = 0;
+        uart_hal_read_rxfifo(&hal_context, buffer + rx_buffer_length, &length);
+        rx_buffer_length += length;
+        int64_t initial_wait_time = esp_timer_get_time();
+
+        if (esp_timer_get_time() > start_listening_time + RECEIVE_TIMEOUT_US) {
+            break;
+        }
+        while (esp_timer_get_time() <= initial_wait_time + ECHO_READ_TOUT * 11);
+    }
+
+    uart_hal_rxfifo_rst(&hal_context);
     return rx_buffer_length;
 }
 
 static void IRAM_ATTR uart_intr_handle(void *arg)
 {
     uint32_t uart_intr_status = uart_hal_get_intsts_mask(&hal_context);
-    BaseType_t higher_priority_task_awaken = false;
 
     if (uart_intr_status & UART_INTR_TX_DONE) {
         portENTER_CRITICAL_ISR(&spinlock);
         uart_hal_set_rts(&hal_context, 1);
         uart_hal_clr_intsts_mask(&hal_context, UART_INTR_TX_DONE);
         portEXIT_CRITICAL_ISR(&spinlock);
-        return;
-    } else if (uart_intr_status & UART_INTR_RXFIFO_TOUT) {
-        portENTER_CRITICAL_ISR(&spinlock);
-        int packet_size = uart_hal_get_rxfifo_len(&hal_context);
-        xQueueSendFromISR(uart_packet_queue, &packet_size, &higher_priority_task_awaken);
-        uart_hal_clr_intsts_mask(&hal_context, UART_INTR_RXFIFO_TOUT);
-        portEXIT_CRITICAL_ISR(&spinlock);
-
-        if (higher_priority_task_awaken) {
-            portYIELD_FROM_ISR();
-        }
-        return;
-    } else {
-        // Unexpected interrupt, clearing RX FIFO to reset device
-        int rx_buffer_length;
-        uart_hal_read_rxfifo(&hal_context, rx_buffer, &rx_buffer_length);
-        uart_hal_clr_intsts_mask(&hal_context, uart_intr_status);
         return;
     }
 }

@@ -5,7 +5,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-#define UBRR_VALUE ((F_CPU / 8 / RS485_BAUD_RATE) - 1)
+#define UBRR_VALUE ((F_CPU / 16 / RS485_BAUD_RATE) - 1)
 #define TIMEOUT_RATE (2 * RS485_BAUD_RATE / 11 / 7)
 #define TIMEOUT_VALUE (F_CPU / 64 / TIMEOUT_RATE)
 
@@ -22,6 +22,7 @@ void init_modbus_rtu_slave(void)
 
     // Set TX enable pin as output
     DDRB |= _BV(2);
+    PORTB &= ~_BV(2);
 
     // Initiate TIMER2 as end of transmission timer
     // CTC to OCRA, interrupt on overflow
@@ -35,8 +36,6 @@ void init_modbus_rtu_slave(void)
     // Init UART
     UBRRH = UBRR_VALUE >> 8;
     UBRRL = UBRR_VALUE & 0xFF;
-    // Enable double speed UART to compensate for 8MHz crystal
-    UCSRA |= _BV(U2X);
     // Enable RX, TX and their interrupts
     UCSRB = _BV(RXEN) | _BV(TXEN) | _BV(RXCIE) | _BV(TXCIE);
     // Set frame format: 8 data + 2 stop bits

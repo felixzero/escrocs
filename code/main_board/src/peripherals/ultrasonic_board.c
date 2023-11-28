@@ -4,6 +4,7 @@
 #include <esp_log.h>
 #include <esp_err.h>
 #include <math.h>
+#include <string.h>
 
 #define TAG                             "Ultrasonic board"
 #define MAX_ID_LEN                      64
@@ -56,20 +57,45 @@ esp_err_t init_ultrasonic_board(void)
         ESP_ERROR_CHECK_WITHOUT_ABORT(err);
         return err;
     }
-    disable_ultrasonic_detection();
+    disable_all_ultrasonic_detection();
 
     return ESP_OK;
 }
 
-void set_ultrasonic_scan_angle(float min_angle, float max_angle)
+int set_ultrasonic_scan_angle(float center_angle, float cone)
 {
     bool active_channels[NUMBER_OF_US];
     for (int channel = 0; channel < NUMBER_OF_US; ++channel) {
         float channel_angle = 2 * M_PI * channel / NUMBER_OF_US;
-        active_channels[channel] = (channel_angle >= min_angle) && (channel_angle <= max_angle);
+        float channel_angle_offset = atan2(sin(channel_angle - center_angle), cos(channel_angle - center_angle));
+        active_channels[NUMBER_OF_US - 1 - channel] = fabsf(channel_angle_offset) <= cone / 2;
     }
 
     ESP_ERROR_CHECK_WITHOUT_ABORT(modbus_force_multiple_coils(MODBUS_ADDRESS, MODBUS_COIL_CHANNELS_START, NUMBER_OF_US, active_channels));
+
+    int number_of_active_channels = 0;
+    for (int channel = 0; channel < NUMBER_OF_US; ++channel) {
+        if (active_channels[channel]) {
+            number_of_active_channels++;
+        }
+    }
+    return number_of_active_channels;
+}
+
+void set_ultrasonic_display_distances(float critical_distance, float safe_distance)
+{
+    uint16_t values[] = { roundf(critical_distance), roundf(safe_distance) };
+    ESP_ERROR_CHECK_WITHOUT_ABORT(modbus_preset_multiple_registers(MODBUS_ADDRESS, MODBUS_CONFIG_CRITICAL_DISTANCE, 2, values));
+}
+
+void set_ultrasonic_repetition_period(int period_ms)
+{
+    ESP_ERROR_CHECK_WITHOUT_ABORT(modbus_preset_single_register(MODBUS_ADDRESS, MODBUS_CONFIG_REPETITION_PERIOD, period_ms));
+}
+
+void set_ultrasonic_timeout_distance(float distance_mm)
+{
+    ESP_ERROR_CHECK_WITHOUT_ABORT(modbus_preset_single_register(MODBUS_ADDRESS, MODBUS_CONFIG_TIMEOUT, roundf(distance_mm)));
 }
 
 void ultrasonic_perform_scan(void)
@@ -84,8 +110,17 @@ bool ultrasonic_has_obstacle(void)
     return result;
 }
 
-void disable_ultrasonic_detection(void)
+int disable_all_ultrasonic_detection(void)
 {
     bool inputs[NUMBER_OF_US] = { false };
     ESP_ERROR_CHECK_WITHOUT_ABORT(modbus_force_multiple_coils(MODBUS_ADDRESS, MODBUS_COIL_CHANNELS_START, NUMBER_OF_US, inputs));
+    return 0;
+}
+
+int enable_all_ultrasonic_detection(void)
+{
+    bool inputs[NUMBER_OF_US];
+    memset(inputs, true, NUMBER_OF_US);
+    ESP_ERROR_CHECK_WITHOUT_ABORT(modbus_force_multiple_coils(MODBUS_ADDRESS, MODBUS_COIL_CHANNELS_START, NUMBER_OF_US, inputs));
+    return NUMBER_OF_US;
 }

@@ -42,6 +42,8 @@ esp_err_t init_motion_control(bool reversed)
     }
     reversed_side = reversed;
 
+    set_ultrasonic_repetition_period(ULTRASONIC_CHANNEL_PERIOD_MS);
+
     // Create FreeRTOS task
     TaskHandle_t task;
     input_target_queue = xQueueCreate(1, sizeof(motion_status_t));
@@ -111,7 +113,6 @@ bool is_motion_done(void)
 
 static void motion_control_task(void *parameters)
 {
-    TickType_t iteration_time = xTaskGetTickCount();
     pose_t current_pose = {
             .x = 0.0,
             .y = 0.0,
@@ -122,20 +123,17 @@ static void motion_control_task(void *parameters)
         .motion_step = MOTION_STEP_DONE
     };
     motion_control_tuning_t tuning;
-    encoder_measurement_t previous_encoder = { 0 };
-
     holonomic_wheel_base_set_values(&tuning);
 
-    while (read_encoders(&previous_encoder) != ESP_OK) {
-        ESP_LOGW(TAG, "Error while reading encoders; retrying...");
-    }
     struct motion_data_t motion_data;
     motion_data.tuning = &tuning;
-    
-    int iteration = 0;
 
-    while (true) {
-        vTaskDelayUntil(&iteration_time, MOTION_PERIOD_MS / portTICK_PERIOD_MS);
+    int number_of_ultrasonic_active_channels = 0;
+
+    TickType_t iteration_time = xTaskGetTickCount();
+    TickType_t ultrasonic_scan_time = xTaskGetTickCount();
+    for (int iteration = 0; true; ++iteration) {
+        xTaskDelayUntil(&iteration_time, pdMS_TO_TICKS(MOTION_PERIOD_MS));
 
         // Retrieve latest parameters
         xQueueReceive(overwrite_pose_queue, &current_pose, 0);
@@ -143,36 +141,42 @@ static void motion_control_task(void *parameters)
             motion_data.elapsed_time_ms = 0;
         }
         
-        // Update pose according to encoders; in case of communication failure, keep previous values
-        encoder_measurement_t encoder;
-        memcpy(&encoder, &previous_encoder, sizeof(encoder));
-        read_encoders(&encoder);
-        holonomic_wheel_base_update_pose(&motion_data, &current_pose, &previous_encoder, &encoder);
-        previous_encoder = encoder;
+        // Update pose according to encoders
+        encoder_measurement_t encoder_increment;
+        read_encoder_increment(&encoder_increment);
+        holonomic_wheel_base_update_pose(&motion_data, &current_pose, &encoder_increment);
 
         if (iteration % 10 == 0) {
-            ESP_LOGI(TAG, "Encoders: %f %f %f", encoder.channel1, encoder.channel2, encoder.channel3);
+            ESP_LOGI(TAG, "Encoders: %f %f %f", encoder_increment.channel1, encoder_increment.channel2, encoder_increment.channel3);
             ESP_LOGI(TAG, "Pose: %f %f %f", current_pose.x, current_pose.y, current_pose.theta);
         }
 
-        float min_scanning_angle, max_scanning_angle;
-        bool needs_detection;
-        holonomic_wheel_base_get_detection_scanning_angles(
-            &motion_data, &motion_target, &current_pose,
-            &min_scanning_angle, &max_scanning_angle, &needs_detection
-        );
+        // Every few iterations, the ultrasonic board is contacted
+        bool needs_detection = false;
+        if (xTaskGetTickCount() - ultrasonic_scan_time > pdMS_TO_TICKS(ULTRASONIC_CHANNEL_PERIOD_MS) * (number_of_ultrasonic_active_channels + 1)) {
+            ultrasonic_scan_time = xTaskGetTickCount();
+            if (motion_target.motion_step == MOTION_STEP_RUNNING) {
+                float center_scanning_angle, cone_scanning_angle;
+                holonomic_wheel_base_get_detection_scanning_angles(
+                    &motion_data, &motion_target, &current_pose,
+                    &center_scanning_angle, &cone_scanning_angle, &needs_detection
+                );
+                if (needs_detection) {
+                    number_of_ultrasonic_active_channels = set_ultrasonic_scan_angle(center_scanning_angle, cone_scanning_angle);
+                }
+            }
 
-        // FIXME
-        //set_ultrasonic_scan_angle(0, 2 * M_PI);
-        //ultrasonic_perform_scan();
-        
-        /*if (motion_target.perform_detection && needs_detection) {
-            set_ultrasonic_scan_angle(min_scanning_angle, max_scanning_angle);
-        } else {
-            disable_ultrasonic_detection();
-        }*/
+            if (!needs_detection) {
+                number_of_ultrasonic_active_channels = disable_all_ultrasonic_detection();
+            }
 
-        //bool obstacle_detected = ultrasonic_has_obstacle() && needs_detection && motion_target.perform_detection;
+            if (needs_detection && ultrasonic_has_obstacle()) {
+                ESP_LOGI(TAG, "Obstacle detected");
+            }
+
+            ultrasonic_perform_scan();
+        }
+
         // Calculate new motor targets
         if (motion_target.motion_step == MOTION_STEP_DONE) {
             write_motor_speed_raw(0.0, 0.0, 0.0);
@@ -186,8 +190,6 @@ static void motion_control_task(void *parameters)
         status.pose = current_pose;
         status.motion_step = motion_target.motion_step;
         xQueueOverwrite(output_status_queue, &status);
-
-        iteration++;
     }
 }
 

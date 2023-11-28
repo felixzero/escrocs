@@ -9,8 +9,11 @@ const uint8_t critical_color[] = { 255, 0, 0 };
 
 extern volatile uint8_t led_strip_payload[];
 
-inline uint8_t linear_interpolation(uint8_t a, uint8_t b, uint16_t t, uint16_t max_value)
+static uint8_t linear_interpolation(uint8_t a, uint8_t b, uint16_t t, uint16_t max_value)
 {
+    if (t >= max_value) {
+        return b;
+    }
     return ((uint32_t)a * (max_value - t) + b * t) / (max_value + 1);
 }
 

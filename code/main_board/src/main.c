@@ -27,7 +27,7 @@ void app_main() {
     display_initialization_status("SPIFFS", init_spiffs());
     display_initialization_status("Wi-Fi", init_wifi_system());
     display_initialization_status("HTTP", init_http_server());
-    vTaskDelay(200);
+    vTaskDelay(pdMS_TO_TICKS(500));
     init_udp_logger();
 
     display_initialization_status("Ultrasonic", init_ultrasonic_board());

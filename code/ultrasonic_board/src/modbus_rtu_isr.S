@@ -25,8 +25,6 @@ USART_RXC_vect:
     push XL
     push XH
 
-    sbi PORTB_IO, 1
-
     ; X = rx_buffer + rx_buffer_index
     lds XL, rx_buffer_index
     ldi XH, hi8(rx_buffer)
@@ -60,7 +58,7 @@ TIMER2_COMP_vect:
 
     ; Disable timer
     ldi r17, _BV(WGM21)
-    sts TCCR2, XL
+    sts TCCR2, r17
 
     ; rx_complete = true
     ldi r17, 1

@@ -10,8 +10,24 @@ esp_err_t init_ultrasonic_board(void);
 
 /**
  * Set the scanning action perimeter (angles in radian)
+ * @return The number of active channels
  */
-void set_ultrasonic_scan_angle(float min_angle, float max_angle);
+int set_ultrasonic_scan_angle(float center_angle, float cone);
+
+/**
+ * Configure the display distance on the LED display (<critical is red; >safe is green)
+ */
+void set_ultrasonic_display_distances(float critical_distance, float safe_distance);
+
+/**
+ * Set the scan repetition period between two channel scans
+ */
+void set_ultrasonic_repetition_period(int period_ms);
+
+/**
+ * Set the distance beyond which the returned value is timed out
+ */
+void set_ultrasonic_timeout_distance(float distance_mm);
 
 /**
  * Send the trigger to perform the scan
@@ -25,6 +41,8 @@ void ultrasonic_perform_scan(void);
 bool ultrasonic_has_obstacle(void);
 
 /**
- * Disable all ultrasound channels
+ * Disable or enable all ultrasound channels
+ * @return The number of active channels
  */
-void disable_ultrasonic_detection(void);
+int disable_all_ultrasonic_detection(void);
+int enable_all_ultrasonic_detection(void);

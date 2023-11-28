@@ -56,6 +56,7 @@
 .endm
 
 led_strip_bit_banging:
+    cli
     ; port_high = LED_PORT value when pin is high
     in port_high, _SFR_IO_ADDR(LED_PORT)
     sbr port_high, LED_PIN
@@ -127,4 +128,5 @@ finish:
     ; Put reset condition
     out _SFR_IO_ADDR(LED_PORT), port_low
     ; Return to C
+    sei
     ret

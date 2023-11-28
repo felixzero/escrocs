@@ -4,6 +4,12 @@
 #include <sdkconfig.h>
 #include <esp_err.h>
 
+#define MOTION_STEP_DONE                0
+#define MOTION_STEP_RUNNING             1
+
+#define MOTION_PERIOD_MS                10
+#define ULTRASONIC_CHANNEL_PERIOD_MS    30
+
 /**
  * Pose of the robot
  * @param x (and y) position in mm

@@ -20,30 +20,26 @@ struct holonomic_data_t {
 
 void holonomic_wheel_base_set_values(motion_control_tuning_t *tuning)
 {
-    tuning->wheel_radius_mm = 30.3;
+    tuning->wheel_radius_mm = 27.0;
     tuning->robot_radius_mm = 100.4;
     tuning->max_speed_mps = 1.0;
     tuning->acceleration_mps2 = 0.5;
-    tuning->ultrasonic_detection_angle = 0.5;
+    tuning->ultrasonic_detection_angle = 0.63;
     tuning->ultrasonic_detection_angle_offset = 0.0;
-    tuning->ticks_per_turn = 800;
+    tuning->ultrasonic_min_detection_distance_mm = 30;
+    tuning->ticks_per_turn = 360;
     tuning->allowed_error_ticks = 3;
 }
 
 void holonomic_wheel_base_update_pose(
     struct motion_data_t *data,
     pose_t *current_pose,
-    const encoder_measurement_t *previous_encoder,
-    const encoder_measurement_t *current_encoder
+    const encoder_measurement_t *encoder_increment
 )
 {
-    float channel1 = current_encoder->channel1 - previous_encoder->channel1;
-    float channel2 = current_encoder->channel2 - previous_encoder->channel2;
-    float channel3 = current_encoder->channel3 - previous_encoder->channel3;
-
-    float u_ref_robot = (-channel2 + channel3) / SQRT_3_2 / 2.0;
-    float v_ref_robot = (-2.0 * channel1 + channel2 + channel3) / 3.0;
-    float t_ref_robot = -(channel1 + channel2 + channel3) / 3.0;
+    float u_ref_robot = (-encoder_increment->channel2 + encoder_increment->channel3) / SQRT_3_2 / 2.0;
+    float v_ref_robot = (-2.0 * encoder_increment->channel1 + encoder_increment->channel2 + encoder_increment->channel3) / 3.0;
+    float t_ref_robot = -(encoder_increment->channel1 + encoder_increment->channel2 + encoder_increment->channel3) / 3.0;
 
     current_pose->x += ENCODER_TO_POSITION(u_ref_robot * cos(current_pose->theta) - v_ref_robot * sin(current_pose->theta), data->tuning);
     current_pose->y += ENCODER_TO_POSITION(u_ref_robot * sin(current_pose->theta) + v_ref_robot * cos(current_pose->theta), data->tuning);
@@ -104,20 +100,17 @@ void holonomic_wheel_base_get_detection_scanning_angles(
     struct motion_data_t *data,
     motion_status_t *motion_target,
     const pose_t *current_pose,
-    float *min_angle,
-    float *max_angle,
+    float *center_angle,
+    float *cone_angle,
     bool *perform_detection
 ) {
     const pose_t target_pose = motion_target->pose;
+    float distance_to_target_sq = powf(target_pose.y - current_pose->y, 2) + powf(target_pose.x - current_pose->x, 2);
     float angle_to_target = atan2(target_pose.y - current_pose->y, target_pose.x - current_pose->x);
     
-    *perform_detection = true;
-    *min_angle = angle_to_target
+    *perform_detection = distance_to_target_sq > powf(data->tuning->ultrasonic_min_detection_distance_mm, 2);
+    *center_angle = angle_to_target
         - current_pose->theta
-        - data->tuning->ultrasonic_detection_angle
         - data->tuning->ultrasonic_detection_angle_offset;
-    *max_angle = angle_to_target
-        - current_pose->theta
-        + data->tuning->ultrasonic_detection_angle
-        - data->tuning->ultrasonic_detection_angle_offset;
+    *cone_angle = 2 * data->tuning->ultrasonic_detection_angle;
 }

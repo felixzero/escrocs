@@ -17,7 +17,7 @@ esp_err_t init_motor_board_v3(void);
 /**
  * Read the current encoder positions
  */
-esp_err_t read_encoders(encoder_measurement_t *measurement);
+esp_err_t read_encoder_increment(encoder_measurement_t *measurement);
 
 /**
  * Set motor control voltages
