@@ -221,7 +221,7 @@ static uint8_t handle_read_coil_or_input_status(
             );
         }
         if (value) {
-            TX_BUFFER_DATA[i / 8] |= 1 << (i % 8);
+            TX_BUFFER_DATA[1 + i / 8] |= 1 << (i % 8);
         }
     }
 

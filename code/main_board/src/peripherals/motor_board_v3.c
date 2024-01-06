@@ -11,8 +11,7 @@
 #define MOTOR_BOARD_ENCODER_REG     10100
 #define MOTOR_BOARD_ENABLE_COIL     20000
 
-#define TICK_PER_TURN               100.0
-#define TICK_PER_DEGREE             (TICK_PER_TURN / 360.0)
+#define TICK_PER_TURN               400.0
 #define MAX_ID_LEN                  64
 #define TAG                         "Motor board v3"
 
@@ -69,9 +68,9 @@ esp_err_t read_encoder_increment(encoder_measurement_t *measurement)
         return err;
     }
 
-    measurement->channel1 = (float)((int16_t)(encoder_raw_values[0] - previous_encoder_raw_values[0])) / TICK_PER_DEGREE;
-    measurement->channel2 = (float)((int16_t)(encoder_raw_values[1] - previous_encoder_raw_values[1])) / TICK_PER_DEGREE;
-    measurement->channel3 = (float)((int16_t)(encoder_raw_values[2] - previous_encoder_raw_values[2])) / TICK_PER_DEGREE;
+    measurement->channel1 = (float)((int16_t)(encoder_raw_values[0] - previous_encoder_raw_values[0])) / TICK_PER_TURN;
+    measurement->channel2 = (float)((int16_t)(encoder_raw_values[1] - previous_encoder_raw_values[1])) / TICK_PER_TURN;
+    measurement->channel3 = (float)((int16_t)(encoder_raw_values[2] - previous_encoder_raw_values[2])) / TICK_PER_TURN;
 
     memcpy(previous_encoder_raw_values, encoder_raw_values, 3 * sizeof(int16_t));
 
@@ -91,10 +90,12 @@ esp_err_t write_motor_speed_raw(float speed1, float speed2, float speed3)
     return err;
 }
 
-esp_err_t write_motor_speed_rpm(float speed1, float speed2, float speed3)
+esp_err_t write_motor_speed_rad_s(float speed1, float speed2, float speed3)
 {
     const float MAX_SPEED_RPM = 300;
-    return write_motor_speed_raw(speed1 / MAX_SPEED_RPM, speed2 / MAX_SPEED_RPM, speed3 / MAX_SPEED_RPM);
+    const float MAX_SPEED_RAD_S = MAX_SPEED_RPM / 60 * 2 * M_PI;
+
+    return write_motor_speed_raw(speed1 / MAX_SPEED_RAD_S, speed2 / MAX_SPEED_RAD_S, speed3 / MAX_SPEED_RAD_S);
 }
 
 esp_err_t enable_motors(void)

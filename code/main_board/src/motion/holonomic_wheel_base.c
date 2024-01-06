@@ -3,32 +3,22 @@
 #include <stddef.h>
 #include <math.h>
 #include <esp_log.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 
-#define TAG "Motion control [H]"
-#define SQRT_3_2 0.86602540378
-#define PI_2 6.28318530718
-
-#define ENCODER_TO_POSITION(u, tuning) ((u) / tuning->ticks_per_turn * PI_2 * tuning->wheel_radius_mm)
-#define ENCODER_TO_ANGLE(t, tuning) ((t) / tuning->ticks_per_turn * PI_2 * tuning->wheel_radius_mm / tuning->robot_radius_mm)
-#define POSITION_TO_ENCODER(x, tuning) ((x) * tuning->ticks_per_turn / PI_2 / tuning->wheel_radius_mm)
-#define ANGLE_TO_ENCODER(theta, tuning) ((theta) * tuning->ticks_per_turn / PI_2 / tuning->wheel_radius_mm * tuning->robot_radius_mm)
-
-struct holonomic_data_t {
-    motion_control_tuning_t *tuning;
-    float elapsed_time_ms;
-};
+#define TAG         "Motion control [H]"
+#define SQRT_3_2     0.86602540378
 
 void holonomic_wheel_base_set_values(motion_control_tuning_t *tuning)
 {
     tuning->wheel_radius_mm = 27.0;
     tuning->robot_radius_mm = 100.4;
     tuning->max_speed_mps = 1.0;
-    tuning->acceleration_mps2 = 0.5;
+    tuning->acceleration_mps2 = 0.3;
     tuning->ultrasonic_detection_angle = 0.63;
-    tuning->ultrasonic_detection_angle_offset = 0.0;
     tuning->ultrasonic_min_detection_distance_mm = 30;
-    tuning->ticks_per_turn = 360;
-    tuning->allowed_error_ticks = 3;
+    tuning->allowed_error_mm = 3;
+    tuning->deceleration_factor = 0.8;
 }
 
 void holonomic_wheel_base_update_pose(
@@ -41,59 +31,87 @@ void holonomic_wheel_base_update_pose(
     float v_ref_robot = (-2.0 * encoder_increment->channel1 + encoder_increment->channel2 + encoder_increment->channel3) / 3.0;
     float t_ref_robot = -(encoder_increment->channel1 + encoder_increment->channel2 + encoder_increment->channel3) / 3.0;
 
-    current_pose->x += ENCODER_TO_POSITION(u_ref_robot * cos(current_pose->theta) - v_ref_robot * sin(current_pose->theta), data->tuning);
-    current_pose->y += ENCODER_TO_POSITION(u_ref_robot * sin(current_pose->theta) + v_ref_robot * cos(current_pose->theta), data->tuning);
-    current_pose->theta += ENCODER_TO_ANGLE(t_ref_robot, data->tuning);
+    current_pose->x += (u_ref_robot * cos(current_pose->theta) - v_ref_robot * sin(current_pose->theta)) * 2 * M_PI * data->tuning->wheel_radius_mm;
+    current_pose->y += (u_ref_robot * sin(current_pose->theta) + v_ref_robot * cos(current_pose->theta)) * 2 * M_PI * data->tuning->wheel_radius_mm;
+    current_pose->theta += 2 * M_PI * t_ref_robot * data->tuning->wheel_radius_mm / data->tuning->robot_radius_mm;
 }
 
-void holonomic_wheel_base_apply_speed_to_motors(struct motion_data_t *data, motion_status_t *motion_target, const pose_t *current_pose)
-{
+void holonomic_wheel_base_apply_speed_to_motors(
+    struct motion_data_t *data,
+    motion_status_t *motion_target,
+    const pose_t *current_pose,
+    bool force_deceleration
+) {
+    int64_t current_time = esp_timer_get_time();
+
     const pose_t target_pose = motion_target->pose;
-
-    float u_way_to_go = POSITION_TO_ENCODER(
-        (target_pose.x - current_pose->x) * cos(current_pose->theta) + (target_pose.y - current_pose->y) * sin(current_pose->theta),
-        data->tuning
+    pose_t target_displacement = {
+        .x = target_pose.x - current_pose->x,
+        .y = target_pose.y - current_pose->y,
+        .theta = data->tuning->robot_radius_mm * (target_pose.theta - current_pose->theta)
+    };
+    float target_displacement_norm = sqrtf(
+        target_displacement.x * target_displacement.x
+        + target_displacement.y * target_displacement.y
+        + target_displacement.theta * target_displacement.theta
     );
-    float v_way_to_go = POSITION_TO_ENCODER(
-        -(target_pose.x - current_pose->x) * sin(current_pose->theta) + (target_pose.y - current_pose->y) * cos(current_pose->theta),
-        data->tuning
+    float max_speed_norm = fminf(
+        data->tuning->max_speed_mps,
+        data->tuning->deceleration_factor * sqrtf(2 * data->tuning->acceleration_mps2 * target_displacement_norm * 1e-3)
     );
-    float t_way_to_go = ANGLE_TO_ENCODER(target_pose.theta - current_pose->theta, data->tuning);
-
-    float c1 = -v_way_to_go - t_way_to_go;
-    float c2 = - SQRT_3_2 * u_way_to_go + v_way_to_go / 2.0 - t_way_to_go;
-    float c3 = SQRT_3_2 * u_way_to_go + v_way_to_go / 2.0 - t_way_to_go;
-
-    if (
-        (fabsf(c1) <= data->tuning->allowed_error_ticks)
-        && (fabsf(c2) <= data->tuning->allowed_error_ticks)
-        && (fabsf(c3) <= data->tuning->allowed_error_ticks)
-    ) {
+    if (force_deceleration || data->please_stop) {
+        max_speed_norm = 0;
+    }
+    if (target_displacement_norm < data->tuning->allowed_error_mm) {
         ESP_LOGI(TAG, "Motion finished at (X=%f, Y=%f, T=%f)", current_pose->x, current_pose->y, current_pose->theta);
         motion_target->motion_step = MOTION_STEP_DONE;
-        data->elapsed_time_ms = 0.0;
+        write_motor_speed_rad_s(0, 0, 0);
+        data->previous_speed.x = 0;
+        data->previous_speed.y = 0;
+        data->previous_speed.theta = 0;
+        return;
     }
 
-    ESP_LOGD(TAG, "Raw waytogos: %f %f %f", c1, c2, c3);
-
-    //float max_value = fmaxf(fabsf(c1), fmaxf(fabsf(c2), fabsf(c3)));
-    float max_value = sqrtf(c1 * c1 + c2 * c2 + c3 * c3);
-    data->elapsed_time_ms += MOTION_PERIOD_MS;
-
-    float current_speed_mps = fminf(
-        data->tuning->max_speed_mps,
-        fminf(
-            sqrtf(2 * data->tuning->acceleration_mps2 * ENCODER_TO_POSITION(max_value, data->tuning) * 1e-3),
-            1e-3 * data->elapsed_time_ms * data->tuning->acceleration_mps2
-        )
+    pose_t target_speed = {
+        .x = max_speed_norm * target_displacement.x / target_displacement_norm,
+        .y = max_speed_norm * target_displacement.y / target_displacement_norm,
+        .theta = max_speed_norm * target_displacement.theta / target_displacement_norm,
+    };
+    pose_t speed_difference = {
+        .x = target_speed.x - data->previous_speed.x,
+        .y = target_speed.y - data->previous_speed.y,
+        .theta = target_speed.theta - data->previous_speed.theta,
+    };
+    float speed_difference_norm = sqrtf(
+        speed_difference.x * speed_difference.x
+        + speed_difference.y * speed_difference.y
+        + speed_difference.theta * speed_difference.theta
     );
-    ESP_LOGD(TAG, "Current speed in m/s: %f", current_speed_mps);
-    float current_speed_rpm = current_speed_mps * 60 / (PI_2 * data->tuning->wheel_radius_mm * 1e-3);
-    c1 /= max_value / current_speed_rpm;
-    c2 /= max_value / current_speed_rpm;
-    c3 /= max_value / current_speed_rpm;
-    ESP_LOGD(TAG, "Writing motor speed to: %f %f %f (%f)", c1, c2, c3, max_value);
-    write_motor_speed_rpm(c1, c2, c3);
+    float time_difference_s = (current_time - data->previous_time) * 1e-6;
+    data->previous_time = current_time;
+    if (speed_difference_norm > data->tuning->acceleration_mps2 * time_difference_s) {
+        speed_difference.x = speed_difference.x / speed_difference_norm * data->tuning->acceleration_mps2 * time_difference_s;
+        speed_difference.y = speed_difference.y / speed_difference_norm * data->tuning->acceleration_mps2 * time_difference_s;
+        speed_difference.theta = speed_difference.theta / speed_difference_norm * data->tuning->acceleration_mps2 * time_difference_s;
+    }
+    pose_t new_speed = {
+        .x = data->previous_speed.x + speed_difference.x,
+        .y = data->previous_speed.y + speed_difference.y,
+        .theta = data->previous_speed.theta + speed_difference.theta,
+    };
+    data->previous_speed = new_speed;
+
+    float u = new_speed.x * cosf(current_pose->theta) + new_speed.y * sinf(current_pose->theta);
+    float v = -new_speed.x * sinf(current_pose->theta) + new_speed.y * cosf(current_pose->theta);
+    float t = new_speed.theta;
+    float c1 = -v - t;
+    float c2 = - SQRT_3_2 * u + v / 2.0 - t;
+    float c3 = SQRT_3_2 * u + v / 2.0 - t;
+    write_motor_speed_rad_s(
+        c1 / (data->tuning->wheel_radius_mm * 1e-3),
+        c2 / (data->tuning->wheel_radius_mm * 1e-3),
+        c3 / (data->tuning->wheel_radius_mm * 1e-3)
+    );
 }
 
 void holonomic_wheel_base_get_detection_scanning_angles(
@@ -109,8 +127,6 @@ void holonomic_wheel_base_get_detection_scanning_angles(
     float angle_to_target = atan2(target_pose.y - current_pose->y, target_pose.x - current_pose->x);
     
     *perform_detection = distance_to_target_sq > powf(data->tuning->ultrasonic_min_detection_distance_mm, 2);
-    *center_angle = angle_to_target
-        - current_pose->theta
-        - data->tuning->ultrasonic_detection_angle_offset;
+    *center_angle = angle_to_target - current_pose->theta;
     *cone_angle = 2 * data->tuning->ultrasonic_detection_angle;
 }

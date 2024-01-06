@@ -24,7 +24,7 @@ esp_err_t read_encoder_increment(encoder_measurement_t *measurement);
  * @param speed in range [0, 1] or in RPM
  */
 esp_err_t write_motor_speed_raw(float speed1, float speed2, float speed3);
-esp_err_t write_motor_speed_rpm(float speed1, float speed2, float speed3);
+esp_err_t write_motor_speed_rad_s(float speed1, float speed2, float speed3);
 
 /**
  * Enable or disable control of the stepper motors.
