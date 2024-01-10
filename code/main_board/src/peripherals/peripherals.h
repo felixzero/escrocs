@@ -1,11 +1,12 @@
 #pragma once
 
 #include <stdbool.h>
+#include <esp_err.h>
 
 /**
  * Initialize the peripheral card. To be called at startup.
  */
-void init_peripherals(void);
+esp_err_t init_peripherals(void);
 
 /**
  * Switch a pump on or off. Channel must be in range 0-3.

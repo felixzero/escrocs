@@ -16,8 +16,9 @@
 #define I2C_TIMEOUT_MS 500
 #define I2C_MAX_BUFFER_SIZE 64
 
-void init_i2c_master(void)
+esp_err_t init_i2c_master(void)
 {
+    esp_err_t err;
     printf("Initializing I2C master...\n");
 
     i2c_config_t conf_motor = {
@@ -30,7 +31,11 @@ void init_i2c_master(void)
     };
     i2c_param_config(I2C_PORT_MOTOR, &conf_motor);
 
-    ESP_ERROR_CHECK(i2c_driver_install(I2C_PORT_MOTOR, conf_motor.mode, 0, 0, 0));
+    err = i2c_driver_install(I2C_PORT_MOTOR, conf_motor.mode, 0, 0, 0);
+    if (err != ESP_OK) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
     i2c_set_timeout(I2C_PORT_MOTOR, 80000);
 
     i2c_config_t conf_perif = {
@@ -43,8 +48,14 @@ void init_i2c_master(void)
     };
     i2c_param_config(I2C_PORT_PERIPH, &conf_perif);
 
-    ESP_ERROR_CHECK(i2c_driver_install(I2C_PORT_PERIPH, conf_perif.mode, 0, 0, 0));
+    err = i2c_driver_install(I2C_PORT_PERIPH, conf_perif.mode, 0, 0, 0);
+    if (err != ESP_OK) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
     i2c_set_timeout(I2C_PORT_PERIPH, 80000);
+
+    return ESP_OK;
 }
 
 void send_to_i2c(int port, uint8_t slave_addr, void *buffer, size_t length)

@@ -18,7 +18,7 @@ static uint8_t stepper_i2c_addr[] = { STEPPER1_I2C_ADDR, STEPPER2_I2C_ADDR };
 
 static void write_servo_i2c_register(uint8_t reg, int pulse_width);
 
-void init_peripherals(void)
+esp_err_t init_peripherals(void)
 {
     ESP_LOGI(TAG, "Initializing peripheral subsystem.");
 
@@ -48,6 +48,8 @@ void init_peripherals(void)
         // Set two-phase drive
         write_i2c_register(I2C_PORT_PERIPH, stepper_i2c_addr[i], 0x0B, 0x50);
     }
+
+    return ESP_OK;
 }
 
 void set_peripherals_pump(int channel, bool status)

@@ -9,7 +9,7 @@
 /**
  * Initiate I2C master bus. To be called before any I2C operation.
  */
-void init_i2c_master(void);
+esp_err_t init_i2c_master(void);
 
 /**
  * Send a command to a I2C slave
