@@ -26,8 +26,7 @@
 #define TRIGGER_POLLING_MS          500
 #define MATCH_DURATION_MS           89000
 #define LUA_ON_INIT_FUNCTION        "on_init"
-#define LUA_ON_RUN_FUNCTION         "on_run"
-#define LUA_ON_END_FUNCTION         "on_end"
+#define LUA_RESUME_LOOP_FUNCTION    "resume_loop"
 
 static QueueHandle_t file_to_execute_queue, on_run_queue, on_end_queue;
 static TaskHandle_t lua_executor_task_handle;
@@ -87,12 +86,16 @@ static void lua_executor_task(void *parameters)
 
         int queue_buffer;
         xQueueReceive(on_run_queue, &queue_buffer, portMAX_DELAY);
-        lua_getglobal(L, LUA_ON_RUN_FUNCTION);
-        lua_call(L, 0, 0);
 
-        xQueueReceive(on_end_queue, &queue_buffer, portMAX_DELAY);
-        lua_getglobal(L, LUA_ON_END_FUNCTION);
-        lua_call(L, 0, 0);
+        while (xQueuePeek(on_end_queue, &queue_buffer, 0) == pdFALSE) //while queue is empty
+        {
+            lua_getglobal(L, LUA_RESUME_LOOP_FUNCTION);
+            lua_pushinteger(L, pdTICKS_TO_MS(xTaskGetTickCount()));
+            lua_call(L, 1, 1); //arg is the timestamp in ms, receive the sleep time to wait before calling the coroutine again
+            lua_Integer sleep_time = lua_tointeger(L, -1);
+            vTaskDelay(pdMS_TO_TICKS(sleep_time));
+        }
+        lcd_printf(2, "out xQUEUEPEEK"); //TODO : à tester si on arrive bien là et qu'on bloque pas au dessus
 
         free(filename);
     }
@@ -102,7 +105,7 @@ static void trigger_timer_task(void *parameters)
 {
     bool has_key_been_inserted = false;
     while (!has_key_been_inserted) {
-        if (read_trigger_key_status()) {
+        if (read_trigger_key_status() && false) { //TODO : to remove the false, only to skip key
             lcd_printf(1, "Key missing");
         } else {
             lcd_printf(1, "Key inserted");
@@ -227,8 +230,9 @@ esp_err_t run_strategy_handler(httpd_req_t *req)
         return ESP_OK;
     }
 
+    lcd_printf(1, "Executing %s", strategy_name);
     xQueueOverwrite(file_to_execute_queue, &strategy_file_name);
-    httpd_resp_send(req, "All is fine, captain!\n", HTTPD_RESP_USE_STRLEN);
+    httpd_resp_send(req, "All is executing, captain!\n", HTTPD_RESP_USE_STRLEN);
     return ESP_OK;
 }
 
