@@ -1,15 +1,21 @@
-x_initial, y_initial, theta_initial = 0, 0, 0
-
-main_loop = nil
 MATCH_DURATION_MS = 87000
 DEFAULT_LOOP_PERIOD_MS = 50
-function on_init()
+
+x_initial, y_initial, theta_initial = 0, 0, 0
+
+main_loop = nil -- coroutine/thread
+is_right = nil -- boolean
+
+function on_init(side)
+    is_right = side
+    print(tostring(is_right))
     overwrite_pose(x_initial, y_initial, theta_initial)
 end
 
 function on_loop(timestamp)
     --here we do our shit
-    print("t " .. tostring(timestamp))
+    print(tostring(is_right))
+    --print("t " .. tostring(timestamp))
     return DEFAULT_LOOP_PERIOD_MS
 end
 

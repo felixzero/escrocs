@@ -32,20 +32,23 @@ static QueueHandle_t file_to_execute_queue, on_run_queue, on_end_queue;
 static TaskHandle_t lua_executor_task_handle;
 
 static void get_strategy_file_name_from_query(httpd_req_t *req, char *name);
-static void lua_executor_task(void *parameters);
+static void lua_executor_task(void *is_reversed);
 static void trigger_timer_task(void *parameters);
 static void end_match(void);
 
-void init_lua_executor(void)
+static int is_right = -1; //boolean set by init_lua_executor, need to store it here to be able to use it in lua_executor_task
+
+void init_lua_executor(int is_reversed)
 {
     init_lua_action_functions();
 
+    is_right = is_reversed;
     // Create FreeRTOS task
     TaskHandle_t task;
     file_to_execute_queue = xQueueCreate(1, sizeof(char*));
     on_run_queue = xQueueCreate(1, sizeof(int));
     on_end_queue = xQueueCreate(1, sizeof(int));
-    xTaskCreatePinnedToCore(lua_executor_task, "lua_executor", TASK_STACK_SIZE, NULL, LUA_PRIORITY, &lua_executor_task_handle, LOW_CRITICITY_CORE);
+    xTaskCreatePinnedToCore(lua_executor_task, "lua_executor", TASK_STACK_SIZE, (void*)&is_right, LUA_PRIORITY, &lua_executor_task_handle, LOW_CRITICITY_CORE);
     xTaskCreatePinnedToCore(trigger_timer_task, "trigger_timer", TASK_STACK_SIZE, NULL, TRIGGER_TIMER_PRIORITY, &task, LOW_CRITICITY_CORE);
 }
 
@@ -66,7 +69,7 @@ void pick_strategy_by_spiffs_index(int index)
     }
 }
 
-static void lua_executor_task(void *parameters)
+static void lua_executor_task(void *is_reversed)
 {
     while (true) {
         char *filename;
@@ -82,7 +85,12 @@ static void lua_executor_task(void *parameters)
             lcd_printf(1, "Lua error");
         }
         lua_getglobal(L, LUA_ON_INIT_FUNCTION);
-        lua_call(L, 0, 0);
+        lua_pushboolean(L, *((int*)is_reversed));
+
+        if (lua_pcall(L, 1, LUA_MULTRET, 0) != LUA_OK) {
+            ESP_LOGE(TAG, "Lua error on_init: %s", lua_tostring(L, -1));
+            lcd_printf(1, "Lua error init");
+        }
 
         int queue_buffer;
         xQueueReceive(on_run_queue, &queue_buffer, portMAX_DELAY);
@@ -91,9 +99,17 @@ static void lua_executor_task(void *parameters)
         {
             lua_getglobal(L, LUA_RESUME_LOOP_FUNCTION);
             lua_pushinteger(L, pdTICKS_TO_MS(xTaskGetTickCount()));
-            lua_call(L, 1, 1); //arg is the timestamp in ms, receive the sleep time to wait before calling the coroutine again
-            lua_Integer sleep_time = lua_tointeger(L, -1);
-            vTaskDelay(pdMS_TO_TICKS(sleep_time));
+
+            //arg is the timestamp in ms, receive the sleep time to wait before calling the coroutine again
+            if(lua_pcall(L, 1, 1, 0) != LUA_OK) { //It either returns an error message or the sleep time
+                ESP_LOGE(TAG, "Lua error resume_loop: %s", lua_tostring(L, -1));
+                lcd_printf(1, "Lua error on main_loop");
+            }
+            else {
+                lua_Integer sleep_time = lua_tointeger(L, -1);
+                vTaskDelay(pdMS_TO_TICKS(sleep_time));
+            }
+
         }
         lcd_printf(2, "out xQUEUEPEEK"); //TODO : à tester si on arrive bien là et qu'on bloque pas au dessus
 
