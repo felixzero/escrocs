@@ -1,6 +1,6 @@
 #include "actions/game_actions.h"
 #include "system/task_priority.h"
-#include "motion/motion_control.h"
+#include "controllers/motion_control.h"
 #include "peripherals/stepper_board.h"
 #include "peripherals/display.h"
 #include "peripherals/peripherals.h"

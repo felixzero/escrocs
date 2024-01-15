@@ -8,7 +8,7 @@
 #define MOTION_STEP_RUNNING             1
 
 #define MOTION_PERIOD_MS                10
-#define ULTRASONIC_CHANNEL_PERIOD_MS    30
+
 
 /**
  * Pose of the robot

@@ -4,7 +4,8 @@
 #include "system/task_priority.h"
 #include "peripherals/display.h"
 #include "peripherals/motor_board_v3.h"
-#include "motion/motion_control.h"
+#include "peripherals/ultrasonic_board.h"
+#include "controllers/motion_control.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -109,6 +110,9 @@ static void lua_executor_task(void *is_reversed)
                 lua_Integer sleep_time = lua_tointeger(L, -1);
                 vTaskDelay(pdMS_TO_TICKS(sleep_time));
             }
+            uint16_t ultrasonic_values[NUMBER_OF_US];
+            read_all_ultrasonic_values(ultrasonic_values);
+            ESP_LOGI(TAG, "Ultrasonic values: %d %d %d %d %d %d %d %d", ultrasonic_values[0], ultrasonic_values[1], ultrasonic_values[2], ultrasonic_values[3], ultrasonic_values[4], ultrasonic_values[5], ultrasonic_values[6], ultrasonic_values[7]);
 
         }
         lcd_printf(2, "out xQUEUEPEEK"); //TODO : à tester si on arrive bien là et qu'on bloque pas au dessus
