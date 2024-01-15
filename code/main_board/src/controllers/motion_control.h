@@ -4,8 +4,10 @@
 #include <sdkconfig.h>
 #include <esp_err.h>
 
+#define LUA_MOTION_RECOVERY             1 // 0: no recovery, 1: recovery by lua when stop due to obstacle
 #define MOTION_STEP_DONE                0
 #define MOTION_STEP_RUNNING             1
+#define MOTION_STEP_BLOCKED             2 //motion_step done due to an adversary
 
 #define MOTION_PERIOD_MS                10
 
@@ -58,5 +60,10 @@ void stop_motion(void);
  * Check if the robot is still in motion
  */
 bool is_motion_done(void);
+
+/**
+ * Check if the robot is stopped due to an obstacle
+ */
+bool is_stopped(void);
 
 void enable_motors_and_set_timer(void);

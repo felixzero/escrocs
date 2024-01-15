@@ -58,8 +58,12 @@ void app_main() {
     }
     lcd_printf(0, "Side: %s", table_sides[is_reversed]);
 
+
+
     init_lua_executor(is_reversed);
     pick_strategy_by_spiffs_index(picked_strategy);
 
+
+    
     vTaskDelay(portMAX_DELAY);
 }

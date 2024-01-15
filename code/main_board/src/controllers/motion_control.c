@@ -110,6 +110,13 @@ bool is_motion_done(void)
     return status.motion_step == MOTION_STEP_DONE;
 }
 
+bool is_stopped(void)
+{
+    motion_status_t status;
+    xQueuePeek(output_status_queue, &status, 0);
+    return status.motion_step == MOTION_STEP_BLOCKED;
+}
+
 static void motion_control_task(void *parameters)
 {
     pose_t current_pose = {
@@ -134,7 +141,6 @@ static void motion_control_task(void *parameters)
     int number_of_clear_ultrasonic_iterations_before_movement = 0;
 
     TickType_t iteration_time = xTaskGetTickCount();    
-    TickType_t ultrasonic_scan_time = xTaskGetTickCount();
     for (int iteration = 0; true; ++iteration) {
         xTaskDelayUntil(&iteration_time, pdMS_TO_TICKS(MOTION_PERIOD_MS));
 
@@ -144,7 +150,9 @@ static void motion_control_task(void *parameters)
         if (xQueueReceive(input_target_queue, &motion_target, 0)) {
             if (previous_step == MOTION_STEP_DONE) {
                 motion_data.previous_time = esp_timer_get_time();
-                number_of_clear_ultrasonic_iterations_before_movement = 3; //wait for one scan before moving
+                number_of_clear_ultrasonic_iterations_before_movement = 2; //wait for one scan before moving
+                bool temp = false;
+                xQueueOverwrite(scan_over_queue, &temp); //Makes sure to go into the scan loop
             }
             motion_data.please_stop = motion_target.motion_step == MOTION_STEP_DONE;
             motion_target.motion_step = MOTION_STEP_RUNNING;
@@ -158,13 +166,13 @@ static void motion_control_task(void *parameters)
         if (iteration % 10 == 0) {
             ESP_LOGI(TAG, "Encoders: %f %f %f", encoder_increment.channel1, encoder_increment.channel2, encoder_increment.channel3);
             ESP_LOGI(TAG, "Pose: %f %f %f", current_pose.x, current_pose.y, current_pose.theta);
+
         }
-
-        // Every few iterations, the ultrasonic board is contacted IF robot has a target
-        if (motion_target.motion_step == MOTION_STEP_RUNNING &&
-                xTaskGetTickCount() - ultrasonic_scan_time > pdMS_TO_TICKS(ULTRASONIC_CHANNEL_PERIOD_MS) * (get_number_of_active_channels() + 1)) {
-
+        // the ultrasonic board is contacted IF robot has a target and the scan queue is empty
+        bool is_scan_done = false;
+        if (motion_target.motion_step == MOTION_STEP_RUNNING && xQueueReceive(scan_over_queue, &is_scan_done, 0)) { //using NULL makes it crash instead of temp
             bool need_detection = false;
+
             //Calculates a cone to scan to send to US board
             float center_scanning_angle, cone_scanning_angle;
             scan_angle_t motion_cone;
@@ -175,6 +183,19 @@ static void motion_control_task(void *parameters)
             motion_cone.center_angle = center_scanning_angle;
             motion_cone.cone = cone_scanning_angle;
 
+            //Perform obstacle detection logic
+            if (need_detection && ultrasonic_has_obstacle() && motion_target.perform_detection) {
+                number_of_clear_ultrasonic_iterations_before_movement = NUMBER_OF_CLEAR_ULTRASONIC_SCANS;
+                ESP_LOGI(TAG, "Obstacle detected");
+                if(LUA_MOTION_RECOVERY) {
+                    motion_target.motion_step = MOTION_STEP_BLOCKED;
+                }
+            } else if (number_of_clear_ultrasonic_iterations_before_movement > 0) {
+                number_of_clear_ultrasonic_iterations_before_movement--;
+                ESP_LOGI(TAG, "undetected obstacle, still wait %d before go", number_of_clear_ultrasonic_iterations_before_movement);
+            }
+
+            //send another scan request
             BaseType_t err;
             if(need_detection) {
                 err = xQueueSend(motion_cone_queue, &motion_cone, 0);
@@ -183,26 +204,13 @@ static void motion_control_task(void *parameters)
                 scan_angle_t empty_motion_cone = {0};
                 err = xQueueSend(motion_cone_queue, &empty_motion_cone, 0);
             }
-
-            if(err == pdTRUE) {
-                ultrasonic_scan_time = xTaskGetTickCount();
-                if (need_detection && ultrasonic_has_obstacle() && motion_target.perform_detection) {
-                    number_of_clear_ultrasonic_iterations_before_movement = NUMBER_OF_CLEAR_ULTRASONIC_SCANS;
-                    ESP_LOGI(TAG, "Obstacle detected");
-                } else if (number_of_clear_ultrasonic_iterations_before_movement > 0) {
-                    number_of_clear_ultrasonic_iterations_before_movement--;
-                    ESP_LOGI(TAG, "undetected obstacle, still wait %d before go", number_of_clear_ultrasonic_iterations_before_movement);
-            }
-            }
-            else { // == errQUEUE_FULL
+            if(err == errQUEUE_FULL) {
                 ESP_LOGI(TAG, "Failed to send motion cone to ultrasonic_board_task due to motion_cone_queue full, will retry on next loop");
             }
-
-
         }
 
         // Calculate new motor targets
-        if (motion_target.motion_step == MOTION_STEP_DONE) {
+        if (motion_target.motion_step == MOTION_STEP_DONE || motion_target.motion_step == MOTION_STEP_BLOCKED) {
             write_motor_speed_rad_s(0.0, 0.0, 0.0);
         } else {
             enable_motors_and_set_timer();

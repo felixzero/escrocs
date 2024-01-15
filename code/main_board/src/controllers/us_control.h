@@ -14,7 +14,8 @@ typedef struct {
     float cone;
 } scan_angle_t;
 
-extern QueueHandle_t strategy_single_channel_queue, motion_cone_queue;
+extern QueueHandle_t strategy_single_channel_queue, motion_cone_queue, scan_over_queue;
+extern uint16_t distances[NUMBER_OF_US];
 
 esp_err_t init_us_controller();
 

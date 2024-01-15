@@ -129,6 +129,4 @@ void holonomic_wheel_base_get_detection_scanning_angles(
     *perform_detection = distance_to_target_sq > powf(data->tuning->ultrasonic_min_detection_distance_mm, 2);
     *center_angle = angle_to_target - current_pose->theta;
     *cone_angle = 2 * data->tuning->ultrasonic_detection_angle;
-
-    ESP_LOGI(TAG, "Detection: %s, center angle: %f, cone angle: %f", *perform_detection ? "true" : "false", *center_angle, *cone_angle);
 }
