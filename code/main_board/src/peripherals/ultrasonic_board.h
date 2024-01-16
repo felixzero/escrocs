@@ -3,16 +3,19 @@
 #include <stdbool.h>
 #include <esp_err.h>
 
+#define NUMBER_OF_US                    10
 /**
  * Init ultrasound subsystem
  */
 esp_err_t init_ultrasonic_board(void);
 
+
+
 /**
- * Set the scanning action perimeter (angles in radian)
- * @return The number of active channels
+ * Enable/disable channels, don't forget to disable it later !
+ * @param channels : array of size NUMBER_OF_US
  */
-int set_ultrasonic_scan_angle(float center_angle, float cone);
+void update_scan_channels(bool *channels);
 
 /**
  * Configure the display distance on the LED display (<critical is red; >safe is green)
@@ -46,3 +49,9 @@ bool ultrasonic_has_obstacle(void);
  */
 int disable_all_ultrasonic_detection(void);
 int enable_all_ultrasonic_detection(void);
+
+/**
+ * get raw values of distance from ultrasonic board of all US channels
+ * @param values : array of size NUMBER_OF_US
+ */
+void read_all_ultrasonic_values(uint16_t *values);

@@ -62,24 +62,11 @@ esp_err_t init_ultrasonic_board(void)
     return ESP_OK;
 }
 
-int set_ultrasonic_scan_angle(float center_angle, float cone)
+
+
+void update_scan_channels(bool *channels)
 {
-    bool active_channels[NUMBER_OF_US];
-    for (int channel = 0; channel < NUMBER_OF_US; ++channel) {
-        float channel_angle = 2 * M_PI * channel / NUMBER_OF_US;
-        float channel_angle_offset = atan2(sin(channel_angle - center_angle), cos(channel_angle - center_angle));
-        active_channels[NUMBER_OF_US - 1 - channel] = fabsf(channel_angle_offset) <= cone / 2;
-    }
-
-    ESP_ERROR_CHECK_WITHOUT_ABORT(modbus_force_multiple_coils(MODBUS_ADDRESS, MODBUS_COIL_CHANNELS_START, NUMBER_OF_US, active_channels));
-
-    int number_of_active_channels = 0;
-    for (int channel = 0; channel < NUMBER_OF_US; ++channel) {
-        if (active_channels[channel]) {
-            number_of_active_channels++;
-        }
-    }
-    return number_of_active_channels;
+    ESP_ERROR_CHECK_WITHOUT_ABORT(modbus_force_multiple_coils(MODBUS_ADDRESS, MODBUS_COIL_CHANNELS_START, NUMBER_OF_US, channels));
 }
 
 void set_ultrasonic_display_distances(float critical_distance, float safe_distance)
@@ -123,4 +110,8 @@ int enable_all_ultrasonic_detection(void)
     memset(inputs, true, NUMBER_OF_US);
     ESP_ERROR_CHECK_WITHOUT_ABORT(modbus_force_multiple_coils(MODBUS_ADDRESS, MODBUS_COIL_CHANNELS_START, NUMBER_OF_US, inputs));
     return NUMBER_OF_US;
+}
+
+void read_all_ultrasonic_values(uint16_t *values) {
+    ESP_ERROR_CHECK_WITHOUT_ABORT(modbus_read_input_registers(MODBUS_ADDRESS, MODBUS_DISTANCE_INPUT_REG_START, NUMBER_OF_US, values));
 }
