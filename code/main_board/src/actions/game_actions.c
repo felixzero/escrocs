@@ -61,7 +61,7 @@ struct GAME_ACTION_OUTPUT_STRUCT_NAME(is_motion_done) game_action_is_motion_done
 struct GAME_ACTION_OUTPUT_STRUCT_NAME(is_blocked) game_action_is_blocked(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(is_blocked) args)
 {
     struct GAME_ACTION_OUTPUT_STRUCT_NAME(is_blocked) result;
-    result.motion_done = is_stopped();
+    result.motion_done = is_blocked();
     return result;
 }
 

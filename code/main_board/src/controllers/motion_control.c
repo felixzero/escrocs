@@ -110,11 +110,11 @@ bool is_motion_done(void)
     return status.motion_step == MOTION_STEP_DONE;
 }
 
-bool is_stopped(void)
+bool is_blocked(void)
 {
     motion_status_t status;
     xQueuePeek(output_status_queue, &status, 0);
-    return status.motion_step == MOTION_STEP_BLOCKED;
+    return status.is_blocked;
 }
 
 static void motion_control_task(void *parameters)
@@ -126,7 +126,8 @@ static void motion_control_task(void *parameters)
         };
     current_pose = apply_reverse_transformation(&current_pose, reversed_side);
     motion_status_t motion_target = {
-        .motion_step = MOTION_STEP_DONE
+        .motion_step = MOTION_STEP_DONE,
+        .is_blocked = false,
     };
     motion_control_tuning_t tuning;
     holonomic_wheel_base_set_values(&tuning);
@@ -187,8 +188,9 @@ static void motion_control_task(void *parameters)
             if (need_detection && ultrasonic_has_obstacle() && motion_target.perform_detection) {
                 number_of_clear_ultrasonic_iterations_before_movement = NUMBER_OF_CLEAR_ULTRASONIC_SCANS;
                 ESP_LOGI(TAG, "Obstacle detected");
+                motion_target.is_blocked = true;
                 if(LUA_MOTION_RECOVERY) {
-                    motion_target.motion_step = MOTION_STEP_BLOCKED;
+                    motion_data.please_stop = true;
                 }
             } else if (number_of_clear_ultrasonic_iterations_before_movement > 0) {
                 number_of_clear_ultrasonic_iterations_before_movement--;
@@ -210,7 +212,7 @@ static void motion_control_task(void *parameters)
         }
 
         // Calculate new motor targets
-        if (motion_target.motion_step == MOTION_STEP_DONE || motion_target.motion_step == MOTION_STEP_BLOCKED) {
+        if (motion_target.motion_step == MOTION_STEP_DONE) {
             write_motor_speed_rad_s(0.0, 0.0, 0.0);
         } else {
             enable_motors_and_set_timer();
