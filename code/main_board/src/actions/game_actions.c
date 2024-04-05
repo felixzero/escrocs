@@ -11,6 +11,9 @@
 #include <freertos/task.h>
 
 #include <esp_log.h>
+#include <string.h>
+
+#define TAG "lua_print"
 
 struct GAME_ACTION_OUTPUT_STRUCT_NAME(set_pose) game_action_set_pose(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(set_pose) args)
 {
@@ -101,7 +104,11 @@ struct GAME_ACTION_OUTPUT_STRUCT_NAME(reset_stepper) game_action_reset_stepper(s
 struct GAME_ACTION_OUTPUT_STRUCT_NAME(get_button) game_action_get_button(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(get_button) args)
 {
     struct GAME_ACTION_OUTPUT_STRUCT_NAME(get_button) result;
-    result.status = read_switch(args.channel);
+    if(args.channel == 100 || args.channel == 101 ||args.channel == 200 ||args.channel == 201) {
+        result.status = read_peripherals_motor_input(args.channel / 100 - 1, args.channel % 100);
+    } else {
+        result.status = read_switch(args.channel);
+    }
     return result;
 }
 
@@ -114,7 +121,14 @@ struct GAME_ACTION_OUTPUT_STRUCT_NAME(sleep) game_action_sleep(struct GAME_ACTIO
 
 struct GAME_ACTION_OUTPUT_STRUCT_NAME(print) game_action_print(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(print) args)
 {
-    lcd_printf(1, args.message);
+    ESP_LOGI(TAG, "%s", args.message);
+    if(strlen(args.message) < 30)
+    {
+        lcd_printf(1, args.message);
+    }
+    else {
+        lcd_printf(1, "UNPRINTED LENGHTY");
+    }
     struct GAME_ACTION_OUTPUT_STRUCT_NAME(print) result;
     return result;
 }

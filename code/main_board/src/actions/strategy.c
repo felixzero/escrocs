@@ -14,6 +14,9 @@
 #include <stdio.h>
 #include <sys/stat.h>
 
+//TODO : REMOVE : 
+#include <esp_spiffs.h>
+
 #include "lua/lauxlib.h"
 #include "lua/lua.h"
 #include "lua/lualib.h"
@@ -64,7 +67,16 @@ void pick_strategy_by_spiffs_index(int index)
 
     struct stat st;
     if (stat(strategy_file_name, &st) == 0) {
+        //esp_err_t err1 = esp_spiffs_info(conf.partition_label, &total, &used);
+        //ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
+        //ESP_LOGI(TAG, "size of spiffs %d", SPIFFS.totalBytes())
+        ESP_LOGI(TAG, "[if crashing here, check lua file size (< 20kb)] Sending to queue file :  %s", strategy_file_name);
+            lua_State *L = luaL_newstate();
+        luaL_openlibs(L);
+        ESP_LOGI(TAG, "openlibs_done !");
+        luaL_loadfile(L, strategy_file_name);
         xQueueOverwrite(file_to_execute_queue, &strategy_file_name);
+
     } else {
         ESP_LOGE(TAG, "No default strategy given; ignoring");
     }
@@ -100,7 +112,6 @@ static void lua_executor_task(void *is_reversed)
         {
             lua_getglobal(L, LUA_RESUME_LOOP_FUNCTION);
             lua_pushinteger(L, pdTICKS_TO_MS(xTaskGetTickCount()));
-
             //arg is the timestamp in ms, receive the sleep time to wait before calling the coroutine again
             if(lua_pcall(L, 1, 1, 0) != LUA_OK) { //It either returns an error message or the sleep time
                 ESP_LOGE(TAG, "Lua error resume_loop: %s", lua_tostring(L, -1));
