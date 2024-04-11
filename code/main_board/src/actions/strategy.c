@@ -52,7 +52,7 @@ void init_lua_executor(int is_reversed)
     file_to_execute_queue = xQueueCreate(1, sizeof(char*));
     on_run_queue = xQueueCreate(1, sizeof(int));
     on_end_queue = xQueueCreate(1, sizeof(int));
-    xTaskCreatePinnedToCore(lua_executor_task, "lua_executor", TASK_STACK_SIZE, (void*)&is_right, LUA_PRIORITY, &lua_executor_task_handle, LOW_CRITICITY_CORE);
+    xTaskCreatePinnedToCore(lua_executor_task, "lua_executor", 16384, (void*)&is_right, LUA_PRIORITY, &lua_executor_task_handle, LOW_CRITICITY_CORE);
     xTaskCreatePinnedToCore(trigger_timer_task, "trigger_timer", TASK_STACK_SIZE, NULL, TRIGGER_TIMER_PRIORITY, &task, LOW_CRITICITY_CORE);
 }
 
@@ -136,7 +136,7 @@ static void trigger_timer_task(void *parameters)
 {
     bool has_key_been_inserted = false;
     while (!has_key_been_inserted) {
-        if (read_trigger_key_status() && false) { //TODO : to remove the false, only to skip key
+        if (read_trigger_key_status()) {
             lcd_printf(1, "Key missing");
         } else {
             lcd_printf(1, "Key inserted");
