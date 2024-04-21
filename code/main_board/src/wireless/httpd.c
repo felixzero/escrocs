@@ -4,7 +4,7 @@
 #include "actions/actions_http_handlers.h"
 #include "actions/game_actions.h"
 #include "actions/strategy.h"
-#include "motion/motion_control.h"
+#include "controllers/motion_control.h"
 
 #include <freertos/FreeRTOS.h>
 #include <esp_http_server.h>

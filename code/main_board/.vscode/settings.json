@@ -60,7 +60,10 @@
         "ultrasonic_board.h": "c",
         "holonomic_wheel_base.h": "c",
         "motor_board_v3.h": "c",
-        "display.h": "c"
+        "display.h": "c",
+        "us_control.h": "c",
+        "esp_spiffs.h": "c",
+        "actions_lua_functions.h": "c"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }

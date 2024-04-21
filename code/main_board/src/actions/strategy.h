@@ -3,7 +3,7 @@
 #include <esp_err.h>
 #include <esp_http_server.h>
 
-void init_lua_executor(void);
+void init_lua_executor(bool is_reversed);
 
 void pick_strategy_by_spiffs_index(int index);
 

@@ -3,7 +3,7 @@
 
 #include "../peripherals/motor_board_v3.h"
 #include "system/task_priority.h"
-#include "peripherals/ultrasonic_board.h"
+#include "controllers/us_control.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -42,8 +42,6 @@ esp_err_t init_motion_control(bool reversed)
         return err;
     }
     reversed_side = reversed;
-
-    set_ultrasonic_repetition_period(ULTRASONIC_CHANNEL_PERIOD_MS);
 
     // Create FreeRTOS task
     TaskHandle_t task;
@@ -112,6 +110,13 @@ bool is_motion_done(void)
     return status.motion_step == MOTION_STEP_DONE;
 }
 
+bool is_blocked(void)
+{
+    motion_status_t status;
+    xQueuePeek(output_status_queue, &status, 0);
+    return status.is_blocked;
+}
+
 static void motion_control_task(void *parameters)
 {
     pose_t current_pose = {
@@ -121,7 +126,8 @@ static void motion_control_task(void *parameters)
         };
     current_pose = apply_reverse_transformation(&current_pose, reversed_side);
     motion_status_t motion_target = {
-        .motion_step = MOTION_STEP_DONE
+        .motion_step = MOTION_STEP_DONE,
+        .is_blocked = false,
     };
     motion_control_tuning_t tuning;
     holonomic_wheel_base_set_values(&tuning);
@@ -133,11 +139,9 @@ static void motion_control_task(void *parameters)
         .please_stop = false,
     };
 
-    int number_of_ultrasonic_active_channels = 0;
     int number_of_clear_ultrasonic_iterations_before_movement = 0;
 
-    TickType_t iteration_time = xTaskGetTickCount();
-    TickType_t ultrasonic_scan_time = xTaskGetTickCount();
+    TickType_t iteration_time = xTaskGetTickCount();    
     for (int iteration = 0; true; ++iteration) {
         xTaskDelayUntil(&iteration_time, pdMS_TO_TICKS(MOTION_PERIOD_MS));
 
@@ -147,6 +151,9 @@ static void motion_control_task(void *parameters)
         if (xQueueReceive(input_target_queue, &motion_target, 0)) {
             if (previous_step == MOTION_STEP_DONE) {
                 motion_data.previous_time = esp_timer_get_time();
+                number_of_clear_ultrasonic_iterations_before_movement = 2; //wait for one scan before moving
+                bool temp = false;
+                xQueueOverwrite(scan_over_queue, &temp); //Makes sure to go into the scan loop
             }
             motion_data.please_stop = motion_target.motion_step == MOTION_STEP_DONE;
             motion_target.motion_step = MOTION_STEP_RUNNING;
@@ -160,35 +167,48 @@ static void motion_control_task(void *parameters)
         if (iteration % 10 == 0) {
             ESP_LOGI(TAG, "Encoders: %f %f %f", encoder_increment.channel1, encoder_increment.channel2, encoder_increment.channel3);
             ESP_LOGI(TAG, "Pose: %f %f %f", current_pose.x, current_pose.y, current_pose.theta);
+
         }
+        // the ultrasonic board is contacted IF robot has a target and the scan queue is empty
+        bool is_scan_done = false;
+        if (motion_target.motion_step == MOTION_STEP_RUNNING && xQueueReceive(scan_over_queue, &is_scan_done, 0)) { //using NULL makes it crash instead of temp
+            bool need_detection = false;
 
-        // Every few iterations, the ultrasonic board is contacted
-        if (xTaskGetTickCount() - ultrasonic_scan_time > pdMS_TO_TICKS(ULTRASONIC_CHANNEL_PERIOD_MS) * (number_of_ultrasonic_active_channels + 1)) {
-            bool needs_detection = false;
-            ultrasonic_scan_time = xTaskGetTickCount();
-            if (motion_target.motion_step == MOTION_STEP_RUNNING) {
-                float center_scanning_angle, cone_scanning_angle;
-                holonomic_wheel_base_get_detection_scanning_angles(
-                    &motion_data, &motion_target, &current_pose,
-                    &center_scanning_angle, &cone_scanning_angle, &needs_detection
-                );
-                if (needs_detection) {
-                    number_of_ultrasonic_active_channels = set_ultrasonic_scan_angle(center_scanning_angle, cone_scanning_angle);
-                }
-            }
+            //Calculates a cone to scan to send to US board
+            float center_scanning_angle, cone_scanning_angle;
+            scan_angle_t motion_cone;
+            holonomic_wheel_base_get_detection_scanning_angles(
+                &motion_data, &motion_target, &current_pose,
+                &center_scanning_angle, &cone_scanning_angle, &need_detection
+            );
+            motion_cone.center_angle = center_scanning_angle;
+            motion_cone.cone = cone_scanning_angle;
 
-            if (!needs_detection) {
-                number_of_ultrasonic_active_channels = disable_all_ultrasonic_detection();
-            }
-
-            if (needs_detection && ultrasonic_has_obstacle() && motion_target.perform_detection) {
+            //Perform obstacle detection logic
+            if (need_detection && ultrasonic_has_obstacle() && motion_target.perform_detection) {
                 number_of_clear_ultrasonic_iterations_before_movement = NUMBER_OF_CLEAR_ULTRASONIC_SCANS;
                 ESP_LOGI(TAG, "Obstacle detected");
+                motion_target.is_blocked = true;
+                if(LUA_MOTION_RECOVERY) {
+                    motion_data.please_stop = true;
+                }
             } else if (number_of_clear_ultrasonic_iterations_before_movement > 0) {
                 number_of_clear_ultrasonic_iterations_before_movement--;
+                ESP_LOGI(TAG, "undetected obstacle, still wait %d before go", number_of_clear_ultrasonic_iterations_before_movement);
             }
 
-            ultrasonic_perform_scan();
+            //send another scan request
+            BaseType_t err;
+            if(need_detection) {
+                err = xQueueSend(motion_cone_queue, &motion_cone, 0);
+            }
+            else {
+                scan_angle_t empty_motion_cone = {0};
+                err = xQueueSend(motion_cone_queue, &empty_motion_cone, 0);
+            }
+            if(err == errQUEUE_FULL) {
+                ESP_LOGI(TAG, "Failed to send motion cone to ultrasonic_board_task due to motion_cone_queue full, will retry on next loop");
+            }
         }
 
         // Calculate new motor targets

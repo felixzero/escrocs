@@ -10,7 +10,8 @@
 #include "peripherals/ultrasonic_board.h"
 #include "peripherals/motor_board_v3.h"
 #include "peripherals/display.h"
-#include "motion/motion_control.h"
+#include "controllers/motion_control.h"
+#include "controllers/us_control.h"
 #include "actions/strategy.h"
 
 #include <freertos/FreeRTOS.h>
@@ -32,6 +33,7 @@ void app_main() {
     init_udp_logger();
 
     display_initialization_status("Ultrasonic", init_ultrasonic_board());
+    display_initialization_status("us ctrl", init_us_controller());
     display_initialization_status("Motor board", init_motor_board_v3());
     display_initialization_status("Peripherals", init_peripherals());
 
@@ -56,8 +58,12 @@ void app_main() {
     }
     lcd_printf(0, "Side: %s", table_sides[is_reversed]);
 
-    init_lua_executor();
+
+
+    init_lua_executor(is_reversed);
     pick_strategy_by_spiffs_index(picked_strategy);
 
+
+    
     vTaskDelay(portMAX_DELAY);
 }

@@ -21,11 +21,12 @@ void set_peripherals_pump(int channel, bool status);
 void set_peripherals_servo_channel(int channel, int pulse_width);
 
 /**
- * Read the end course switch inputs of one of the steppers
+ * Read the end course switch inputs of one of the steppers (from PCA9629 IP (Input Port))
  * @param motor_channel Stepper motor channel (0 or 1)
  * @param pin_channel End swich channel (0 or 1)
  */
 bool read_peripherals_motor_input(unsigned int motor_channel, unsigned int pin_channel);
+
 
 /**
  * Move unipolar stepper motor by a number of steps

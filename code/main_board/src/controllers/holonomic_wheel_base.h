@@ -1,6 +1,6 @@
 #pragma once
 
-#include "motion/motion_control.h"
+#include "controllers/motion_control.h"
 #include "../peripherals/motor_board_v3.h"
 
 typedef struct {
