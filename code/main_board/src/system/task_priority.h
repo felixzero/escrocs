@@ -1,6 +1,7 @@
 #pragma once
 
-#define TASK_STACK_SIZE 4096
+#define TASK_STACK_SIZE             4096
+#define LUA_TASK_STACK_SIZE         (256 * 1024)
 
 #define MOTION_CONTROL_PRIORITY     (tskIDLE_PRIORITY + 20)
 #define US_BOARD_PRIORITY           (tskIDLE_PRIORITY + 17)

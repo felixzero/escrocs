@@ -14,9 +14,6 @@
 #include <stdio.h>
 #include <sys/stat.h>
 
-//TODO : REMOVE : 
-#include <esp_spiffs.h>
-
 #include "lua/lauxlib.h"
 #include "lua/lua.h"
 #include "lua/lualib.h"
@@ -42,7 +39,7 @@ static void end_match(void);
 
 static int is_right = -1; //boolean set by init_lua_executor, need to store it here to be able to use it in lua_executor_task
 
-void init_lua_executor(int is_reversed)
+void init_lua_executor(bool is_reversed)
 {
     init_lua_action_functions();
 
@@ -52,7 +49,7 @@ void init_lua_executor(int is_reversed)
     file_to_execute_queue = xQueueCreate(1, sizeof(char*));
     on_run_queue = xQueueCreate(1, sizeof(int));
     on_end_queue = xQueueCreate(1, sizeof(int));
-    xTaskCreatePinnedToCore(lua_executor_task, "lua_executor", 16384, (void*)&is_right, LUA_PRIORITY, &lua_executor_task_handle, LOW_CRITICITY_CORE);
+    xTaskCreatePinnedToCore(lua_executor_task, "lua_executor", LUA_TASK_STACK_SIZE, (void*)&is_right, LUA_PRIORITY, &lua_executor_task_handle, LOW_CRITICITY_CORE);
     xTaskCreatePinnedToCore(trigger_timer_task, "trigger_timer", TASK_STACK_SIZE, NULL, TRIGGER_TIMER_PRIORITY, &task, LOW_CRITICITY_CORE);
 }
 
@@ -67,9 +64,6 @@ void pick_strategy_by_spiffs_index(int index)
 
     struct stat st;
     if (stat(strategy_file_name, &st) == 0) {
-        //esp_err_t err1 = esp_spiffs_info(conf.partition_label, &total, &used);
-        //ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
-        //ESP_LOGI(TAG, "size of spiffs %d", SPIFFS.totalBytes())
         ESP_LOGI(TAG, "[if crashing here, check lua file size (< 20kb)] Sending to queue file :  %s", strategy_file_name);
             lua_State *L = luaL_newstate();
         luaL_openlibs(L);
@@ -126,7 +120,6 @@ static void lua_executor_task(void *is_reversed)
             ESP_LOGI(TAG, "Ultrasonic values: %d %d %d %d %d %d %d %d", ultrasonic_values[0], ultrasonic_values[1], ultrasonic_values[2], ultrasonic_values[3], ultrasonic_values[4], ultrasonic_values[5], ultrasonic_values[6], ultrasonic_values[7]);
 
         }
-        lcd_printf(2, "out xQUEUEPEEK"); //TODO : à tester si on arrive bien là et qu'on bloque pas au dessus
 
         free(filename);
     }
@@ -148,6 +141,7 @@ static void trigger_timer_task(void *parameters)
     while (!read_trigger_key_status()) {
         vTaskDelay(pdMS_TO_TICKS(TRIGGER_POLLING_MS));
     }
+        lcd_printf(2, "out xQUEUEPEEK"); //TODO : à tester si on arrive bien là et qu'on bloque pas au dessus
 
     lcd_printf(0, "00:00");
     lcd_printf(1, "");
@@ -263,7 +257,7 @@ esp_err_t run_strategy_handler(httpd_req_t *req)
 
     lcd_printf(1, "Executing %s", strategy_name);
     xQueueOverwrite(file_to_execute_queue, &strategy_file_name);
-    httpd_resp_send(req, "All is executing, captain!\n", HTTPD_RESP_USE_STRLEN);
+    httpd_resp_send(req, "Traitors are executed, captain!\n", HTTPD_RESP_USE_STRLEN);
     return ESP_OK;
 }
 

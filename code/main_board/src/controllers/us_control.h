@@ -19,7 +19,5 @@ extern uint16_t distances[NUMBER_OF_US];
 
 esp_err_t init_us_controller();
 
-/*
-Can be used to know how long to wait with ULTRASONIC_CHANNEL_PERIOD_MS * get_number_of_active_channels
-*/
+// Can be used to know how long to wait with ULTRASONIC_CHANNEL_PERIOD_MS * get_number_of_active_channels
 int get_number_of_active_channels(void);

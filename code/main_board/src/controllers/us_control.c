@@ -5,7 +5,7 @@
 #include <string.h>
 
 #define TAG "US_controller"
-//Don't forget to check the cone offset is same here and lua
+// FIXME: Don't forget to check the cone offset is same here and lua
 #define CONE_OFFSET 2.513274122871834 //pi - pi/5
 
 QueueHandle_t strategy_single_channel_queue, motion_cone_queue, scan_over_queue;
@@ -18,19 +18,13 @@ static bool active_channels[NUMBER_OF_US];
 static int number_of_active_channels_cone = 0;
 
 static void ultrasonic_board_task(void *parameters);
-/**
- * Set the scanning action perimeter (angles in radian)
- * @return The number of active channels
- */
 static int set_ultrasonic_scan_angle(float center_angle, float cone);
 
 esp_err_t init_us_controller()
 {
-    // *** FreeRTOS "controller" Initialization ***
-    strategy_single_channel_queue = xQueueCreate(1, sizeof(active_channels)); //Low priority Queue
-    motion_cone_queue = xQueueCreate(1, sizeof(scan_angle_t)); //High priority Queue
+    strategy_single_channel_queue = xQueueCreate(1, sizeof(active_channels)); // Low priority Queue
+    motion_cone_queue = xQueueCreate(1, sizeof(scan_angle_t)); // High priority Queue
     scan_over_queue = xQueueCreate(1, sizeof(bool)); 
-
 
     xTaskCreatePinnedToCore(
         ultrasonic_board_task,
