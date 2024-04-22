@@ -33,7 +33,7 @@ void app_main() {
     init_udp_logger();
 
     display_initialization_status("Ultrasonic", init_ultrasonic_board());
-    display_initialization_status("us ctrl", init_us_controller());
+    display_initialization_status("US control", init_us_controller());
     display_initialization_status("Motor board", init_motor_board_v3());
     //display_initialization_status("Peripherals", init_peripherals());
 
