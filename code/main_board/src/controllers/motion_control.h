@@ -4,7 +4,6 @@
 #include <sdkconfig.h>
 #include <esp_err.h>
 
-#define LUA_MOTION_RECOVERY             1 // 0: no recovery, 1: recovery by lua when stop due to obstacle
 #define MOTION_STEP_DONE                0
 #define MOTION_STEP_RUNNING             1
 

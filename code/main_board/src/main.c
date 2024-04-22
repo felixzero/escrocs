@@ -35,7 +35,7 @@ void app_main() {
     display_initialization_status("Ultrasonic", init_ultrasonic_board());
     display_initialization_status("us ctrl", init_us_controller());
     display_initialization_status("Motor board", init_motor_board_v3());
-    display_initialization_status("Peripherals", init_peripherals());
+    //display_initialization_status("Peripherals", init_peripherals());
 
     char *table_sides[] = { "Left", "Right" };
     int is_reversed = menu_pick_item("Table side", table_sides, 2);
@@ -58,12 +58,8 @@ void app_main() {
     }
     lcd_printf(0, "Side: %s", table_sides[is_reversed]);
 
-
-
     init_lua_executor(is_reversed);
     pick_strategy_by_spiffs_index(picked_strategy);
 
-
-    
     vTaskDelay(portMAX_DELAY);
 }

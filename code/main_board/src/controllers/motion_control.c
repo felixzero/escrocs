@@ -75,10 +75,12 @@ void set_motion_target(const pose_t *target, bool perform_detection)
     motion_status_t motion_target;
     motion_target.perform_detection = perform_detection;
     pose_t current_pose = get_current_pose();
+    current_pose = apply_reverse_transformation(&current_pose, reversed_side);
 
     motion_target.pose.x = isnan(target->x) ? current_pose.x : target->x;
     motion_target.pose.y = isnan(target->y) ? current_pose.y : target->y;
     motion_target.pose.theta = isnan(target->theta) ? current_pose.theta : target->theta;
+    motion_target.pose = apply_reverse_transformation(&motion_target.pose, reversed_side);
 
     motion_target.motion_step = MOTION_STEP_RUNNING;
 
@@ -189,12 +191,9 @@ static void motion_control_task(void *parameters)
                 number_of_clear_ultrasonic_iterations_before_movement = NUMBER_OF_CLEAR_ULTRASONIC_SCANS;
                 ESP_LOGI(TAG, "Obstacle detected");
                 motion_target.is_blocked = true;
-                if(LUA_MOTION_RECOVERY) {
-                    motion_data.please_stop = true;
-                }
             } else if (number_of_clear_ultrasonic_iterations_before_movement > 0) {
                 number_of_clear_ultrasonic_iterations_before_movement--;
-                ESP_LOGI(TAG, "undetected obstacle, still wait %d before go", number_of_clear_ultrasonic_iterations_before_movement);
+                ESP_LOGI(TAG, "undetected obstacle, waiting %d cycles before going", number_of_clear_ultrasonic_iterations_before_movement);
             }
 
             //send another scan request
