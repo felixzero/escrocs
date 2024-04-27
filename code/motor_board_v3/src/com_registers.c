@@ -11,7 +11,8 @@ const char modbus_revision[] = "V3";
 
 #define MAX_SPEED_RPM               300
 #define NUMBER_OF_TICK_PER_TURN     200
-#define MAX_SPEED_PERIOD            (60 * F_CPU / MAX_SPEED_RPM / NUMBER_OF_TICK_PER_TURN / 2)
+#define MICROSTEPPING_VALUE         32
+#define MAX_SPEED_PERIOD            (60 * F_CPU / MAX_SPEED_RPM / NUMBER_OF_TICK_PER_TURN / 2 / MICROSTEPPING_VALUE)
 
 static void write_motor_channel(uint8_t channel, int16_t speed);
 

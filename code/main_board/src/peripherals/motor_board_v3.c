@@ -11,7 +11,7 @@
 #define MOTOR_BOARD_ENCODER_REG     10100
 #define MOTOR_BOARD_ENABLE_COIL     20000
 
-#define TICK_PER_TURN               400.0
+#define TICK_PER_TURN               (32 * 400.0)
 #define MAX_ID_LEN                  64
 #define TAG                         "Motor board v3"
 

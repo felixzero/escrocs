@@ -6,6 +6,7 @@
         "stdbool.h": "c",
         "com_registers.h": "c",
         "modbus_rtu_slave.h": "c",
-        "com_registers_def.h": "c"
+        "com_registers_def.h": "c",
+        "math.h": "c"
     }
 }

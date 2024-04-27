@@ -3,9 +3,9 @@
 
 #include "steppers.h"
 
-#define NUMBER_OF_CHANNELS 3
-#define MAX_TIMER_VALUE 65536
-#define TCCRB_CONSTANT (_BV(WGM13) | _BV(WGM12))
+#define NUMBER_OF_CHANNELS      3
+#define MAX_TIMER_VALUE         65536
+#define TCCRB_CONSTANT          (_BV(WGM13) | _BV(WGM12))
 
 volatile int16_t encoder_values[NUMBER_OF_CHANNELS] = { 0 };
 
@@ -22,10 +22,8 @@ void init_steppers(void)
     DDRE |= _BV(0) | _BV(1) | _BV(2);
     set_stepper_enable(false);
 
-    // Note: microstepping is disabled to avoid overheating
-
-    // Set slow decay mode to reduce hissing noise
-    DDRD |= _BV(3);
+    // Microstepping set to /32
+    PORTC |= 0b110;
 
     // Activate output compare A, clear on compare, fast PWM to ICR1
     // Prescaler, variable, depending on wished period

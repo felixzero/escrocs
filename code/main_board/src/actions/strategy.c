@@ -111,6 +111,9 @@ static void lua_executor_task(void *is_reversed)
             }
             else {
                 lua_Integer sleep_time = lua_tointeger(L, -1);
+                if (sleep_time == -1) {
+                    break;
+                }
                 vTaskDelay(pdMS_TO_TICKS(sleep_time));
             }
         }
@@ -163,7 +166,6 @@ static void end_match(void)
     int queue_buffer = 1;
     xQueueOverwrite(on_end_queue, &queue_buffer);
     vTaskDelay(pdMS_TO_TICKS(TRIGGER_POLLING_MS));
-    stop_motion();
     disable_motors();
     lcd_printf(0, "Done");
     set_lua_action_function_enable_status(false);
