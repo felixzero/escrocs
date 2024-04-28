@@ -6,6 +6,8 @@
 #include "peripherals/display.h"
 #include "peripherals/peripherals.h"
 #include "peripherals/motor_board_v3.h"
+#include "peripherals/tca9548.h"
+#include "peripherals/vl53l0x.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -155,5 +157,28 @@ struct GAME_ACTION_OUTPUT_STRUCT_NAME(scan_channels) game_action_scan_channels(s
     ESP_LOGI("game_actions[H]", "Scan channels: %d %d %d %d %d %d %d %d %d %d", channels[0], channels[1], channels[2], channels[3], channels[4], channels[5], channels[6], channels[7], channels[8], channels[9]);
     xQueueSend(strategy_single_channel_queue, &channels, 0);
     struct GAME_ACTION_OUTPUT_STRUCT_NAME(scan_channels) result;
+    return result;
+}
+
+struct GAME_ACTION_OUTPUT_STRUCT_NAME(init_vl53l0x) game_action_init_vl53l0x(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(init_vl53l0x) args)
+{
+    struct GAME_ACTION_OUTPUT_STRUCT_NAME(init_vl53l0x) result;
+    result.success = true;
+    if(tca9548_select_channel(args.port) != ESP_OK) {
+        result.success = false;
+    }
+    if (vl53l0x_init(&vl53l0x_default) != ESP_OK) {
+        result.success = false;
+    };
+    return result;
+}
+
+struct GAME_ACTION_OUTPUT_STRUCT_NAME(get_vl53l0x_distance) game_action_get_vl53l0x_distance(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(get_vl53l0x_distance) args)
+{
+    struct GAME_ACTION_OUTPUT_STRUCT_NAME(get_vl53l0x_distance) result;
+    if(tca9548_select_channel(args.port) != ESP_OK) {
+        result.distance = -1;
+    }
+    result.distance = vl53l0x_read_distance(&vl53l0x_default);
     return result;
 }

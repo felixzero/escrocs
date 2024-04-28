@@ -223,6 +223,7 @@ static void motion_control_task(void *parameters)
             );
         }
 
+        motion_target.is_blocked = (number_of_clear_ultrasonic_iterations_before_movement > 0);
         // Broadcast current pose
         motion_status_t status;
         status.pose = current_pose;
