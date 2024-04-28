@@ -98,8 +98,11 @@ static void lua_executor_task(void *is_reversed)
         xQueueReceive(on_run_queue, &queue_buffer, portMAX_DELAY);
 
         lua_getglobal(L, LUA_ON_RUN_FUNCTION);
-        lua_call(L, 0, 0);
+        if (lua_pcall(L, 0, 0, 0) != LUA_OK) {
+            ESP_LOGW(TAG, "Missing on_run function in Lua strategy.");
+        }
 
+        TickType_t iteration_time = xTaskGetTickCount();
         while (xQueuePeek(on_end_queue, &queue_buffer, 0) == pdFALSE)
         {
             lua_getglobal(L, LUA_RESUME_LOOP_FUNCTION);
@@ -114,7 +117,7 @@ static void lua_executor_task(void *is_reversed)
                 if (sleep_time == -1) {
                     break;
                 }
-                vTaskDelay(pdMS_TO_TICKS(sleep_time));
+                xTaskDelayUntil(&iteration_time, pdMS_TO_TICKS(sleep_time));
             }
         }
 
@@ -155,9 +158,10 @@ static void trigger_timer_task(void *parameters)
     }
     vTaskDelayUntil(&match_start_time, MATCH_DURATION_MS / portTICK_PERIOD_MS);
 
-    end_match();
-
-    vTaskDelete(NULL);
+    while (true) {
+        end_match();
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
 }
 
 static void end_match(void)
