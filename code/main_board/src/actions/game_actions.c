@@ -124,8 +124,14 @@ struct GAME_ACTION_OUTPUT_STRUCT_NAME(sleep) game_action_sleep(struct GAME_ACTIO
 
 struct GAME_ACTION_OUTPUT_STRUCT_NAME(print) game_action_print(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(print) args)
 {
+    static char last_lua_print[32] = "";
+
     ESP_LOGI(TAG, "%s", args.message);
-    lcd_printf(1, args.message);
+    if (strncmp(last_lua_print, args.message, 32) != 0) {
+        lcd_printf(1, args.message);
+        strncpy(last_lua_print, args.message, 32);
+    }
+    
     struct GAME_ACTION_OUTPUT_STRUCT_NAME(print) result;
     return result;
 }
