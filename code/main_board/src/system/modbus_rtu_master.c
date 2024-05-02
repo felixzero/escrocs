@@ -298,18 +298,12 @@ static esp_err_t query_modbus_rtu(size_t message_len, uint8_t slave_addr, uint8_
     query_buffer[message_len + 2] = crc >> 8;
     query_buffer[message_len + 3] = crc & 0xFF;
 
-    size_t received_len;
-    for (int retry = 0; retry < 3; ++retry) {
-        xSemaphoreTake(modbus_mutex, portMAX_DELAY);
-        send_raw_rs485(query_buffer, message_len + 4);
-        received_len = receive_raw_rs485(response_buffer, MAX_RESPONSE_SIZE);
-        xSemaphoreGive(modbus_mutex);
-
-        if (received_len > 0) {
-            break;
-        } else if (retry == 0) {
-            return ESP_ERR_TIMEOUT;
-        }
+    xSemaphoreTake(modbus_mutex, portMAX_DELAY);
+    send_raw_rs485(query_buffer, message_len + 4);
+    size_t received_len = receive_raw_rs485(response_buffer, MAX_RESPONSE_SIZE);
+    xSemaphoreGive(modbus_mutex);
+    if (received_len <= 0) {
+        return ESP_ERR_TIMEOUT;
     }
 
     uint16_t checked_crc = compute_crc(response_buffer, received_len);

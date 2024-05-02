@@ -33,7 +33,7 @@ esp_err_t init_us_controller()
         NULL,
         US_BOARD_PRIORITY,
         &task,
-        LOW_CRITICITY_CORE
+        TIME_CRITICAL_CORE
     );
     return ESP_OK;
 }
