@@ -153,9 +153,6 @@ static void motion_control_task(void *parameters)
         if (xQueueReceive(input_target_queue, &motion_target, 0)) {
             if (previous_step == MOTION_STEP_DONE) {
                 motion_data.previous_time = esp_timer_get_time();
-                number_of_clear_ultrasonic_iterations_before_movement = 2; //wait for one scan before moving
-                bool temp = false;
-                xQueueOverwrite(scan_over_queue, &temp); //Makes sure to go into the scan loop
             }
             motion_data.please_stop = motion_target.motion_step == MOTION_STEP_DONE;
             motion_target.motion_step = MOTION_STEP_RUNNING;
@@ -173,8 +170,8 @@ static void motion_control_task(void *parameters)
 
         }
         // the ultrasonic board is contacted IF robot has a target and the scan queue is empty
-        bool is_scan_done = false;
-        if (motion_target.motion_step == MOTION_STEP_RUNNING && xQueueReceive(scan_over_queue, &is_scan_done, 0)) { //using NULL makes it crash instead of temp
+        bool has_obstacle = false;
+        if (motion_target.motion_step == MOTION_STEP_RUNNING && xQueueReceive(scan_over_queue, &has_obstacle, 0)) {
             bool need_detection = false;
 
             //Calculates a cone to scan to send to US board
@@ -188,7 +185,7 @@ static void motion_control_task(void *parameters)
             motion_cone.cone = cone_scanning_angle;
 
             //Perform obstacle detection logic
-            if (need_detection && ultrasonic_has_obstacle() && motion_target.perform_detection) {
+            if (need_detection && has_obstacle && motion_target.perform_detection) {
                 number_of_clear_ultrasonic_iterations_before_movement = NUMBER_OF_CLEAR_ULTRASONIC_SCANS;
                 ESP_LOGI(TAG, "Obstacle detected");
                 motion_target.is_blocked = true;

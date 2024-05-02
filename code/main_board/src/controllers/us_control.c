@@ -49,16 +49,16 @@ static void ultrasonic_board_task(void *parameters)
     bool channel_to_set[NUMBER_OF_US];
 
     while (true) {
-        read_all_ultrasonic_values(distances); //Update distances
-        //High priority scan
+        read_all_ultrasonic_values(distances); // Update distances
+        // High priority scan
         if (xQueueReceive(motion_cone_queue, &motion_cone, 0) == pdTRUE) {
             int active_channels = set_ultrasonic_scan_angle(motion_cone.center_angle + CONE_OFFSET, motion_cone.cone);
             ultrasonic_perform_scan();
             vTaskDelay(pdMS_TO_TICKS(ULTRASONIC_CHANNEL_PERIOD_MS) * (active_channels+1));
-            bool scan_over = true;
+            bool scan_over = ultrasonic_has_obstacle();
             xQueueOverwrite(scan_over_queue, &scan_over);
         }
-        //Low priority scan
+        // Low priority scan
         else if (xQueueReceive(strategy_single_channel_queue, &channel_to_set, 0) == pdTRUE ) {
             int active_channels = 0;
             for(int i = 0; i < NUMBER_OF_US; i++) {
@@ -70,11 +70,11 @@ static void ultrasonic_board_task(void *parameters)
             ultrasonic_perform_scan();
             vTaskDelay(pdMS_TO_TICKS(ULTRASONIC_CHANNEL_PERIOD_MS) * (active_channels+1));
             update_scan_channels(EMPTY_CHANNELS);
-            bool scan_over = true;
+            bool scan_over = ultrasonic_has_obstacle();
             xQueueOverwrite(scan_over_queue, &scan_over);
         }
         else {
-            //No scan to do, wait for a new one
+            // No scan to do, wait for a new one
             vTaskDelay(pdMS_TO_TICKS(10));
         }
     }
