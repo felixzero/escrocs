@@ -163,8 +163,9 @@ static void motion_control_task(void *parameters)
         
         // Update pose according to encoders
         encoder_measurement_t encoder_increment;
-        read_encoder_increment(&encoder_increment);
-        holonomic_wheel_base_update_pose(&motion_data, &current_pose, &encoder_increment);
+        if (read_encoder_increment(&encoder_increment) == ESP_OK) {
+            holonomic_wheel_base_update_pose(&motion_data, &current_pose, &encoder_increment);
+        }
 
         if (iteration % 10 == 0) {
             ESP_LOGI(TAG, "Encoders: %f %f %f", encoder_increment.channel1, encoder_increment.channel2, encoder_increment.channel3);
