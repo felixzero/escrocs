@@ -169,21 +169,19 @@ static void motion_control_task(void *parameters)
             ESP_LOGI(TAG, "Pose: %f %f %f", current_pose.x, current_pose.y, current_pose.theta);
 
         }
-        // the ultrasonic board is contacted IF robot has a target and the scan queue is empty
+
         bool has_obstacle = false;
+        //Calculates a cone to scan to send to US board
+        float center_scanning_angle, cone_scanning_angle;
+        bool need_detection = false;
+        scan_angle_t motion_cone;
+        holonomic_wheel_base_get_detection_scanning_angles(
+            &motion_data, &motion_target, &current_pose,
+            &center_scanning_angle, &cone_scanning_angle, &need_detection
+        );
+        motion_cone.center_angle = center_scanning_angle;
+        motion_cone.cone = cone_scanning_angle;
         if (motion_target.motion_step == MOTION_STEP_RUNNING && xQueueReceive(scan_over_queue, &has_obstacle, 0)) {
-            bool need_detection = false;
-
-            //Calculates a cone to scan to send to US board
-            float center_scanning_angle, cone_scanning_angle;
-            scan_angle_t motion_cone;
-            holonomic_wheel_base_get_detection_scanning_angles(
-                &motion_data, &motion_target, &current_pose,
-                &center_scanning_angle, &cone_scanning_angle, &need_detection
-            );
-            motion_cone.center_angle = center_scanning_angle;
-            motion_cone.cone = cone_scanning_angle;
-
             //Perform obstacle detection logic
             if (need_detection && has_obstacle && motion_target.perform_detection) {
                 number_of_clear_ultrasonic_iterations_before_movement = NUMBER_OF_CLEAR_ULTRASONIC_SCANS;
@@ -193,20 +191,8 @@ static void motion_control_task(void *parameters)
                 number_of_clear_ultrasonic_iterations_before_movement--;
                 ESP_LOGI(TAG, "undetected obstacle, waiting %d cycles before going", number_of_clear_ultrasonic_iterations_before_movement);
             }
-
-            //send another scan request
-            BaseType_t err;
-            if(need_detection) {
-                err = xQueueSend(motion_cone_queue, &motion_cone, 0);
-            }
-            else {
-                scan_angle_t empty_motion_cone = {0};
-                err = xQueueSend(motion_cone_queue, &empty_motion_cone, 0);
-            }
-            if(err == errQUEUE_FULL) {
-                ESP_LOGI(TAG, "Failed to send motion cone to ultrasonic_board_task due to motion_cone_queue full, will retry on next loop");
-            }
         }
+        xQueueOverwrite(motion_cone_queue, &motion_cone);
 
         // Calculate new motor targets
         if (motion_target.motion_step == MOTION_STEP_DONE) {

@@ -1,5 +1,6 @@
 #include "steppers.h"
 #include "modbus_rtu_slave.h"
+#include "i2c_bus.h"
 
 #include <avr/io.h>
 
@@ -12,10 +13,11 @@ int main()
     DDRD |= _BV(2);
 
     init_steppers();
-    init_modbus_rtu_slave();
+    //init_modbus_rtu_slave();
+    init_i2c();
 
     while(1) {
-        poll_modbus_rtu_operations();
+        //poll_modbus_rtu_operations();
+        poll_i2c_operations();
     }
-    while (1);
 }

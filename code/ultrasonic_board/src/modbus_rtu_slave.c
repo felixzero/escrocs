@@ -12,7 +12,7 @@
 extern volatile uint8_t rx_buffer[];
 extern volatile uint8_t rx_buffer_index;
 extern volatile bool rx_complete;
-static uint8_t tx_buffer[256];
+static uint8_t tx_buffer[8];
 
 static void transmit_raw_rs485(const uint8_t *data, uint8_t len);
 

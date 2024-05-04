@@ -58,13 +58,13 @@ esp_err_t init_i2c_master(void)
     return ESP_OK;
 }
 
-void send_to_i2c(int port, uint8_t slave_addr, void *buffer, size_t length)
+void send_to_i2c(int port, uint8_t slave_addr, const void *buffer, size_t length)
 {
     i2c_cmd_handle_t i2c_handle = i2c_cmd_link_create();
     i2c_master_start(i2c_handle);
     i2c_master_write_byte(i2c_handle, (slave_addr << 1) | I2C_MASTER_WRITE, 1);
     for (int i = 0; i < length; ++i) {
-        i2c_master_write_byte(i2c_handle, ((uint8_t*)buffer)[i], 1);
+        i2c_master_write_byte(i2c_handle, ((const uint8_t*)buffer)[i], 1);
     }
     i2c_master_stop(i2c_handle);
 

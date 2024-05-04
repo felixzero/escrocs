@@ -6,6 +6,7 @@
 #include <string.h>
 
 #define MOTOR_BOARD_MODBUS_ADDR     0x44
+#define MOTOR_BOARD_I2C_ADDR        0x11
 
 #define MOTOR_BOARD_SPEED_REG       10000
 #define MOTOR_BOARD_ENCODER_REG     10100
@@ -21,38 +22,8 @@ static int16_t previous_encoder_raw_values[3];
 
 esp_err_t init_motor_board_v3(void)
 {
-    esp_err_t err;
-
-    ESP_LOGI(TAG, "Initializing motor board subsystem.");
-    static char id[MAX_ID_LEN] = "";
-    err = modbus_read_device_identification(MOTOR_BOARD_MODBUS_ADDR, 0x00, id, MAX_ID_LEN - 1);
-    if (err) {
-        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
-        return err;
-    }
-    ESP_LOGI(TAG, "Vendor name: %s", id);
-
-
-    err = modbus_read_device_identification(MOTOR_BOARD_MODBUS_ADDR, 0x01, id, MAX_ID_LEN - 1);
-    if (err) {
-        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
-        return err;
-    }
-    ESP_LOGI(TAG, "Product code: %s", id);
-
-    err = modbus_read_device_identification(MOTOR_BOARD_MODBUS_ADDR, 0x02, id, MAX_ID_LEN - 1);
-    if (err) {
-        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
-        return err;
-    }
-    ESP_LOGI(TAG, "Revision: %s", id);
-
-    err = modbus_read_holding_registers(MOTOR_BOARD_MODBUS_ADDR, MOTOR_BOARD_ENCODER_REG, 3, (uint16_t*)previous_encoder_raw_values);
-    if (err) {
-        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
-        return err;
-    }
-
+    esp_err_t err = disable_motors();
+    ESP_ERROR_CHECK_WITHOUT_ABORT(err);
     return ESP_OK;
 }
 
