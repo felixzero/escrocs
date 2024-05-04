@@ -1,11 +1,10 @@
 #include "modbus_rtu_master.h"
 #include "modbus_rtu_crc_table.h"
-#include "../system/task_priority.h"
+#include "system/task_priority.h"
+#include "system/i2c_master.h"
 
 #include <freertos/FreeRTOS.h>
 #include <string.h>
-#include <driver/uart.h>
-#include <hal/uart_hal.h>
 #include <esp_err.h>
 #include <esp_log.h>
 
@@ -39,73 +38,19 @@ static esp_err_t read_registers(
     uint16_t *output,
     uint8_t function_code
 );
-static esp_err_t query_modbus_rtu(size_t message_len, uint8_t slave_addr, uint8_t function_code, uint8_t *query_buffer, uint8_t *response_buffer);
-static void send_raw_rs485(const void *buffer, size_t len);
-static size_t receive_raw_rs485(void *buffer, size_t expected_len);
+static esp_err_t query_modbus_rtu(size_t message_len, size_t expected_len, uint8_t slave_addr, uint8_t function_code, uint8_t *query_buffer, uint8_t *response_buffer);
+static void send_raw_i2c(const void *buffer, size_t len);
+static size_t receive_raw_i2c(void *buffer, size_t expected_len);
 
 #define QUERY_BUFFER_DATA (&query_buffer[2])
 #define RESPONSE_BUFFER_DATA (&response_buffer[2])
 
 static SemaphoreHandle_t modbus_mutex;
-static uart_hal_context_t hal_context;
-static spinlock_t spinlock = portMUX_INITIALIZER_UNLOCKED;
-
-static void IRAM_ATTR uart_intr_handle(void *arg);
+static uint8_t current_i2c_address_for_modbus = 0;
 
 esp_err_t init_modbus_rtu_master(void)
 {
-    esp_err_t err = ESP_OK;
     ESP_LOGI(TAG, "Initializing Modbus subsystem");
-
-    // Configure UART to RS485 transceiver
-    err = uart_driver_install(UART_NUM, 2 * BUFFER_SIZE, 0, 0, NULL, 0);
-    if (err) {
-        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
-        return err;
-    }
-
-    uart_config_t uart_config = {
-        .baud_rate = UART_BAUD_RATE,
-        .data_bits = UART_DATA_8_BITS,
-        .parity = UART_PARITY_DISABLE,
-        .stop_bits = UART_STOP_BITS_2,
-        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
-    };
-    err = uart_param_config(UART_NUM, &uart_config);
-    if (err) {
-        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
-        return err;
-    }
-
-    err = uart_set_pin(UART_NUM, TX_PIN, RX_PIN, TXE_PIN, UART_PIN_NO_CHANGE);
-    if (err) {
-        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
-        return err;
-    }
-
-    // Unregister software UART ISR and register ours
-    hal_context.dev = UART_LL_GET_HW(UART_NUM);
-
-    err = uart_isr_free(UART_NUM);
-    if (err) {
-        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
-        return err;
-    }
-
-    err = uart_isr_register(UART_NUM, uart_intr_handle, NULL, ESP_INTR_FLAG_IRAM, NULL);
-    if (err) {
-        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
-        return err;
-    }
-
-    uart_intr_config_t intr_config = {
-        .intr_enable_mask = UART_TX_DONE_INT_ENA_M
-    };
-    err = uart_intr_config(UART_NUM, &intr_config);
-    if (err) {
-        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
-        return err;
-    }
 
     modbus_mutex = xSemaphoreCreateMutex();
     if (!modbus_mutex) {
@@ -145,7 +90,7 @@ esp_err_t modbus_force_single_coil(uint8_t slave_addr, uint16_t address, bool va
     QUERY_BUFFER_DATA[2] = value ? 0xFF : 0x00;
     QUERY_BUFFER_DATA[3] = 0;
 
-    return query_modbus_rtu(4, slave_addr, 0x05, query_buffer, response_buffer);
+    return query_modbus_rtu(4, 8, slave_addr, 0x05, query_buffer, response_buffer);
 }
 
 esp_err_t modbus_preset_single_register(uint8_t slave_addr, uint16_t address, uint16_t value)
@@ -157,7 +102,7 @@ esp_err_t modbus_preset_single_register(uint8_t slave_addr, uint16_t address, ui
     QUERY_BUFFER_DATA[2] = value >> 8;
     QUERY_BUFFER_DATA[3] = value & 0xFF;
 
-    return query_modbus_rtu(4, slave_addr, 0x06, query_buffer, response_buffer);
+    return query_modbus_rtu(4, 6, slave_addr, 0x06, query_buffer, response_buffer);
 }
 
 esp_err_t modbus_force_multiple_coils(uint8_t slave_addr, uint16_t starting_coil_address, uint16_t number_of_coils_to_write, bool *input)
@@ -179,7 +124,7 @@ esp_err_t modbus_force_multiple_coils(uint8_t slave_addr, uint16_t starting_coil
         }
     }
 
-    return query_modbus_rtu(5 + byte_count, slave_addr, 0x0F, query_buffer, response_buffer);
+    return query_modbus_rtu(5 + byte_count, 8, slave_addr, 0x0F, query_buffer, response_buffer);
 }
 
 esp_err_t modbus_preset_multiple_registers(uint8_t slave_addr, uint16_t starting_address, uint16_t number_of_registers_to_write, uint16_t *input)
@@ -197,7 +142,7 @@ esp_err_t modbus_preset_multiple_registers(uint8_t slave_addr, uint16_t starting
         QUERY_BUFFER_DATA[6 + 2 * i] = input[i] & 0xFF;
     }
 
-    return query_modbus_rtu(5 + byte_count, slave_addr, 0x10, query_buffer, response_buffer);
+    return query_modbus_rtu(5 + byte_count, 8, slave_addr, 0x10, query_buffer, response_buffer);
 }
 
 esp_err_t modbus_read_device_identification(uint8_t slave_addr, uint8_t object_id, char *identification, size_t max_length)
@@ -208,7 +153,7 @@ esp_err_t modbus_read_device_identification(uint8_t slave_addr, uint8_t object_i
     QUERY_BUFFER_DATA[1] = 0x04; // One specific object
     QUERY_BUFFER_DATA[2] = object_id;
 
-    esp_err_t err = query_modbus_rtu(3, slave_addr, 0x2B, query_buffer, response_buffer);
+    esp_err_t err = query_modbus_rtu(3, 16, slave_addr, 0x2B, query_buffer, response_buffer);
     if (err != ESP_OK) {
         return err;
     }
@@ -243,7 +188,8 @@ static esp_err_t read_coil_or_input_status(
     QUERY_BUFFER_DATA[2] = number_to_read >> 8;
     QUERY_BUFFER_DATA[3] = number_to_read & 0xFF;
 
-    esp_err_t err = query_modbus_rtu(4, slave_addr, function_code, query_buffer, response_buffer);
+    uint8_t number_of_coil_bytes = number_to_read / 8 + (number_to_read % 8 != 0);
+    esp_err_t err = query_modbus_rtu(4, 5 + number_of_coil_bytes, slave_addr, function_code, query_buffer, response_buffer);
     if (err != ESP_OK) {
         return err;
     }
@@ -274,7 +220,7 @@ static esp_err_t read_registers(
     QUERY_BUFFER_DATA[2] = number_of_registers_to_read >> 8;
     QUERY_BUFFER_DATA[3] = number_of_registers_to_read & 0xFF;
 
-    esp_err_t err = query_modbus_rtu(4, slave_addr, function_code, query_buffer, response_buffer);
+    esp_err_t err = query_modbus_rtu(4, 5 + 2 * number_of_registers_to_read, slave_addr, function_code, query_buffer, response_buffer);
     if (err != ESP_OK) {
         return err;
     }
@@ -290,7 +236,7 @@ static esp_err_t read_registers(
     return ESP_OK;
 }
 
-static esp_err_t query_modbus_rtu(size_t message_len, uint8_t slave_addr, uint8_t function_code, uint8_t *query_buffer, uint8_t *response_buffer)
+static esp_err_t query_modbus_rtu(size_t message_len, size_t expected_len, uint8_t slave_addr, uint8_t function_code, uint8_t *query_buffer, uint8_t *response_buffer)
 {
     query_buffer[0] = slave_addr;
     query_buffer[1] = function_code;
@@ -299,8 +245,9 @@ static esp_err_t query_modbus_rtu(size_t message_len, uint8_t slave_addr, uint8_
     query_buffer[message_len + 3] = crc & 0xFF;
 
     xSemaphoreTake(modbus_mutex, portMAX_DELAY);
-    send_raw_rs485(query_buffer, message_len + 4);
-    size_t received_len = receive_raw_rs485(response_buffer, MAX_RESPONSE_SIZE);
+    current_i2c_address_for_modbus = slave_addr == 0x44 ? 0x11 : 0x12; // FIXME: Ugly hack, fix the API!!!
+    send_raw_i2c(query_buffer, message_len + 4);
+    size_t received_len = receive_raw_i2c(response_buffer, expected_len);
     xSemaphoreGive(modbus_mutex);
     if (received_len <= 0) {
         return ESP_ERR_TIMEOUT;
@@ -321,45 +268,13 @@ static esp_err_t query_modbus_rtu(size_t message_len, uint8_t slave_addr, uint8_
     return ESP_OK;
 }
 
-static void send_raw_rs485(const void *buffer, size_t len)
+static void send_raw_i2c(const void *buffer, size_t len)
 {
-    uint32_t write_size = 0;
-
-    uart_hal_rxfifo_rst(&hal_context);
-    uart_hal_set_rts(&hal_context, 0);
-    uart_hal_write_txfifo(&hal_context, buffer, len, &write_size);
+    send_to_i2c(I2C_PORT_MOTOR, current_i2c_address_for_modbus, buffer, len);
 }
 
-static size_t receive_raw_rs485(void *buffer, size_t expected_len)
+static size_t receive_raw_i2c(void *buffer, size_t expected_len)
 {
-    int rx_buffer_length = 0, length = 0;
-    int64_t start_listening_time = esp_timer_get_time();
-
-    while ((rx_buffer_length == 0) || (length != 0)) {
-        length = 0;
-        uart_hal_read_rxfifo(&hal_context, buffer + rx_buffer_length, &length);
-        rx_buffer_length += length;
-        int64_t initial_wait_time = esp_timer_get_time();
-
-        if (esp_timer_get_time() > start_listening_time + RECEIVE_TIMEOUT_US) {
-            break;
-        }
-        while (esp_timer_get_time() <= initial_wait_time + ECHO_READ_TOUT * 11);
-    }
-
-    uart_hal_rxfifo_rst(&hal_context);
-    return rx_buffer_length;
-}
-
-static void IRAM_ATTR uart_intr_handle(void *arg)
-{
-    uint32_t uart_intr_status = uart_hal_get_intsts_mask(&hal_context);
-
-    if (uart_intr_status & UART_INTR_TX_DONE) {
-        portENTER_CRITICAL_ISR(&spinlock);
-        uart_hal_set_rts(&hal_context, 1);
-        uart_hal_clr_intsts_mask(&hal_context, UART_INTR_TX_DONE);
-        portEXIT_CRITICAL_ISR(&spinlock);
-        return;
-    }
+    request_from_i2c(I2C_PORT_MOTOR, current_i2c_address_for_modbus, buffer, expected_len);
+    return expected_len;
 }

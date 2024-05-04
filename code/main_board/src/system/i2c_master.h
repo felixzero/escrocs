@@ -18,7 +18,7 @@ esp_err_t init_i2c_master(void);
  * @param buffer Data to send
  * @param length Packet size
  */
-void send_to_i2c(int port, uint8_t slave_addr, void *buffer, size_t length);
+void send_to_i2c(int port, uint8_t slave_addr, const void *buffer, size_t length);
 
 /**
  * Receive data from a I2C slave

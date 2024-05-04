@@ -9,9 +9,9 @@
 #define CONE_OFFSET 2.513274122871834 //pi - pi/5
 
 QueueHandle_t strategy_single_channel_queue, motion_cone_queue, scan_over_queue;
-uint16_t distances[NUMBER_OF_US] = {0};
+uint16_t distances[NUMBER_OF_US] = { 0 };
 
-static bool EMPTY_CHANNELS[NUMBER_OF_US] = {false};
+static bool EMPTY_CHANNELS[NUMBER_OF_US] = { false };
 
 static TaskHandle_t task;
 static bool active_channels[NUMBER_OF_US];
@@ -54,12 +54,13 @@ static void ultrasonic_board_task(void *parameters)
         if (xQueueReceive(motion_cone_queue, &motion_cone, 0) == pdTRUE) {
             int active_channels = set_ultrasonic_scan_angle(motion_cone.center_angle + CONE_OFFSET, motion_cone.cone);
             ultrasonic_perform_scan();
-            vTaskDelay(pdMS_TO_TICKS(ULTRASONIC_CHANNEL_PERIOD_MS) * (active_channels+1));
+            vTaskDelay(pdMS_TO_TICKS(ULTRASONIC_CHANNEL_PERIOD_MS) * (active_channels + 1));
             bool scan_over = ultrasonic_has_obstacle();
             xQueueOverwrite(scan_over_queue, &scan_over);
+            vTaskDelay(1);
         }
         // Low priority scan
-        else if (xQueueReceive(strategy_single_channel_queue, &channel_to_set, 0) == pdTRUE ) {
+        else if (xQueueReceive(strategy_single_channel_queue, &channel_to_set, 0) == pdTRUE) {
             int active_channels = 0;
             for(int i = 0; i < NUMBER_OF_US; i++) {
                 if(channel_to_set[i]) {
@@ -68,10 +69,11 @@ static void ultrasonic_board_task(void *parameters)
             }
             update_scan_channels(channel_to_set);
             ultrasonic_perform_scan();
-            vTaskDelay(pdMS_TO_TICKS(ULTRASONIC_CHANNEL_PERIOD_MS) * (active_channels+1));
+            vTaskDelay(pdMS_TO_TICKS(ULTRASONIC_CHANNEL_PERIOD_MS) * (active_channels + 1));
             update_scan_channels(EMPTY_CHANNELS);
             bool scan_over = ultrasonic_has_obstacle();
             xQueueOverwrite(scan_over_queue, &scan_over);
+            vTaskDelay(1);
         }
         else {
             // No scan to do, wait for a new one
@@ -82,7 +84,6 @@ static void ultrasonic_board_task(void *parameters)
 
 static int set_ultrasonic_scan_angle(float center_angle, float cone)
 {
-
     bool channels_to_set[NUMBER_OF_US] = {false};
     for (int channel = 0; channel < NUMBER_OF_US; ++channel) {
         float channel_angle = 2 * M_PI * channel / NUMBER_OF_US;

@@ -66,7 +66,7 @@ void run_controller_state_machine(void)
         return;
     case ULTRASOUND_BOARD_SCANNING:
         LED_STATUS_BUSY();
-        perform_ultrasound_scan();
+        //perform_ultrasound_scan();
         controller_state = ULTRASOUND_BOARD_IDLE;
         return;
     case ULTRASOUND_BOARD_UPDATING_LED:
@@ -78,6 +78,7 @@ void run_controller_state_machine(void)
         LED_STATUS_BUSY();
         perform_ultrasound_scan();
         controller_state = ULTRASOUND_BOARD_UPDATING_LED;
+        return;
     }
 }
 

@@ -8,7 +8,7 @@
 .data
 
 .align 8
-rx_buffer: .space 128, 0
+rx_buffer: .space 8, 0
 rx_buffer_index: .byte 0
 rx_complete: .byte 0 
 

@@ -13,6 +13,7 @@
 #define CRITICAL_DISTANCE_MM            400
 
 #define MODBUS_ADDRESS                  0x45
+#define I2C_ADDR                        0x12
 
 #define MODBUS_CONFIG_CRITICAL_DISTANCE 0010
 #define MODBUS_CONFIG_SAFE_DISTANCE     0011
@@ -27,38 +28,7 @@
 
 esp_err_t init_ultrasonic_board(void)
 {
-    esp_err_t err;
-
-    ESP_LOGI(TAG, "Initializing ultrasonic detection subsystem.");
-    static char id[MAX_ID_LEN] = "";
-    err = modbus_read_device_identification(MODBUS_ADDRESS, 0x00, id, MAX_ID_LEN - 1);
-    if (err) {
-        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
-        return err;
-    }
-    ESP_LOGI(TAG, "Vendor name: %s", id);
-
-    err = modbus_read_device_identification(MODBUS_ADDRESS, 0x01, id, MAX_ID_LEN - 1);
-    if (err) {
-        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
-        return err;
-    }
-    ESP_LOGI(TAG, "Product code: %s", id);
-
-    err = modbus_read_device_identification(MODBUS_ADDRESS, 0x02, id, MAX_ID_LEN - 1);
-    if (err) {
-        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
-        return err;
-    }
-    ESP_LOGI(TAG, "Revision: %s", id);
-
-    err = modbus_preset_single_register(MODBUS_ADDRESS, MODBUS_CONFIG_CRITICAL_DISTANCE, CRITICAL_DISTANCE_MM);
-    if (err) {
-        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
-        return err;
-    }
     disable_all_ultrasonic_detection();
-
     return ESP_OK;
 }
 
