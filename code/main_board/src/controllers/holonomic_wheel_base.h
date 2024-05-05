@@ -10,6 +10,7 @@ typedef struct {
     float acceleration_mps2;
     float ultrasonic_detection_angle;
     float ultrasonic_min_detection_distance_mm;
+    float ultrasonic_ignore_distance_mm;
     float allowed_error_mm;
     float deceleration_factor;
 } motion_control_tuning_t;
