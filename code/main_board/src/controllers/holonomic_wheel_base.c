@@ -6,8 +6,12 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
-#define TAG         "Motion control [H]"
-#define SQRT_3_2     0.86602540378
+#define TAG             "Motion control [H]"
+#define SQRT_3_2        0.86602540378
+#define TERRAIN_WIDTH   3000
+#define TERRAIN_HEIGHT  2000
+
+static bool is_projected_angle_in_terrain(const pose_t *current_pose, float angle);
 
 void holonomic_wheel_base_set_values(motion_control_tuning_t *tuning)
 {
@@ -15,8 +19,9 @@ void holonomic_wheel_base_set_values(motion_control_tuning_t *tuning)
     tuning->robot_radius_mm = 102.0;
     tuning->max_speed_mps = 0.2;
     tuning->acceleration_mps2 = 0.1;
-    tuning->ultrasonic_detection_angle = 0.63;
+    tuning->ultrasonic_detection_angle = 1.0;
     tuning->ultrasonic_min_detection_distance_mm = 30;
+    tuning->ultrasonic_ignore_distance_mm = 400;
     tuning->allowed_error_mm = 3;
     tuning->deceleration_factor = 0.8;
 }
@@ -129,4 +134,25 @@ void holonomic_wheel_base_get_detection_scanning_angles(
     *perform_detection = distance_to_target_sq > powf(data->tuning->ultrasonic_min_detection_distance_mm, 2);
     *center_angle = angle_to_target - current_pose->theta;
     *cone_angle = 2 * data->tuning->ultrasonic_detection_angle;
+
+    // Eliminate the portion of cone outside the terrain
+    float left_angle = *center_angle - *cone_angle / 2;
+    float right_angle = *center_angle + *cone_angle / 2;
+    const float ANGLE_INCREMENT = 0.05;
+    while (!is_projected_angle_in_terrain(current_pose, left_angle) && (left_angle < right_angle)) {
+        left_angle += ANGLE_INCREMENT;
+    }
+    while (!is_projected_angle_in_terrain(current_pose, right_angle) && (left_angle < right_angle)) {
+        right_angle -= ANGLE_INCREMENT;
+    }
+    *center_angle = (left_angle + right_angle) / 2;
+    *cone_angle = right_angle - left_angle;
+}
+
+static bool is_projected_angle_in_terrain(const pose_t *current_pose, float angle)
+{
+    float projected_x = current_pose->x + cosf(angle) + current_pose->theta;
+    float projected_y = current_pose->y + sinf(angle) + current_pose->theta;
+
+    return (projected_x > 0) && (projected_x < TERRAIN_WIDTH) && (projected_y > 0) && (projected_y < TERRAIN_HEIGHT);
 }

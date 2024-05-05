@@ -5,8 +5,11 @@
 #include <string.h>
 
 #define TAG "US_controller"
-// FIXME: Don't forget to check the cone offset is same here and lua
+// FIXME: Remove duplicate info in Lua
 #define CONE_OFFSET 2.513274122871834 //pi - pi/5
+
+#define US_OBSTACLE_DISTANCE_MM     600
+#define US_WARNING_DISTANCE_MM      (2 * US_OBSTACLE_DISTANCE_MM)
 
 QueueHandle_t strategy_single_channel_queue, motion_cone_queue, scan_over_queue;
 uint16_t distances[NUMBER_OF_US] = { 0 };
@@ -24,7 +27,9 @@ esp_err_t init_us_controller()
 {
     strategy_single_channel_queue = xQueueCreate(1, sizeof(active_channels)); // Low priority Queue
     motion_cone_queue = xQueueCreate(1, sizeof(scan_angle_t)); // High priority Queue
-    scan_over_queue = xQueueCreate(1, sizeof(bool)); 
+    scan_over_queue = xQueueCreate(1, sizeof(bool));
+
+    set_ultrasonic_display_distances(US_OBSTACLE_DISTANCE_MM, US_WARNING_DISTANCE_MM);
 
     xTaskCreatePinnedToCore(
         ultrasonic_board_task,
