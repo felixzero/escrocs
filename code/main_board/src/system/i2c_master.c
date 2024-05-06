@@ -91,9 +91,6 @@ void request_from_i2c(int port, uint8_t slave_addr, void *buffer, size_t length)
 
     esp_err_t err = i2c_master_cmd_begin(port, i2c_handle, I2C_TIMEOUT_MS / portTICK_PERIOD_MS);
     ESP_ERROR_CHECK_WITHOUT_ABORT(err);
-    if (err != ESP_OK) {
-        i2c_reset_rx_fifo(port);
-    }
     i2c_cmd_link_delete(i2c_handle);
 }
 
