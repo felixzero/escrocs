@@ -235,8 +235,8 @@ static void motor_disabler_task(void *parameters)
         uint32_t notified_value;
         if (!xTaskNotifyWait(0, ULONG_MAX, &notified_value, MOTOR_DISABLING_TIMEOUT)) {
             ESP_LOGI(TAG, "Disabling stepper motors");
-            disable_motors();
-            ESP_LOGI(TAG, "Enabled status: %d", are_motors_enabled());
+            //disable_motors();
+            //ESP_LOGI(TAG, "Enabled status: %d", are_motors_enabled());
         }
 
         vTaskDelay(10);

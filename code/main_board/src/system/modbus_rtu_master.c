@@ -303,34 +303,42 @@ static esp_err_t query_modbus_rtu(size_t message_len, size_t expected_len, uint8
     query_buffer[message_len + 2] = crc >> 8;
     query_buffer[message_len + 3] = crc & 0xFF;
 
-    // FIXME: Ugly hack
-    size_t received_len;
-    if (slave_addr == 0x44) { // if motor
-        send_raw_rs485(query_buffer, message_len + 4);
-        received_len = receive_raw_rs485(response_buffer, expected_len);
-    } else { // us
-        current_i2c_address_for_modbus = 0x12;
-        send_raw_i2c(query_buffer, message_len + 4);
-        received_len = receive_raw_i2c(response_buffer, expected_len);
+    esp_err_t err = ESP_OK;
+    for (int i = 0; i < 5; ++i) {
+        // FIXME: Ugly hack
+        size_t received_len;
+        if (slave_addr == 0x44) { // if motor
+            send_raw_rs485(query_buffer, message_len + 4);
+            received_len = receive_raw_rs485(response_buffer, expected_len);
+        } else { // us
+            current_i2c_address_for_modbus = 0x12;
+            send_raw_i2c(query_buffer, message_len + 4);
+            received_len = receive_raw_i2c(response_buffer, expected_len);
+        }
+
+        if (received_len <= 0) {
+            err = ESP_ERR_TIMEOUT;
+            continue;
+        }
+
+        uint16_t checked_crc = compute_crc(response_buffer, received_len);
+        if (checked_crc != 0) {
+            err = ESP_ERR_INVALID_CRC;
+            continue;
+        }
+        if (response_buffer[1] == (function_code | 0x80)) {
+            err = ESP_ERR_INVALID_ARG;
+            continue;
+        }
+        if ((response_buffer[0] != slave_addr) || (response_buffer[1] != function_code)) {
+            err = ESP_ERR_INVALID_RESPONSE;
+            continue;
+        }
+
+        return ESP_OK;
     }
 
-    if (received_len <= 0) {
-        return ESP_ERR_TIMEOUT;
-    }
-
-    uint16_t checked_crc = compute_crc(response_buffer, received_len);
-    if (checked_crc != 0) {
-        return ESP_ERR_INVALID_CRC;
-    }
-    if (response_buffer[1] == (function_code | 0x80)) {
-        return ESP_ERR_INVALID_ARG;
-    }
-    if ((response_buffer[0] != slave_addr) || (response_buffer[1] != function_code)) {
-        ESP_LOG_BUFFER_HEX_LEVEL(TAG, response_buffer, received_len, ESP_LOG_INFO);
-        return ESP_ERR_INVALID_RESPONSE;
-    }
-
-    return ESP_OK;
+    return err;
 }
 
 static void send_raw_i2c(const void *buffer, size_t len)
@@ -385,4 +393,6 @@ static void IRAM_ATTR uart_intr_handle(void *arg)
         portEXIT_CRITICAL_ISR(&spinlock);
         return;
     }
+
+    uart_hal_clr_intsts_mask(&hal_context, UART_LL_INTR_MASK);
 }

@@ -18,7 +18,7 @@ void holonomic_wheel_base_set_values(motion_control_tuning_t *tuning)
     tuning->wheel_radius_mm = 27.0;
     tuning->robot_radius_mm = 102.0;
     tuning->max_speed_mps = 0.2;
-    tuning->acceleration_mps2 = 0.1;
+    tuning->acceleration_mps2 = 0.05;
     tuning->ultrasonic_detection_angle = 1.0;
     tuning->ultrasonic_min_detection_distance_mm = 30;
     tuning->ultrasonic_ignore_distance_mm = 400;
