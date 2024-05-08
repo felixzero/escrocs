@@ -8,7 +8,7 @@
 // FIXME: Remove duplicate info in Lua
 #define CONE_OFFSET 2.513274122871834 //pi - pi/5
 
-#define US_OBSTACLE_DISTANCE_MM     600
+#define US_OBSTACLE_DISTANCE_MM     500
 #define US_WARNING_DISTANCE_MM      (2 * US_OBSTACLE_DISTANCE_MM)
 
 QueueHandle_t strategy_single_channel_queue, motion_cone_queue, scan_over_queue;
