@@ -20,7 +20,7 @@ config = {
 
 coords = {
 	manual_deposit = {x=2875, y=100},
-	initial_position = {x=2770, y=1000, pushpot=350},
+	initial_position = {x=2875, y=1000, theta=0, pushpot=350},
 	initial_solar = {x=200, y=90, theta=-pi/6},
 	final_solar = {x=800, overdrive=10},
 	plant_low = {x=1900, y=670, theta=0, push=120, back_x=2400},
@@ -52,8 +52,6 @@ end
 
 function on_init()
 	overwrite_pose(coords.manual_deposit.x, coords.manual_deposit.y, 0)
-	move_to(coords.manual_deposit.x, coords.initial_position.y, 0, false)
-	move_to(coords.initial_position.x, coords.initial_position.y, 0, false)
 	move_stepper(config.stepper_channel, config.stepper_high, config.stepper_speed)
 	move_servo(config.snow_channel, config.snow_high)
 
