@@ -11,6 +11,14 @@ volatile int16_t encoder_values[NUMBER_OF_CHANNELS] = { 0 };
 
 static void set_prescaler_and_period(uint8_t channel, uint8_t prescaler, uint16_t period);
 
+static volatile uint8_t metacounter = 0;
+ISR(TIMER2_OVF_vect) {
+    metacounter++;
+    if (metacounter == 100) {
+        set_stepper_enable(false);
+    }
+}
+
 void init_steppers(void)
 {
     encoder_values[0];
@@ -48,6 +56,12 @@ void init_steppers(void)
     TIMSK3 |= _BV(TOIE3);
     TIMSK4 |= _BV(TOIE4);
     sei();
+
+    cli();
+    TCCR2A = 0;
+    TCCR2B = _BV(CS22) | _BV(CS21) | _BV(CS20);
+    TIMSK2 = _BV(TOIE2);
+    sei();
 }
 
 void set_stepper_speed(uint8_t channel, int32_t period)
@@ -55,6 +69,8 @@ void set_stepper_speed(uint8_t channel, int32_t period)
     if (channel > 3) {
         return;
     }
+
+    metacounter = 0;
 
     // Set CW/CCW
     if (period > 0) {
@@ -81,6 +97,8 @@ void set_stepper_enable(bool enabled)
     } else {
         PORTB |= _BV(0);
     }
+
+    metacounter = 0;
 }
 
 bool is_stepper_enabled(void)

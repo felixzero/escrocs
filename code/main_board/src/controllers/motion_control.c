@@ -181,6 +181,7 @@ static void motion_control_task(void *parameters)
         );
         motion_cone.center_angle = center_scanning_angle;
         motion_cone.cone = cone_scanning_angle;
+
         if (motion_target.motion_step == MOTION_STEP_RUNNING && xQueueReceive(scan_over_queue, &has_obstacle, 0)) {
             //Perform obstacle detection logic
             if (need_detection && has_obstacle && motion_target.perform_detection) {

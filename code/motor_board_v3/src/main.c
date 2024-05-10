@@ -3,9 +3,12 @@
 #include "i2c_bus.h"
 
 #include <avr/io.h>
+#include <avr/interrupt.h>
 
 #include <math.h>
 #define CLAMP_ABS(x, clamp) ((fabsf(x) > (clamp)) ? (clamp) * (x) / fabsf(x) : (x))
+
+
 
 int main()
 {

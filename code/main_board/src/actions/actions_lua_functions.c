@@ -17,6 +17,7 @@ void init_lua_action_functions(void)
 static int game_action_ ## action_name ## _lua(lua_State *L) \
 { \
     bool action_enabled = true; \
+    vTaskDelay(1); \
     xQueuePeek(enable_status_queue, &action_enabled, 0); \
     int arg_id = 1; \
     (void)arg_id; \

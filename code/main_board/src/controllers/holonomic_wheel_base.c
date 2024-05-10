@@ -11,14 +11,13 @@
 #define TERRAIN_WIDTH   3000
 #define TERRAIN_HEIGHT  2000
 
-static bool is_projected_angle_in_terrain(const pose_t *current_pose, float angle);
-
 void holonomic_wheel_base_set_values(motion_control_tuning_t *tuning)
 {
     tuning->wheel_radius_mm = 27.0;
     tuning->robot_radius_mm = 102.0;
     tuning->max_speed_mps = 0.2;
-    tuning->acceleration_mps2 = 0.05;
+    tuning->acceleration_mps2 = 0.1;
+    tuning->emergency_acceleration_mps2 = 0.2;
     tuning->ultrasonic_detection_angle = 1.0;
     tuning->ultrasonic_min_detection_distance_mm = 30;
     tuning->ultrasonic_ignore_distance_mm = 400;
@@ -49,6 +48,7 @@ void holonomic_wheel_base_apply_speed_to_motors(
 ) {
     int64_t current_time = esp_timer_get_time();
 
+    float acceleration = force_deceleration ? data->tuning->emergency_acceleration_mps2 : data->tuning->acceleration_mps2;
     const pose_t target_pose = motion_target->pose;
     pose_t target_displacement = {
         .x = target_pose.x - current_pose->x,
@@ -62,7 +62,7 @@ void holonomic_wheel_base_apply_speed_to_motors(
     );
     float max_speed_norm = fminf(
         data->tuning->max_speed_mps,
-        data->tuning->deceleration_factor * sqrtf(2 * data->tuning->acceleration_mps2 * target_displacement_norm * 1e-3)
+        data->tuning->deceleration_factor * sqrtf(2 * acceleration * target_displacement_norm * 1e-3)
     );
     if (force_deceleration || data->please_stop) {
         max_speed_norm = 0;
@@ -94,10 +94,10 @@ void holonomic_wheel_base_apply_speed_to_motors(
     );
     float time_difference_s = (current_time - data->previous_time) * 1e-6;
     data->previous_time = current_time;
-    if (speed_difference_norm > data->tuning->acceleration_mps2 * time_difference_s) {
-        speed_difference.x = speed_difference.x / speed_difference_norm * data->tuning->acceleration_mps2 * time_difference_s;
-        speed_difference.y = speed_difference.y / speed_difference_norm * data->tuning->acceleration_mps2 * time_difference_s;
-        speed_difference.theta = speed_difference.theta / speed_difference_norm * data->tuning->acceleration_mps2 * time_difference_s;
+    if (speed_difference_norm > acceleration * time_difference_s) {
+        speed_difference.x = speed_difference.x / speed_difference_norm * acceleration * time_difference_s;
+        speed_difference.y = speed_difference.y / speed_difference_norm * acceleration * time_difference_s;
+        speed_difference.theta = speed_difference.theta / speed_difference_norm * acceleration * time_difference_s;
     }
     pose_t new_speed = {
         .x = data->previous_speed.x + speed_difference.x,
@@ -134,25 +134,5 @@ void holonomic_wheel_base_get_detection_scanning_angles(
     *perform_detection = distance_to_target_sq > powf(data->tuning->ultrasonic_min_detection_distance_mm, 2);
     *center_angle = angle_to_target - current_pose->theta;
     *cone_angle = 2 * data->tuning->ultrasonic_detection_angle;
-
-    // Eliminate the portion of cone outside the terrain
-    float left_angle = *center_angle - *cone_angle / 2;
-    float right_angle = *center_angle + *cone_angle / 2;
-    const float ANGLE_INCREMENT = 0.05;
-    while (!is_projected_angle_in_terrain(current_pose, left_angle) && (left_angle < right_angle)) {
-        left_angle += ANGLE_INCREMENT;
-    }
-    while (!is_projected_angle_in_terrain(current_pose, right_angle) && (left_angle < right_angle)) {
-        right_angle -= ANGLE_INCREMENT;
-    }
-    *center_angle = (left_angle + right_angle) / 2;
-    *cone_angle = right_angle - left_angle;
 }
 
-static bool is_projected_angle_in_terrain(const pose_t *current_pose, float angle)
-{
-    float projected_x = current_pose->x + cosf(angle) + current_pose->theta;
-    float projected_y = current_pose->y + sinf(angle) + current_pose->theta;
-
-    return (projected_x > 0) && (projected_x < TERRAIN_WIDTH) && (projected_y > 0) && (projected_y < TERRAIN_HEIGHT);
-}
