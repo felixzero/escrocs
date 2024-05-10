@@ -11,6 +11,7 @@
 #include <esp_log.h>
 #include <math.h>
 #include <string.h>
+#include <esp_timer.h>
 
 #define TAG "Motion control"
 
