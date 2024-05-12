@@ -87,16 +87,20 @@ static void lua_executor_task(void *is_reversed)
             lcd_printf(1, "Lua error");
         }
 
+        enable_motors();
         lua_getglobal(L, LUA_ON_INIT_FUNCTION);
         lua_pushboolean(L, *((int*)is_reversed));
         if (lua_pcall(L, 1, LUA_MULTRET, 0) != LUA_OK) {
             ESP_LOGE(TAG, "Lua error on_init: %s", lua_tostring(L, -1));
             lcd_printf(1, "Lua error init");
         }
+        disable_motors();
 
         int queue_buffer;
         xQueueReceive(on_run_queue, &queue_buffer, portMAX_DELAY);
 
+        enable_motors();
+        vTaskDelay(pdMS_TO_TICKS(500));
         lua_getglobal(L, LUA_ON_RUN_FUNCTION);
         if (lua_pcall(L, 0, 0, 0) != LUA_OK) {
             ESP_LOGW(TAG, "Missing on_run function in Lua strategy.");

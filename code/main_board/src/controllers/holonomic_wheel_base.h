@@ -8,6 +8,7 @@ typedef struct {
     float robot_radius_mm;
     float max_speed_mps;
     float acceleration_mps2;
+    float emergency_acceleration_mps2;
     float ultrasonic_detection_angle;
     float ultrasonic_min_detection_distance_mm;
     float ultrasonic_ignore_distance_mm;

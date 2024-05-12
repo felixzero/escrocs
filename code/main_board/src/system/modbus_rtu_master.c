@@ -9,6 +9,7 @@
 #include <hal/uart_hal.h>
 #include <esp_err.h>
 #include <esp_log.h>
+#include <esp_timer.h>
 
 #define TAG "Modbus RTU"
 
@@ -61,13 +62,6 @@ esp_err_t init_modbus_rtu_master(void)
     esp_err_t err = ESP_OK;
     ESP_LOGI(TAG, "Initializing Modbus subsystem");
 
-    // Configure UART to RS485 transceiver
-    err = uart_driver_install(UART_NUM, 2 * BUFFER_SIZE, 0, 0, NULL, 0);
-    if (err) {
-        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
-        return err;
-    }
-
     uart_config_t uart_config = {
         .baud_rate = UART_BAUD_RATE,
         .data_bits = UART_DATA_8_BITS,
@@ -90,13 +84,8 @@ esp_err_t init_modbus_rtu_master(void)
     // Unregister software UART ISR and register ours
     hal_context.dev = UART_LL_GET_HW(UART_NUM);
 
-    err = uart_isr_free(UART_NUM);
-    if (err) {
-        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
-        return err;
-    }
-
-    err = uart_isr_register(UART_NUM, uart_intr_handle, NULL, ESP_INTR_FLAG_IRAM, NULL);
+    uart_isr_handle_t isr_handle;
+    err = esp_intr_alloc(ETS_UART1_INTR_SOURCE, (void*)NULL, uart_intr_handle, NULL, &isr_handle);
     if (err) {
         ESP_ERROR_CHECK_WITHOUT_ABORT(err);
         return err;
