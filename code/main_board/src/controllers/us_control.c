@@ -111,5 +111,3 @@ static int set_ultrasonic_scan_angle(float center_angle, float cone)
     return number_of_active_channels;
 }
 
-
-
