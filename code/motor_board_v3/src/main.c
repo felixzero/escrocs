@@ -14,6 +14,7 @@ int main()
 {
     // Set status LED as output
     DDRD |= _BV(2);
+    DDRC |= _BV(3);
 
     init_steppers();
     init_modbus_rtu_slave();
@@ -22,5 +23,11 @@ int main()
     while(1) {
         poll_modbus_rtu_operations();
         //poll_i2c_operations();
+
+        if (PIND & _BV(4)) {
+            PORTC |= _BV(3);
+        } else {
+            PORTC &= ~_BV(3);
+        }
     }
 }
