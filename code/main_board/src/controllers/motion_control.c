@@ -248,5 +248,5 @@ static void motor_disabler_task(void *parameters)
 void enable_motors_and_set_timer(void)
 {
     enable_motors();
-    xTaskNotify(motor_disabler_task_handle, 1, eSetValueWithoutOverwrite);
+    //xTaskNotify(motor_disabler_task_handle, 1, eSetValueWithoutOverwrite);
 }

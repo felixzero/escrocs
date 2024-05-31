@@ -53,7 +53,8 @@ void init_display(void)
 
 void lcd_printf(int row, const char *format_str, ...)
 {
-    va_list args;
+    ESP_LOGI("lcd_display", "%s", format_str);
+    /*va_list args;
     va_start(args, format_str);
 
     char buffer[NUMBER_OF_COLUMNS + 1];
@@ -75,7 +76,7 @@ void lcd_printf(int row, const char *format_str, ...)
         lcd_write_8bits(' ', 1);
     }
 
-    xSemaphoreGive(lcd_mutex);
+    xSemaphoreGive(lcd_mutex); */
 }
 
 

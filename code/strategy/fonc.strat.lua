@@ -26,7 +26,7 @@ coords = {
 	initial_solar = {x=200, y=90, back_y=50, theta=-pi/6},
 	final_solar = {x=800, overdrive=10},
 	surprise_solar = {x=1800, back_y = 60, overdrive=30},
-	plant_low = {x=625, y=670,  theta=-pi, push=140, back_x=500},
+	plant_low = {x=625, y=670,  theta=-pi, ysafe=270, push=140, back_x=500},
 	plant_low_bis = {x=800, y= 670, ysafe=340, overdrive_y=50, theta=-pi, push=140, back_x=200},
 	garden_top = {x=760, ysafe=1800, y=1900, theta=-pi/2},
 	reset_home = {x=125,y=1910, overdrive_x=200, overdrive_y = 10, theta=-pi/2},
@@ -74,6 +74,7 @@ function timeout_move(x, y, theta, safe)
 	end
 	if time < 8.0 then
 		score = score + 15
+		print(score)
 	end
 end
 
@@ -105,6 +106,7 @@ function on_run()
 	move_to(coords.final_solar.x, coords.initial_solar.y - coords.final_solar.overdrive, coords.initial_solar.theta, true)
 	overwrite_pose(coords.final_solar.x, coords.initial_solar.y, coords.initial_solar.theta)
 	score = score + 15
+	print(score)
 
 	--if check_distance() then
 	timeout_move(coords.surprise_solar.x, coords.initial_solar.y - coords.surprise_solar.overdrive, coords.initial_solar.theta, true)
@@ -114,76 +116,40 @@ function on_run()
 	move_to(cur_x, coords.initial_solar.y + coords.initial_solar.back_y, coords.initial_solar.theta, true)
 	--end
 
-
 	-- Grab plants
 	move_servo(config.clamp_channel, config.clamp_high)
+	move_servo(config.snow_channel, config.snow_high)
+	
+	-- ITM
+	move_to(coords.plant_low.x, coords.plant_low.ysafe, coords.plant_low.theta, true)
+	move_to(coords.plant_low.x, coords.plant_low.y, coords.plant_low.theta, true)
+	
+	
 	move_servo(config.snow_channel, config.snow_low)
-
-	--clean space : 
-	move_to(coords.plant_low_bis.x, coords.plant_low_bis.ysafe, coords.plant_low_bis.theta, true)
-	move_to(coords.plant_low_bis.x, coords.plant_low_bis.y + coords.plant_low_bis.overdrive_y, coords.plant_low_bis.theta, true)
-	move_to(coords.plant_low_bis.x, coords.plant_low_bis.y, coords.plant_low_bis.theta, true)
-
-
-	move_servo(config.snow_channel, config.snow_low)
-	move_to(coords.plant_low_bis.x + coords.plant_low_bis.push, coords.plant_low_bis.y, coords.plant_low_bis.theta, true)
-	move_to(coords.plant_low_bis.x, coords.plant_low_bis.y,coords.plant_low_bis.theta, true)
+	move_to(coords.plant_low.x + coords.plant_low.push, coords.plant_low.y, coords.plant_low.theta, true)
+	move_to(coords.plant_low.x + 100, coords.plant_low.y, coords.plant_low.theta, true)
 	move_servo(config.snow_channel, config.snow_high)
 	move_stepper(config.stepper_channel, config.stepper_low, config.stepper_speed)
 	sleep(3.0)
-	move_to(coords.plant_low_bis.x + coords.plant_low_bis.push, coords.plant_low_bis.y, coords.plant_low_bis.theta, true)
+	move_to(coords.plant_low.x + coords.plant_low.push, coords.plant_low.y, coords.plant_low.theta, true)
 	move_servo(config.clamp_channel, config.clamp_low)
 	sleep(0.5)
 	move_stepper(config.stepper_channel, config.stepper_high, config.stepper_speed)
+	move_to(coords.plant_low.back_x, coords.plant_low.y, coords.plant_low.theta, true)
 
 	-- Deposit plants
 	move_to(coords.garden_top.x, coords.garden_top.ysafe, coords.garden_top.theta, true)
 	move_to(coords.garden_top.x, coords.garden_top.y, coords.garden_top.theta, false)
 	overwrite_pose(coords.garden_top.x, coords.garden_top.y - coords.initial_solar.y, coords.garden_top.theta, true)
 	deposit_plant()
-	score = score + 12
+	score = score + 8
+	print(score)
 
-	-- resetting pose
-	move_to(coords.reset_home.x - coords.reset_home.overdrive_x, 
-	coords.reset_home.y - coords.reset_home.overdrive_y, 
-	coords.reset_home.theta, true)
 
-	move_to(coords.reset_home.x, 
-	coords.reset_home.y + coords.reset_home.overdrive_y, 
-	coords.reset_home.theta, false)
-	overwrite_pose(coords.reset_home.x, coords.reset_home.y, coords.reset_home.theta)
-
-	-- Grab plants -- plant_low
-	move_servo(config.clamp_channel, config.clamp_high)
-	move_servo(config.snow_channel, config.snow_high)
-	move_to(coords.plant_low_bis.x, coords.plant_low_bis.y, coords.plant_low_bis.theta, true)
-	move_servo(config.snow_channel, config.snow_low)
-	move_to(coords.plant_low_bis.x + coords.plant_low_bis.push, coords.plant_low_bis.y, coords.plant_low_bis.theta, true)
-	move_to(coords.plant_low_bis.x, coords.plant_low_bis.y, coords.plant_low_bis.theta, true)
-	move_servo(config.snow_channel, config.snow_high)
-	move_stepper(config.stepper_channel, config.stepper_low, config.stepper_speed)
-	sleep(3.0)
-	move_to(coords.plant_low_bis.x + coords.plant_low_bis.push, coords.plant_low_bis.y, coords.plant_low_bis.theta, true)
-	move_servo(config.clamp_channel, config.clamp_low)
-	sleep(0.5)
-	move_stepper(config.stepper_channel, config.stepper_high, config.stepper_speed)
-
-	--push plant_top
-	move_to(coords.plant_high.x, coords.plant_high.y, coords.plant_high.theta, true) -- makes sure to finish theta turn before
-	move_to(coords.plant_high.x, coords.plant_high.y + coords.plant_high.push, coords.plant_high.theta, true)
-	
-	move_to(coords.home_top_plant.x, coords.home_top_plant.y, coords.home_top_plant.theta, true)
-	
-	-- deposit plant
-	move_to(coords.garden_left.x, coords.garden_left.ysafe, coords.garden_left.theta, true)
-	move_to(coords.garden_left.x, coords.garden_left.y, coords.garden_left.theta, true) --push pot metal
-	overwrite_pose(coords.garden_left.xsafe, coords.garden_left.y, coords.garden_left.theta, true)
-	deposit_plant()
-	score = score + 12
-	
 	-- homing
 	move_to(coords.back_home.x, coords.back_home.y, coords.back_home.theta, true)
 	score = score + 10
+	print(score)
 	
 	while true do sleep(1.0) end
 

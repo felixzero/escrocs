@@ -29,6 +29,7 @@
 #define LUA_ON_RUN_FUNCTION         "on_run"
 #define LUA_RESUME_LOOP_FUNCTION    "resume_loop"
 #define LUA_ON_END_FUNCTION         "on_end"
+#define DEBUG_REAL_KEY              0 //0 = no real key exist, 1 = real key system is used
 
 static QueueHandle_t file_to_execute_queue, on_run_queue, on_end_queue;
 static TaskHandle_t lua_executor_task_handle;
@@ -71,6 +72,13 @@ void pick_strategy_by_spiffs_index(int index)
     }
 }
 
+static int handleLuaError(lua_State* L) {
+  const char * msg = lua_tostring(L, -1);
+  luaL_traceback(L, L, msg, 2);
+lua_remove(L, -2); // Remove error/"msg" from stack.
+  return 1; // Traceback is returned.
+}
+
 static void lua_executor_task(void *is_reversed)
 {
     while (true) {
@@ -80,17 +88,24 @@ static void lua_executor_task(void *is_reversed)
 
         lua_State *L = luaL_newstate();
         luaL_openlibs(L);
-        luaL_loadfile(L, filename);
+
+        if (luaL_loadfile(L, filename) != LUA_OK) {
+            ESP_LOGE(TAG, "error loading lua strategy %s", lua_tostring(L, -1));
+            lcd_printf(1, "Lua error (synthax?)");
+            vTaskDelete(lua_executor_task_handle);
+        }
+
         register_lua_action_functions(L);
-        if (lua_pcall(L, 0, LUA_MULTRET, 0) != LUA_OK) {
-            ESP_LOGE(TAG, "Lua error: %s", lua_tostring(L, -1));
-            lcd_printf(1, "Lua error");
+        
+        if (lua_pcall(L, 0, 0, 0) != LUA_OK) {
+            ESP_LOGI(TAG, " message is : %s", lua_tostring(L, -1));
+            lcd_printf(1, "Lua error (top level exec ?)");
         }
 
         enable_motors();
         lua_getglobal(L, LUA_ON_INIT_FUNCTION);
         lua_pushboolean(L, *((int*)is_reversed));
-        if (lua_pcall(L, 1, LUA_MULTRET, 0) != LUA_OK) {
+        if (lua_pcall(L, 1, LUA_MULTRET, -1) != LUA_OK) {
             ESP_LOGE(TAG, "Lua error on_init: %s", lua_tostring(L, -1));
             lcd_printf(1, "Lua error init");
         }
@@ -106,23 +121,12 @@ static void lua_executor_task(void *is_reversed)
             ESP_LOGW(TAG, "Missing on_run function in Lua strategy.");
         }
 
+        xQueueReceive(on_end_queue, &queue_buffer, 0);
         TickType_t iteration_time = xTaskGetTickCount();
-        while (xQueuePeek(on_end_queue, &queue_buffer, 0) == pdFALSE)
-        {
-            lua_getglobal(L, LUA_RESUME_LOOP_FUNCTION);
-            lua_pushinteger(L, pdTICKS_TO_MS(xTaskGetTickCount()));
-            //arg is the timestamp in ms, receive the sleep time to wait before calling the coroutine again
-            if(lua_pcall(L, 1, 1, 0) != LUA_OK) { //It either returns an error message or the sleep time
-                ESP_LOGE(TAG, "Lua error resume_loop: %s", lua_tostring(L, -1));
-                lcd_printf(1, "Lua error on main_loop");
-            }
-            else {
-                lua_Integer sleep_time = lua_tointeger(L, -1);
-                if (sleep_time == -1) {
-                    break;
-                }
-                xTaskDelayUntil(&iteration_time, pdMS_TO_TICKS(sleep_time));
-            }
+
+        lua_getglobal(L, LUA_ON_END_FUNCTION);
+        if (lua_pcall(L, 0, 0, 0) != LUA_OK) {
+            ESP_LOGW(TAG, "Missing on_end function in Lua strategy.");
         }
 
         free(filename);
@@ -132,17 +136,20 @@ static void lua_executor_task(void *is_reversed)
 static void trigger_timer_task(void *parameters)
 {
     bool has_key_been_inserted = false;
-    while (!has_key_been_inserted) {
+    ESP_LOGI(TAG, "trigger_timer_task ");
+    while (!has_key_been_inserted && DEBUG_REAL_KEY) {
         if (read_trigger_key_status()) {
             lcd_printf(1, "Key missing");
         } else {
             lcd_printf(1, "Key inserted");
             has_key_been_inserted = true;
         }
+        ESP_LOGI(TAG, "inside while");
         vTaskDelay(pdMS_TO_TICKS(TRIGGER_POLLING_MS));
     }
 
-    while (!read_trigger_key_status()) {
+    ESP_LOGI(TAG, "bef trigger_key");
+    while (!read_trigger_key_status() && DEBUG_REAL_KEY) {
         vTaskDelay(pdMS_TO_TICKS(TRIGGER_POLLING_MS));
     }
 
@@ -223,13 +230,14 @@ esp_err_t put_strategy_handler(httpd_req_t *req)
 
     char data_buffer[BLOCK_SIZE];
     int written_length = 0;
+
     while (written_length < req->content_len) {
         int data_read = httpd_req_recv(req, data_buffer, BLOCK_SIZE);
         fwrite(data_buffer, 1, data_read, strategy_file);
         written_length += data_read;
     }
-    add_spiffs_file_entry(strategy_name);
 
+    add_spiffs_file_entry(strategy_name);
     httpd_resp_send(req, "All is fine, captain!\n", HTTPD_RESP_USE_STRLEN);
     fclose(strategy_file);
     return ESP_OK;

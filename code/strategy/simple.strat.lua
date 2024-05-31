@@ -19,9 +19,9 @@ config = {
 coords = {
 	manual_deposit = {x=125, y=155},
 	initial_position = {x=230, y=180},
-	initial_solar = {x=200, y=90, theta=-pi/6},
-	final_solar = {x=800, overdrive=10},
-	plant_low = {x=650, y=670, theta=-pi, push=120, back_x=500},
+	initial_solar = {x=200, y=90, overdrive_y=20, theta=-pi/6},
+	final_solar = {x=800, overdrive=40},
+	plant_low = {x=615, y=670, theta=-pi, push=120, back_x=500},
 	garden_top = {x=760, ysafe=1800, y=1900, theta=-pi/2},
 	plant_high = {x=650, y=1330, theta=-pi, push=120, back_x=500},
 	back_home = {x=150, y=1700, theta=-pi/2},
@@ -48,7 +48,7 @@ end
 function on_run()
 	-- Solar panels x3
 	move_to(coords.initial_position.x, coords.initial_position.y, coords.initial_solar.theta, false)
-	move_to(coords.initial_solar.x, coords.initial_solar.y, coords.initial_solar.theta, false)
+	move_to(coords.initial_solar.x, coords.initial_solar.y - coords.initial_solar.overdrive_y, coords.initial_solar.theta, false)
 	move_to(coords.final_solar.x, coords.initial_solar.y - coords.final_solar.overdrive, coords.initial_solar.theta, true)
 	overwrite_pose(coords.final_solar.x, coords.initial_solar.y, coords.initial_solar.theta)
 	score = score + 15
@@ -107,7 +107,7 @@ function on_run()
 	print(score)
 	
 
-	while true do end
+	while true do sleep(1.0) end
 end
 
 function on_end()

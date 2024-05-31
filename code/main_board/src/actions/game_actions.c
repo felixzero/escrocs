@@ -124,7 +124,6 @@ struct GAME_ACTION_OUTPUT_STRUCT_NAME(print) game_action_print(struct GAME_ACTIO
 {
     static char last_lua_print[32] = "";
 
-    ESP_LOGI(TAG, "%s", args.message);
     if (strncmp(last_lua_print, args.message, 32) != 0) {
         lcd_printf(1, args.message);
         strncpy(last_lua_print, args.message, 32);

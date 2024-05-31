@@ -70,6 +70,9 @@ bool add_spiffs_file_entry(char *filename)
     FILE *f = fopen(FS_INDEX_FILE, "r+b");
     char buffer[FS_INDEX_FILENAME_MAX_LENGTH];
 
+    if(!f) {
+        ESP_LOGE(TAG, "missing index.txt in SPIFFS : send a DELETE to /strategy to format first");
+    }
     fseek(f, 0, SEEK_SET);
     while (true) {
         if (fread(buffer, FS_INDEX_FILENAME_MAX_LENGTH, 1, f) <= 0) {

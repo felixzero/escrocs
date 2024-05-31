@@ -23,47 +23,18 @@
 
 void app_main() {
     ESP_LOGI("main", "Starting ESCRObot application...\n");
-    init_display();
 
-    char *yes_no[] = { "No", "Yes" };
-    int wifi_active = menu_pick_item("Wifi on?", yes_no, 2);
+    init_spiffs();
+    init_wifi_system();
+    init_http_server();
+    vTaskDelay(pdMS_TO_TICKS(500));
+    init_modbus_rtu_master();
+    //init_udp_logger();
 
-    display_initialization_status("Modbus", init_modbus_rtu_master());
-    display_initialization_status("I2C", init_i2c_master());
-    display_initialization_status("SPIFFS", init_spiffs());
-    if (wifi_active) {
-        display_initialization_status("Wi-Fi", init_wifi_system());
-        display_initialization_status("HTTP", init_http_server());
-        vTaskDelay(pdMS_TO_TICKS(500));
-        init_udp_logger();
-    }
+    int is_reversed = 0;
+    int picked_strategy = 0;
 
-    display_initialization_status("Ultrasonic", init_ultrasonic_board());
-    display_initialization_status("US control", init_us_controller());
-    display_initialization_status("Motor board", init_motor_board_v3());
-    display_initialization_status("Peripherals", init_peripherals());
-
-    char *table_sides[] = { "Left", "Right" };
-    int is_reversed = menu_pick_item("Table side", table_sides, 2);
-    display_initialization_status("Motion ctrl", init_motion_control(is_reversed));
-
-    char *strategies[MAX_STRATEGY_DISPLAY];
-    int number_of_strategies = MAX_STRATEGY_DISPLAY;
-    for (int index = 0; index < MAX_STRATEGY_DISPLAY; ++index) {
-        char *strategy = malloc(STRATEGY_DISPLAYED_LENGTH);
-        if (!list_spiffs_files(index, strategy, STRATEGY_DISPLAYED_LENGTH)) {
-            free(strategy);
-            number_of_strategies = index;
-            break;
-        }
-        strategies[index] = strategy;
-    }
-    int picked_strategy = menu_pick_item("Strategy", strategies, number_of_strategies);
-    for (int index = 0; index < number_of_strategies; ++index) {
-        free(strategies[index]);
-    }
-    lcd_printf(0, "Side: %s", table_sides[is_reversed]);
-
+    ESP_LOGI("main", "init_done ");
     init_lua_executor(is_reversed);
     pick_strategy_by_spiffs_index(picked_strategy);
 
