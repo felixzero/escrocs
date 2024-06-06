@@ -64,7 +64,9 @@
         "us_control.h": "c",
         "esp_spiffs.h": "c",
         "actions_lua_functions.h": "c",
-        "udp_logger.h": "c"
+        "udp_logger.h": "c",
+        "string.h": "c",
+        "lprefix.h": "c"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }

@@ -8,9 +8,6 @@ end
 
 function on_run()
     print("Ready to rock") 
-    sleep(1)
-    print("end of sleep")
-    gbrecgeruihbger
     --set_pose(1000, 0, 0, true)
 end
 

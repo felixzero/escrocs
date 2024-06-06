@@ -51,7 +51,7 @@ void init_lua_executor(bool is_reversed)
     file_to_execute_queue = xQueueCreate(1, sizeof(char*));
     on_run_queue = xQueueCreate(1, sizeof(int));
     on_end_queue = xQueueCreate(1, sizeof(int));
-    xTaskCreatePinnedToCore(lua_executor_task, "lua_executor", TASK_STACK_SIZE, (void*)&is_right, LUA_PRIORITY, &lua_executor_task_handle, LOW_CRITICITY_CORE);
+    xTaskCreatePinnedToCore(lua_executor_task, "lua_executor", TASK_STACK_SIZE * 2, (void*)&is_right, LUA_PRIORITY, &lua_executor_task_handle, LOW_CRITICITY_CORE);
     xTaskCreatePinnedToCore(trigger_timer_task, "trigger_timer", TASK_STACK_SIZE, NULL, TRIGGER_TIMER_PRIORITY, &task, LOW_CRITICITY_CORE);
 }
 
@@ -84,7 +84,7 @@ static void lua_executor_task(void *is_reversed)
     while (true) {
         char *filename;
         while (!xQueueReceive(file_to_execute_queue, &filename, 1000 / portTICK_PERIOD_MS));
-        ESP_LOGI(TAG, "Executing strategy file: %s", filename);
+        ESP_LOGI(TAG, "Loading strategy file: %s", filename);
 
         lua_State *L = luaL_newstate();
         luaL_openlibs(L);
@@ -97,6 +97,8 @@ static void lua_executor_task(void *is_reversed)
 
         register_lua_action_functions(L);
         
+        ESP_LOGI(TAG, "Strat loaded - stack left of lua_executor task : %d", (int) uxTaskGetStackHighWaterMark(lua_executor_task_handle));
+
         if (lua_pcall(L, 0, 0, 0) != LUA_OK) {
             ESP_LOGI(TAG, " message is : %s", lua_tostring(L, -1));
             lcd_printf(1, "Lua error (top level exec ?)");
@@ -117,8 +119,9 @@ static void lua_executor_task(void *is_reversed)
         enable_motors();
         vTaskDelay(pdMS_TO_TICKS(500));
         lua_getglobal(L, LUA_ON_RUN_FUNCTION);
-        if (lua_pcall(L, 0, 0, 0) != LUA_OK) {
-            ESP_LOGW(TAG, "Missing on_run function in Lua strategy.");
+        if (lua_pcall(L, 0, LUA_MULTRET, 0) != LUA_OK) {
+            ESP_LOGW(TAG, "(Missing ?) on_run function in Lua : %s", lua_tostring(L, -1));
+            lcd_printf(1, "Lua error run");
         }
 
         xQueueReceive(on_end_queue, &queue_buffer, 0);

@@ -35,6 +35,7 @@ void app_main() {
     int picked_strategy = 0;
 
     ESP_LOGI("main", "init_done ");
+    vTaskDelay(pdMS_TO_TICKS(3000));
     init_lua_executor(is_reversed);
     pick_strategy_by_spiffs_index(picked_strategy);
 
