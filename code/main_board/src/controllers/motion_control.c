@@ -11,6 +11,7 @@
 #include <esp_log.h>
 #include <math.h>
 #include <string.h>
+#include <esp_timer.h>
 
 #define TAG "Motion control"
 
@@ -181,6 +182,7 @@ static void motion_control_task(void *parameters)
         );
         motion_cone.center_angle = center_scanning_angle;
         motion_cone.cone = cone_scanning_angle;
+
         if (motion_target.motion_step == MOTION_STEP_RUNNING && xQueueReceive(scan_over_queue, &has_obstacle, 0)) {
             //Perform obstacle detection logic
             if (need_detection && has_obstacle && motion_target.perform_detection) {
@@ -235,8 +237,8 @@ static void motor_disabler_task(void *parameters)
         uint32_t notified_value;
         if (!xTaskNotifyWait(0, ULONG_MAX, &notified_value, MOTOR_DISABLING_TIMEOUT)) {
             ESP_LOGI(TAG, "Disabling stepper motors");
-            disable_motors();
-            ESP_LOGI(TAG, "Enabled status: %d", are_motors_enabled());
+            //disable_motors();
+            //ESP_LOGI(TAG, "Enabled status: %d", are_motors_enabled());
         }
 
         vTaskDelay(10);

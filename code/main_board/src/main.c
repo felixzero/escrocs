@@ -24,13 +24,19 @@
 void app_main() {
     ESP_LOGI("main", "Starting ESCRObot application...\n");
     init_display();
+
+    char *yes_no[] = { "No", "Yes" };
+    int wifi_active = menu_pick_item("Wifi on?", yes_no, 2);
+
     display_initialization_status("Modbus", init_modbus_rtu_master());
     display_initialization_status("I2C", init_i2c_master());
     display_initialization_status("SPIFFS", init_spiffs());
-    display_initialization_status("Wi-Fi", init_wifi_system());
-    display_initialization_status("HTTP", init_http_server());
-    vTaskDelay(pdMS_TO_TICKS(500));
-    init_udp_logger();
+    if (wifi_active) {
+        display_initialization_status("Wi-Fi", init_wifi_system());
+        display_initialization_status("HTTP", init_http_server());
+        vTaskDelay(pdMS_TO_TICKS(500));
+        init_udp_logger();
+    }
 
     display_initialization_status("Ultrasonic", init_ultrasonic_board());
     display_initialization_status("US control", init_us_controller());

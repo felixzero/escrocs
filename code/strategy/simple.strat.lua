@@ -22,7 +22,7 @@ coords = {
 	initial_solar = {x=200, y=90, theta=-pi/6},
 	final_solar = {x=800, overdrive=10},
 	plant_low = {x=650, y=670, theta=-pi, push=120, back_x=500},
-	garden_top = {x=950, ysafe=1800, y=1900, theta=-pi/2},
+	garden_top = {x=760, ysafe=1800, y=1900, theta=-pi/2},
 	plant_high = {x=650, y=1330, theta=-pi, push=120, back_x=500},
 	back_home = {x=150, y=1700, theta=-pi/2},
 }
@@ -52,6 +52,7 @@ function on_run()
 	move_to(coords.final_solar.x, coords.initial_solar.y - coords.final_solar.overdrive, coords.initial_solar.theta, true)
 	overwrite_pose(coords.final_solar.x, coords.initial_solar.y, coords.initial_solar.theta)
 	score = score + 15
+	print(score)
 
 	-- Grab plants
 	move_servo(config.clamp_channel, config.clamp_high)
@@ -82,24 +83,28 @@ function on_run()
 	move_servo(config.clamp_channel, config.clamp_high)
 	sleep(config.clamp_delay)
 	move_stepper(config.stepper_channel, config.stepper_high, config.stepper_speed)
+	score = score + 12
+	print(score)
 
 	-- Grab plants
-	move_to(coords.plant_high.x, coords.plant_high.y, coords.plant_high.theta, true)
-	move_servo(config.snow_channel, config.snow_low)
-	move_to(coords.plant_high.x + coords.plant_high.push, coords.plant_high.y, coords.plant_high.theta, true)
-	move_to(coords.plant_high.x, coords.plant_high.y, coords.plant_high.theta, true)
-	move_servo(config.snow_channel, config.snow_high)
-	move_stepper(config.stepper_channel, config.stepper_low, config.stepper_speed)
-	sleep(3.0)
-	move_to(coords.plant_high.x + coords.plant_high.push, coords.plant_high.y, coords.plant_high.theta, true)
-	move_servo(config.clamp_channel, config.clamp_low)
-	sleep(0.5)
-	move_stepper(config.stepper_channel, config.stepper_high, config.stepper_speed)
-	move_to(coords.plant_high.back_x, coords.plant_high.y, coords.plant_high.theta, true)
+	--move_to(coords.plant_high.x, coords.plant_high.y, coords.plant_high.theta, true)
+	--move_servo(config.snow_channel, config.snow_low)
+	--move_to(coords.plant_high.x + coords.plant_high.push, coords.plant_high.y, coords.plant_high.theta, true)
+	--move_to(coords.plant_high.x, coords.plant_high.y, coords.plant_high.theta, true)
+	--move_servo(config.snow_channel, config.snow_high)
+	--move_stepper(config.stepper_channel, config.stepper_low, config.stepper_speed)
+	--sleep(3.0)
+	--move_to(coords.plant_high.x + coords.plant_high.push, coords.plant_high.y, coords.plant_high.theta, true)
+	--move_servo(config.clamp_channel, config.clamp_low)
+	--sleep(0.5)
+	--move_stepper(config.stepper_channel, config.stepper_high, config.stepper_speed)
+	--move_to(coords.plant_high.back_x, coords.plant_high.y, coords.plant_high.theta, true)
 
-	while true do sleep(1.0) end
+	--while true do sleep(1.0) end
 
 	move_to(coords.back_home.x, coords.back_home.y, coords.back_home.theta, true)
+	score = score + 10
+	print(score)
 	
 
 	while true do end
