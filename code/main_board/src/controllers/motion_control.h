@@ -66,3 +66,5 @@ bool is_motion_done(void);
 bool is_blocked(void);
 
 void enable_motors_and_set_timer(void);
+
+void set_custom_max_speed(float cus_max_speed);

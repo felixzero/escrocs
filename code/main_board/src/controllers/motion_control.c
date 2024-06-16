@@ -19,6 +19,7 @@
 #define NUMBER_OF_CLEAR_ULTRASONIC_SCANS    5
 
 static bool reversed_side;
+static float custom_max_speed = -1.0f; //mps, -1.0 is unset
 
 static TaskHandle_t motor_disabler_task_handle;
 static QueueHandle_t input_target_queue, overwrite_pose_queue, output_status_queue;
@@ -142,6 +143,10 @@ static void motion_control_task(void *parameters)
         .please_stop = false,
     };
 
+    if (custom_max_speed != -1.0f) {
+        motion_data.tuning->max_speed_mps = custom_max_speed;
+    }
+
     int number_of_clear_ultrasonic_iterations_before_movement = 0;
 
     TickType_t iteration_time = xTaskGetTickCount();    
@@ -249,4 +254,12 @@ void enable_motors_and_set_timer(void)
 {
     enable_motors();
     xTaskNotify(motor_disabler_task_handle, 1, eSetValueWithoutOverwrite);
+}
+
+void set_custom_max_speed(float cus_max_speed) {
+    if(cus_max_speed < 0.0f && cus_max_speed > 2.0f) {
+        ESP_LOGW(TAG, "incoherent max_speed set : %d", cus_max_speed);
+        return;
+    }
+    custom_max_speed = cus_max_speed;
 }

@@ -63,7 +63,8 @@
         "display.h": "c",
         "us_control.h": "c",
         "esp_spiffs.h": "c",
-        "actions_lua_functions.h": "c"
+        "actions_lua_functions.h": "c",
+        "game_actions.h": "c"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }

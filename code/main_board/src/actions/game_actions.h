@@ -70,7 +70,9 @@
 #define SCAN_CHANNELS_ARGUMENTS \
     X_INT_ARGS(channel_mask)
 #define SCAN_CHANNELS_OUTPUT //nothing
-
+#define SET_MAX_SPEED_ARGUMENTS \
+    X_FLOAT_ARGS(max_speed)
+#define SET_MAX_SPEED_OUTPUT //nothing
 
 #define DEFINE_GAME_ACTION_FUNCTIONS \
     X(set_pose, game_action_set_pose, SET_POSE_ARGUMENTS, SET_POSE_OUTPUT) \
@@ -87,8 +89,8 @@
     X(sleep, game_action_sleep, SLEEP_ARGUMENTS, SLEEP_OUTPUT) \
     X(print, game_action_print, PRINT_ARGUMENTS, PRINT_OUTPUT) \
     X(get_us_readings, game_action_get_us_readings, GET_US_READINGS_ARGUMENTS, GET_US_READINGS_OUTPUT) \
-    X(scan_channels, game_action_scan_channels, SCAN_CHANNELS_ARGUMENTS, SCAN_CHANNELS_OUTPUT)
-
+    X(scan_channels, game_action_scan_channels, SCAN_CHANNELS_ARGUMENTS, SCAN_CHANNELS_OUTPUT) \
+    X(set_max_speed, game_action_set_max_speed, SET_MAX_SPEED_ARGUMENTS, SET_MAX_SPEED_OUTPUT)
 // Define data parameter structures
 #define GAME_ACTION_ARGUMENTS_STRUCT_NAME(action_name) game_action_##action_name##_input_data_t
 #define GAME_ACTION_OUTPUT_STRUCT_NAME(action_name) game_action_##action_name##_output_data_t

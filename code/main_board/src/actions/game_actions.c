@@ -163,3 +163,10 @@ struct GAME_ACTION_OUTPUT_STRUCT_NAME(scan_channels) game_action_scan_channels(s
     struct GAME_ACTION_OUTPUT_STRUCT_NAME(scan_channels) result;
     return result;
 }
+
+struct GAME_ACTION_OUTPUT_STRUCT_NAME(set_max_speed) game_action_set_max_speed(struct GAME_ACTION_ARGUMENTS_STRUCT_NAME(set_max_speed) args) {
+    set_custom_max_speed(args.max_speed);
+    ESP_LOGI("game_actions[H]", "max speed adjusted %.3f", args.max_speed);
+    struct GAME_ACTION_OUTPUT_STRUCT_NAME(set_max_speed) result;
+    return result;
+}
