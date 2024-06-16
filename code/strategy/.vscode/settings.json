@@ -1,0 +1,19 @@
+{
+    "Lua.diagnostics.globals": [
+        "set_pose",
+        "overwrite_pose",
+        "stop_motion",
+        "is_motion_done",
+        "is_blocked",
+        "set_pump",
+        "move_stepper",
+        "reset_stepper",
+        "move_servo",
+        "get_button",
+        "sleep",
+        "print",
+        "get_us_readings",
+        "scan_channels",
+        "get_pose"
+    ]
+}
