@@ -258,7 +258,7 @@ void enable_motors_and_set_timer(void)
 
 void set_custom_max_speed(float cus_max_speed) {
     if(cus_max_speed < 0.0f && cus_max_speed > 2.0f) {
-        ESP_LOGW(TAG, "incoherent max_speed set : %d", cus_max_speed);
+        ESP_LOGW(TAG, "incoherent max_speed set : %.3f", cus_max_speed);
         return;
     }
     custom_max_speed = cus_max_speed;
