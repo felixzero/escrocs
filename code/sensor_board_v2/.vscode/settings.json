@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "interrupt.h": "c",
+        "i2c_bus.h": "c",
+        "sleep.h": "c"
+    }
+}

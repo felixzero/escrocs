@@ -71,6 +71,7 @@
         "xstring": "cpp",
         "xtr1common": "cpp",
         "amalgame.h": "c",
-        "loca_lidar.h": "c"
+        "loca_lidar.h": "c",
+        "least_square_helpers.h": "c"
     }
 }

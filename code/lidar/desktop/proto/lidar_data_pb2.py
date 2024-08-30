@@ -19,8 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='enac',
   syntax='proto3',
   serialized_options=None,
-  create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x10lidar_data.proto\x12\x04\x65nac\"S\n\x05Lidar\x12\x0e\n\x06nb_pts\x18\x01 \x01(\x05\x12\x17\n\x0f\x61ngle_increment\x18\x02 \x01(\x02\x12\x0e\n\x06\x61ngles\x18\x03 \x03(\x02\x12\x11\n\tdistances\x18\x04 \x03(\x02\"L\n\tProximity\x12\x18\n\x10\x63losest_distance\x18\x01 \x01(\x02\x12%\n\x06status\x18\x02 \x01(\x0e\x32\x15.enac.ProximityStatus\"!\n\tObstacles\x12\t\n\x01x\x18\x01 \x03(\x02\x12\t\n\x01y\x18\x02 \x03(\x02*0\n\x0fProximityStatus\x12\x06\n\x02OK\x10\x00\x12\x0b\n\x07WARNING\x10\x01\x12\x08\n\x04STOP\x10\x02\x62\x06proto3'
+  serialized_pb=b'\n\x10lidar_data.proto\x12\x04\x65nac\"h\n\x05Lidar\x12\x0e\n\x06nb_pts\x18\x01 \x01(\x05\x12\x17\n\x0f\x61ngle_increment\x18\x02 \x01(\x02\x12\x0e\n\x06\x61ngles\x18\x03 \x03(\x02\x12\x11\n\tdistances\x18\x04 \x03(\x02\x12\x13\n\x0bintensities\x18\x05 \x03(\r\"+\n\x04Pose\x12\t\n\x01x\x18\x01 \x01(\x05\x12\t\n\x01y\x18\x02 \x01(\x05\x12\r\n\x05theta\x18\x03 \x01(\x02\"3\n\x0cPosition_old\x12\t\n\x01x\x18\x01 \x01(\x02\x12\t\n\x01y\x18\x02 \x01(\x02\x12\r\n\x05theta\x18\x03 \x01(\x02\"L\n\tProximity\x12\x18\n\x10\x63losest_distance\x18\x01 \x01(\x02\x12%\n\x06status\x18\x02 \x01(\x0e\x32\x15.enac.ProximityStatus\"!\n\tObstacles\x12\t\n\x01x\x18\x01 \x03(\x02\x12\t\n\x01y\x18\x02 \x03(\x02*0\n\x0fProximityStatus\x12\x06\n\x02OK\x10\x00\x12\x0b\n\x07WARNING\x10\x01\x12\x08\n\x04STOP\x10\x02\x62\x06proto3'
 )
 
 _PROXIMITYSTATUS = _descriptor.EnumDescriptor(
@@ -28,28 +27,24 @@ _PROXIMITYSTATUS = _descriptor.EnumDescriptor(
   full_name='enac.ProximityStatus',
   filename=None,
   file=DESCRIPTOR,
-  create_key=_descriptor._internal_create_key,
   values=[
     _descriptor.EnumValueDescriptor(
       name='OK', index=0, number=0,
       serialized_options=None,
-      type=None,
-      create_key=_descriptor._internal_create_key),
+      type=None),
     _descriptor.EnumValueDescriptor(
       name='WARNING', index=1, number=1,
       serialized_options=None,
-      type=None,
-      create_key=_descriptor._internal_create_key),
+      type=None),
     _descriptor.EnumValueDescriptor(
       name='STOP', index=2, number=2,
       serialized_options=None,
-      type=None,
-      create_key=_descriptor._internal_create_key),
+      type=None),
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=224,
-  serialized_end=272,
+  serialized_start=343,
+  serialized_end=391,
 )
 _sym_db.RegisterEnumDescriptor(_PROXIMITYSTATUS)
 
@@ -66,7 +61,6 @@ _LIDAR = _descriptor.Descriptor(
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
-  create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
       name='nb_pts', full_name='enac.Lidar.nb_pts', index=0,
@@ -74,28 +68,35 @@ _LIDAR = _descriptor.Descriptor(
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='angle_increment', full_name='enac.Lidar.angle_increment', index=1,
       number=2, type=2, cpp_type=6, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='angles', full_name='enac.Lidar.angles', index=2,
       number=3, type=2, cpp_type=6, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='distances', full_name='enac.Lidar.distances', index=3,
       number=4, type=2, cpp_type=6, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='intensities', full_name='enac.Lidar.intensities', index=4,
+      number=5, type=13, cpp_type=3, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -109,7 +110,97 @@ _LIDAR = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=26,
-  serialized_end=109,
+  serialized_end=130,
+)
+
+
+_POSE = _descriptor.Descriptor(
+  name='Pose',
+  full_name='enac.Pose',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='x', full_name='enac.Pose.x', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='y', full_name='enac.Pose.y', index=1,
+      number=2, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='theta', full_name='enac.Pose.theta', index=2,
+      number=3, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=132,
+  serialized_end=175,
+)
+
+
+_POSITION_OLD = _descriptor.Descriptor(
+  name='Position_old',
+  full_name='enac.Position_old',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='x', full_name='enac.Position_old.x', index=0,
+      number=1, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='y', full_name='enac.Position_old.y', index=1,
+      number=2, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='theta', full_name='enac.Position_old.theta', index=2,
+      number=3, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=177,
+  serialized_end=228,
 )
 
 
@@ -119,7 +210,6 @@ _PROXIMITY = _descriptor.Descriptor(
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
-  create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
       name='closest_distance', full_name='enac.Proximity.closest_distance', index=0,
@@ -127,14 +217,14 @@ _PROXIMITY = _descriptor.Descriptor(
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='status', full_name='enac.Proximity.status', index=1,
       number=2, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -147,8 +237,8 @@ _PROXIMITY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=111,
-  serialized_end=187,
+  serialized_start=230,
+  serialized_end=306,
 )
 
 
@@ -158,7 +248,6 @@ _OBSTACLES = _descriptor.Descriptor(
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
-  create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
       name='x', full_name='enac.Obstacles.x', index=0,
@@ -166,14 +255,14 @@ _OBSTACLES = _descriptor.Descriptor(
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='y', full_name='enac.Obstacles.y', index=1,
       number=2, type=2, cpp_type=6, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -186,12 +275,14 @@ _OBSTACLES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=189,
-  serialized_end=222,
+  serialized_start=308,
+  serialized_end=341,
 )
 
 _PROXIMITY.fields_by_name['status'].enum_type = _PROXIMITYSTATUS
 DESCRIPTOR.message_types_by_name['Lidar'] = _LIDAR
+DESCRIPTOR.message_types_by_name['Pose'] = _POSE
+DESCRIPTOR.message_types_by_name['Position_old'] = _POSITION_OLD
 DESCRIPTOR.message_types_by_name['Proximity'] = _PROXIMITY
 DESCRIPTOR.message_types_by_name['Obstacles'] = _OBSTACLES
 DESCRIPTOR.enum_types_by_name['ProximityStatus'] = _PROXIMITYSTATUS
@@ -203,6 +294,20 @@ Lidar = _reflection.GeneratedProtocolMessageType('Lidar', (_message.Message,), {
   # @@protoc_insertion_point(class_scope:enac.Lidar)
   })
 _sym_db.RegisterMessage(Lidar)
+
+Pose = _reflection.GeneratedProtocolMessageType('Pose', (_message.Message,), {
+  'DESCRIPTOR' : _POSE,
+  '__module__' : 'lidar_data_pb2'
+  # @@protoc_insertion_point(class_scope:enac.Pose)
+  })
+_sym_db.RegisterMessage(Pose)
+
+Position_old = _reflection.GeneratedProtocolMessageType('Position_old', (_message.Message,), {
+  'DESCRIPTOR' : _POSITION_OLD,
+  '__module__' : 'lidar_data_pb2'
+  # @@protoc_insertion_point(class_scope:enac.Position_old)
+  })
+_sym_db.RegisterMessage(Position_old)
 
 Proximity = _reflection.GeneratedProtocolMessageType('Proximity', (_message.Message,), {
   'DESCRIPTOR' : _PROXIMITY,

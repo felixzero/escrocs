@@ -16,7 +16,7 @@ LIDAR_OFFSET = 0 # TODO : investigate why it is needed on lidar visualization ?
 class LidarCloudDisplay(): 
     """ Manages subscription tu an eCAL Topic of type "Lidar" and display the cloud point associated
     """
-    def __init__(self, fig: plt.figure, topic_name: str, color: str, y_button = 0.1): #type: ignore
+    def __init__(self, fig: plt.figure, topic_name: str, color: str, y_button = 0.1, display_index=False): #type: ignore
         """_summary_
 
         Args:
@@ -27,6 +27,7 @@ class LidarCloudDisplay():
         """
         self.topic_name = topic_name
         self.color = color
+        self.display_index = display_index
 
         # Drawing cloudpoint
         self.button_ax = fig.add_axes([0.005, y_button, 0.1, 0.1])
@@ -127,7 +128,7 @@ if __name__ == "__main__":
     cloud_pts = (
         LidarCloudDisplay(fig, 'lidar_data', 'y', 0.1),
         LidarCloudDisplay(fig, 'lidar_filtered', 'g', 0.3),
-        LidarCloudDisplay(fig, 'amalgames', 'b', 0.5),
+        LidarCloudDisplay(fig, 'amalgames', 'b', 0.5, True),
     )
     corr_disp = CorrespondanceDisplay(cloud_pts[2])
     zoom_butt = Zoom(fig, 3.1)
@@ -148,6 +149,9 @@ if __name__ == "__main__":
                     cloud.lidar_dist, 
                     color=cloud.color
                 )
+                if cloud.display_index:
+                    for i in range(len(cloud.lidar_dist)):
+                        ax.text(np.deg2rad(cloud.lidar_theta[i]), cloud.lidar_dist[i] + 0.03, str(i), color=cloud.color)
                 
         #display lidar2table
         corr_disp.display(ax)

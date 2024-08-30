@@ -10,6 +10,18 @@ message Lidar {
     repeated uint32 intensities = 5;
 }
 
+message Pose {
+    int32 x = 1; //mm
+    int32 y = 2; //mm
+    float theta = 3; //radians
+}
+
+message Position_old {
+    float x = 1;
+    float y = 2;
+    float theta = 3;
+}
+
 enum ProximityStatus { 
     OK = 0;
     WARNING = 1;

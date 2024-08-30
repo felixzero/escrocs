@@ -19,6 +19,14 @@ class LidarDefaultTypeInternal {
  public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Lidar> _instance;
 } _Lidar_default_instance_;
+class PoseDefaultTypeInternal {
+ public:
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Pose> _instance;
+} _Pose_default_instance_;
+class Position_oldDefaultTypeInternal {
+ public:
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Position_old> _instance;
+} _Position_old_default_instance_;
 class ProximityDefaultTypeInternal {
  public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Proximity> _instance;
@@ -56,6 +64,34 @@ static void InitDefaultsscc_info_Obstacles_lidar_5fdata_2eproto() {
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Obstacles_lidar_5fdata_2eproto =
     {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_Obstacles_lidar_5fdata_2eproto}, {}};
 
+static void InitDefaultsscc_info_Pose_lidar_5fdata_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::enac::_Pose_default_instance_;
+    new (ptr) ::enac::Pose();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::enac::Pose::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Pose_lidar_5fdata_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_Pose_lidar_5fdata_2eproto}, {}};
+
+static void InitDefaultsscc_info_Position_old_lidar_5fdata_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::enac::_Position_old_default_instance_;
+    new (ptr) ::enac::Position_old();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::enac::Position_old::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Position_old_lidar_5fdata_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_Position_old_lidar_5fdata_2eproto}, {}};
+
 static void InitDefaultsscc_info_Proximity_lidar_5fdata_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -70,7 +106,7 @@ static void InitDefaultsscc_info_Proximity_lidar_5fdata_2eproto() {
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Proximity_lidar_5fdata_2eproto =
     {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_Proximity_lidar_5fdata_2eproto}, {}};
 
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_lidar_5fdata_2eproto[3];
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_lidar_5fdata_2eproto[5];
 static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_lidar_5fdata_2eproto[1];
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_lidar_5fdata_2eproto = nullptr;
 
@@ -85,6 +121,22 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_lidar_5fdata_2eproto::offsets[
   PROTOBUF_FIELD_OFFSET(::enac::Lidar, angles_),
   PROTOBUF_FIELD_OFFSET(::enac::Lidar, distances_),
   PROTOBUF_FIELD_OFFSET(::enac::Lidar, intensities_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::enac::Pose, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::enac::Pose, x_),
+  PROTOBUF_FIELD_OFFSET(::enac::Pose, y_),
+  PROTOBUF_FIELD_OFFSET(::enac::Pose, theta_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::enac::Position_old, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::enac::Position_old, x_),
+  PROTOBUF_FIELD_OFFSET(::enac::Position_old, y_),
+  PROTOBUF_FIELD_OFFSET(::enac::Position_old, theta_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::enac::Proximity, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -102,12 +154,16 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_lidar_5fdata_2eproto::offsets[
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::enac::Lidar)},
-  { 10, -1, sizeof(::enac::Proximity)},
-  { 17, -1, sizeof(::enac::Obstacles)},
+  { 10, -1, sizeof(::enac::Pose)},
+  { 18, -1, sizeof(::enac::Position_old)},
+  { 26, -1, sizeof(::enac::Proximity)},
+  { 33, -1, sizeof(::enac::Obstacles)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::enac::_Lidar_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::enac::_Pose_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::enac::_Position_old_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::enac::_Proximity_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::enac::_Obstacles_default_instance_),
 };
@@ -116,26 +172,30 @@ const char descriptor_table_protodef_lidar_5fdata_2eproto[] PROTOBUF_SECTION_VAR
   "\n\020lidar_data.proto\022\004enac\"h\n\005Lidar\022\016\n\006nb_"
   "pts\030\001 \001(\005\022\027\n\017angle_increment\030\002 \001(\002\022\016\n\006an"
   "gles\030\003 \003(\002\022\021\n\tdistances\030\004 \003(\002\022\023\n\013intensi"
-  "ties\030\005 \003(\r\"L\n\tProximity\022\030\n\020closest_dista"
-  "nce\030\001 \001(\002\022%\n\006status\030\002 \001(\0162\025.enac.Proximi"
-  "tyStatus\"!\n\tObstacles\022\t\n\001x\030\001 \003(\002\022\t\n\001y\030\002 "
-  "\003(\002*0\n\017ProximityStatus\022\006\n\002OK\020\000\022\013\n\007WARNIN"
-  "G\020\001\022\010\n\004STOP\020\002b\006proto3"
+  "ties\030\005 \003(\r\"+\n\004Pose\022\t\n\001x\030\001 \001(\005\022\t\n\001y\030\002 \001(\005"
+  "\022\r\n\005theta\030\003 \001(\002\"3\n\014Position_old\022\t\n\001x\030\001 \001"
+  "(\002\022\t\n\001y\030\002 \001(\002\022\r\n\005theta\030\003 \001(\002\"L\n\tProximit"
+  "y\022\030\n\020closest_distance\030\001 \001(\002\022%\n\006status\030\002 "
+  "\001(\0162\025.enac.ProximityStatus\"!\n\tObstacles\022"
+  "\t\n\001x\030\001 \003(\002\022\t\n\001y\030\002 \003(\002*0\n\017ProximityStatus"
+  "\022\006\n\002OK\020\000\022\013\n\007WARNING\020\001\022\010\n\004STOP\020\002b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_lidar_5fdata_2eproto_deps[1] = {
 };
-static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_lidar_5fdata_2eproto_sccs[3] = {
+static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_lidar_5fdata_2eproto_sccs[5] = {
   &scc_info_Lidar_lidar_5fdata_2eproto.base,
   &scc_info_Obstacles_lidar_5fdata_2eproto.base,
+  &scc_info_Pose_lidar_5fdata_2eproto.base,
+  &scc_info_Position_old_lidar_5fdata_2eproto.base,
   &scc_info_Proximity_lidar_5fdata_2eproto.base,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_lidar_5fdata_2eproto_once;
 static bool descriptor_table_lidar_5fdata_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_lidar_5fdata_2eproto = {
-  &descriptor_table_lidar_5fdata_2eproto_initialized, descriptor_table_protodef_lidar_5fdata_2eproto, "lidar_data.proto", 301,
-  &descriptor_table_lidar_5fdata_2eproto_once, descriptor_table_lidar_5fdata_2eproto_sccs, descriptor_table_lidar_5fdata_2eproto_deps, 3, 0,
+  &descriptor_table_lidar_5fdata_2eproto_initialized, descriptor_table_protodef_lidar_5fdata_2eproto, "lidar_data.proto", 399,
+  &descriptor_table_lidar_5fdata_2eproto_once, descriptor_table_lidar_5fdata_2eproto_sccs, descriptor_table_lidar_5fdata_2eproto_deps, 5, 0,
   schemas, file_default_instances, TableStruct_lidar_5fdata_2eproto::offsets,
-  file_level_metadata_lidar_5fdata_2eproto, 3, file_level_enum_descriptors_lidar_5fdata_2eproto, file_level_service_descriptors_lidar_5fdata_2eproto,
+  file_level_metadata_lidar_5fdata_2eproto, 5, file_level_enum_descriptors_lidar_5fdata_2eproto, file_level_service_descriptors_lidar_5fdata_2eproto,
 };
 
 // Force running AddDescriptors() at dynamic initialization time.
@@ -473,6 +533,478 @@ void Lidar::InternalSwap(Lidar* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Lidar::GetMetadata() const {
+  return GetMetadataStatic();
+}
+
+
+// ===================================================================
+
+void Pose::InitAsDefaultInstance() {
+}
+class Pose::_Internal {
+ public:
+};
+
+Pose::Pose()
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:enac.Pose)
+}
+Pose::Pose(const Pose& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::memcpy(&x_, &from.x_,
+    static_cast<size_t>(reinterpret_cast<char*>(&theta_) -
+    reinterpret_cast<char*>(&x_)) + sizeof(theta_));
+  // @@protoc_insertion_point(copy_constructor:enac.Pose)
+}
+
+void Pose::SharedCtor() {
+  ::memset(&x_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&theta_) -
+      reinterpret_cast<char*>(&x_)) + sizeof(theta_));
+}
+
+Pose::~Pose() {
+  // @@protoc_insertion_point(destructor:enac.Pose)
+  SharedDtor();
+}
+
+void Pose::SharedDtor() {
+}
+
+void Pose::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+const Pose& Pose::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_Pose_lidar_5fdata_2eproto.base);
+  return *internal_default_instance();
+}
+
+
+void Pose::Clear() {
+// @@protoc_insertion_point(message_clear_start:enac.Pose)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  ::memset(&x_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&theta_) -
+      reinterpret_cast<char*>(&x_)) + sizeof(theta_));
+  _internal_metadata_.Clear();
+}
+
+const char* Pose::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // int32 x = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
+          x_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 y = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
+          y_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // float theta = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 29)) {
+          theta_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* Pose::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:enac.Pose)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // int32 x = 1;
+  if (this->x() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_x(), target);
+  }
+
+  // int32 y = 2;
+  if (this->y() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_y(), target);
+  }
+
+  // float theta = 3;
+  if (!(this->theta() <= 0 && this->theta() >= 0)) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(3, this->_internal_theta(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:enac.Pose)
+  return target;
+}
+
+size_t Pose::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:enac.Pose)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // int32 x = 1;
+  if (this->x() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_x());
+  }
+
+  // int32 y = 2;
+  if (this->y() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_y());
+  }
+
+  // float theta = 3;
+  if (!(this->theta() <= 0 && this->theta() >= 0)) {
+    total_size += 1 + 4;
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+void Pose::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:enac.Pose)
+  GOOGLE_DCHECK_NE(&from, this);
+  const Pose* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Pose>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:enac.Pose)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:enac.Pose)
+    MergeFrom(*source);
+  }
+}
+
+void Pose::MergeFrom(const Pose& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:enac.Pose)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from.x() != 0) {
+    _internal_set_x(from._internal_x());
+  }
+  if (from.y() != 0) {
+    _internal_set_y(from._internal_y());
+  }
+  if (!(from.theta() <= 0 && from.theta() >= 0)) {
+    _internal_set_theta(from._internal_theta());
+  }
+}
+
+void Pose::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:enac.Pose)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void Pose::CopyFrom(const Pose& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:enac.Pose)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Pose::IsInitialized() const {
+  return true;
+}
+
+void Pose::InternalSwap(Pose* other) {
+  using std::swap;
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  swap(x_, other->x_);
+  swap(y_, other->y_);
+  swap(theta_, other->theta_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata Pose::GetMetadata() const {
+  return GetMetadataStatic();
+}
+
+
+// ===================================================================
+
+void Position_old::InitAsDefaultInstance() {
+}
+class Position_old::_Internal {
+ public:
+};
+
+Position_old::Position_old()
+  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:enac.Position_old)
+}
+Position_old::Position_old(const Position_old& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _internal_metadata_(nullptr) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::memcpy(&x_, &from.x_,
+    static_cast<size_t>(reinterpret_cast<char*>(&theta_) -
+    reinterpret_cast<char*>(&x_)) + sizeof(theta_));
+  // @@protoc_insertion_point(copy_constructor:enac.Position_old)
+}
+
+void Position_old::SharedCtor() {
+  ::memset(&x_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&theta_) -
+      reinterpret_cast<char*>(&x_)) + sizeof(theta_));
+}
+
+Position_old::~Position_old() {
+  // @@protoc_insertion_point(destructor:enac.Position_old)
+  SharedDtor();
+}
+
+void Position_old::SharedDtor() {
+}
+
+void Position_old::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+const Position_old& Position_old::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_Position_old_lidar_5fdata_2eproto.base);
+  return *internal_default_instance();
+}
+
+
+void Position_old::Clear() {
+// @@protoc_insertion_point(message_clear_start:enac.Position_old)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  ::memset(&x_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&theta_) -
+      reinterpret_cast<char*>(&x_)) + sizeof(theta_));
+  _internal_metadata_.Clear();
+}
+
+const char* Position_old::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // float x = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 13)) {
+          x_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
+        } else goto handle_unusual;
+        continue;
+      // float y = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 21)) {
+          y_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
+        } else goto handle_unusual;
+        continue;
+      // float theta = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 29)) {
+          theta_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* Position_old::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:enac.Position_old)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // float x = 1;
+  if (!(this->x() <= 0 && this->x() >= 0)) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(1, this->_internal_x(), target);
+  }
+
+  // float y = 2;
+  if (!(this->y() <= 0 && this->y() >= 0)) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(2, this->_internal_y(), target);
+  }
+
+  // float theta = 3;
+  if (!(this->theta() <= 0 && this->theta() >= 0)) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(3, this->_internal_theta(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:enac.Position_old)
+  return target;
+}
+
+size_t Position_old::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:enac.Position_old)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // float x = 1;
+  if (!(this->x() <= 0 && this->x() >= 0)) {
+    total_size += 1 + 4;
+  }
+
+  // float y = 2;
+  if (!(this->y() <= 0 && this->y() >= 0)) {
+    total_size += 1 + 4;
+  }
+
+  // float theta = 3;
+  if (!(this->theta() <= 0 && this->theta() >= 0)) {
+    total_size += 1 + 4;
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+void Position_old::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:enac.Position_old)
+  GOOGLE_DCHECK_NE(&from, this);
+  const Position_old* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Position_old>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:enac.Position_old)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:enac.Position_old)
+    MergeFrom(*source);
+  }
+}
+
+void Position_old::MergeFrom(const Position_old& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:enac.Position_old)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (!(from.x() <= 0 && from.x() >= 0)) {
+    _internal_set_x(from._internal_x());
+  }
+  if (!(from.y() <= 0 && from.y() >= 0)) {
+    _internal_set_y(from._internal_y());
+  }
+  if (!(from.theta() <= 0 && from.theta() >= 0)) {
+    _internal_set_theta(from._internal_theta());
+  }
+}
+
+void Position_old::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:enac.Position_old)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void Position_old::CopyFrom(const Position_old& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:enac.Position_old)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Position_old::IsInitialized() const {
+  return true;
+}
+
+void Position_old::InternalSwap(Position_old* other) {
+  using std::swap;
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  swap(x_, other->x_);
+  swap(y_, other->y_);
+  swap(theta_, other->theta_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata Position_old::GetMetadata() const {
   return GetMetadataStatic();
 }
 
@@ -924,6 +1456,12 @@ void Obstacles::InternalSwap(Obstacles* other) {
 PROTOBUF_NAMESPACE_OPEN
 template<> PROTOBUF_NOINLINE ::enac::Lidar* Arena::CreateMaybeMessage< ::enac::Lidar >(Arena* arena) {
   return Arena::CreateInternal< ::enac::Lidar >(arena);
+}
+template<> PROTOBUF_NOINLINE ::enac::Pose* Arena::CreateMaybeMessage< ::enac::Pose >(Arena* arena) {
+  return Arena::CreateInternal< ::enac::Pose >(arena);
+}
+template<> PROTOBUF_NOINLINE ::enac::Position_old* Arena::CreateMaybeMessage< ::enac::Position_old >(Arena* arena) {
+  return Arena::CreateInternal< ::enac::Position_old >(arena);
 }
 template<> PROTOBUF_NOINLINE ::enac::Proximity* Arena::CreateMaybeMessage< ::enac::Proximity >(Arena* arena) {
   return Arena::CreateInternal< ::enac::Proximity >(arena);

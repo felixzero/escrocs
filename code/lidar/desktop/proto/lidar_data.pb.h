@@ -48,7 +48,7 @@ struct TableStruct_lidar_5fdata_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxillaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[3]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[5]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -62,6 +62,12 @@ extern LidarDefaultTypeInternal _Lidar_default_instance_;
 class Obstacles;
 class ObstaclesDefaultTypeInternal;
 extern ObstaclesDefaultTypeInternal _Obstacles_default_instance_;
+class Pose;
+class PoseDefaultTypeInternal;
+extern PoseDefaultTypeInternal _Pose_default_instance_;
+class Position_old;
+class Position_oldDefaultTypeInternal;
+extern Position_oldDefaultTypeInternal _Position_old_default_instance_;
 class Proximity;
 class ProximityDefaultTypeInternal;
 extern ProximityDefaultTypeInternal _Proximity_default_instance_;
@@ -69,6 +75,8 @@ extern ProximityDefaultTypeInternal _Proximity_default_instance_;
 PROTOBUF_NAMESPACE_OPEN
 template<> ::enac::Lidar* Arena::CreateMaybeMessage<::enac::Lidar>(Arena*);
 template<> ::enac::Obstacles* Arena::CreateMaybeMessage<::enac::Obstacles>(Arena*);
+template<> ::enac::Pose* Arena::CreateMaybeMessage<::enac::Pose>(Arena*);
+template<> ::enac::Position_old* Arena::CreateMaybeMessage<::enac::Position_old>(Arena*);
 template<> ::enac::Proximity* Arena::CreateMaybeMessage<::enac::Proximity>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace enac {
@@ -315,6 +323,306 @@ class Lidar :
 };
 // -------------------------------------------------------------------
 
+class Pose :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:enac.Pose) */ {
+ public:
+  Pose();
+  virtual ~Pose();
+
+  Pose(const Pose& from);
+  Pose(Pose&& from) noexcept
+    : Pose() {
+    *this = ::std::move(from);
+  }
+
+  inline Pose& operator=(const Pose& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Pose& operator=(Pose&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const Pose& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const Pose* internal_default_instance() {
+    return reinterpret_cast<const Pose*>(
+               &_Pose_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    1;
+
+  friend void swap(Pose& a, Pose& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(Pose* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline Pose* New() const final {
+    return CreateMaybeMessage<Pose>(nullptr);
+  }
+
+  Pose* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<Pose>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const Pose& from);
+  void MergeFrom(const Pose& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(Pose* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "enac.Pose";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_lidar_5fdata_2eproto);
+    return ::descriptor_table_lidar_5fdata_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kXFieldNumber = 1,
+    kYFieldNumber = 2,
+    kThetaFieldNumber = 3,
+  };
+  // int32 x = 1;
+  void clear_x();
+  ::PROTOBUF_NAMESPACE_ID::int32 x() const;
+  void set_x(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_x() const;
+  void _internal_set_x(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 y = 2;
+  void clear_y();
+  ::PROTOBUF_NAMESPACE_ID::int32 y() const;
+  void set_y(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_y() const;
+  void _internal_set_y(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // float theta = 3;
+  void clear_theta();
+  float theta() const;
+  void set_theta(float value);
+  private:
+  float _internal_theta() const;
+  void _internal_set_theta(float value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:enac.Pose)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::int32 x_;
+  ::PROTOBUF_NAMESPACE_ID::int32 y_;
+  float theta_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_lidar_5fdata_2eproto;
+};
+// -------------------------------------------------------------------
+
+class Position_old :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:enac.Position_old) */ {
+ public:
+  Position_old();
+  virtual ~Position_old();
+
+  Position_old(const Position_old& from);
+  Position_old(Position_old&& from) noexcept
+    : Position_old() {
+    *this = ::std::move(from);
+  }
+
+  inline Position_old& operator=(const Position_old& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Position_old& operator=(Position_old&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const Position_old& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const Position_old* internal_default_instance() {
+    return reinterpret_cast<const Position_old*>(
+               &_Position_old_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    2;
+
+  friend void swap(Position_old& a, Position_old& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(Position_old* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline Position_old* New() const final {
+    return CreateMaybeMessage<Position_old>(nullptr);
+  }
+
+  Position_old* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<Position_old>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const Position_old& from);
+  void MergeFrom(const Position_old& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(Position_old* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "enac.Position_old";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_lidar_5fdata_2eproto);
+    return ::descriptor_table_lidar_5fdata_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kXFieldNumber = 1,
+    kYFieldNumber = 2,
+    kThetaFieldNumber = 3,
+  };
+  // float x = 1;
+  void clear_x();
+  float x() const;
+  void set_x(float value);
+  private:
+  float _internal_x() const;
+  void _internal_set_x(float value);
+  public:
+
+  // float y = 2;
+  void clear_y();
+  float y() const;
+  void set_y(float value);
+  private:
+  float _internal_y() const;
+  void _internal_set_y(float value);
+  public:
+
+  // float theta = 3;
+  void clear_theta();
+  float theta() const;
+  void set_theta(float value);
+  private:
+  float _internal_theta() const;
+  void _internal_set_theta(float value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:enac.Position_old)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
+  float x_;
+  float y_;
+  float theta_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_lidar_5fdata_2eproto;
+};
+// -------------------------------------------------------------------
+
 class Proximity :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:enac.Proximity) */ {
  public:
@@ -357,7 +665,7 @@ class Proximity :
                &_Proximity_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    1;
+    3;
 
   friend void swap(Proximity& a, Proximity& b) {
     a.Swap(&b);
@@ -496,7 +804,7 @@ class Obstacles :
                &_Obstacles_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    2;
+    4;
 
   friend void swap(Obstacles& a, Obstacles& b) {
     a.Swap(&b);
@@ -813,6 +1121,134 @@ Lidar::mutable_intensities() {
 
 // -------------------------------------------------------------------
 
+// Pose
+
+// int32 x = 1;
+inline void Pose::clear_x() {
+  x_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 Pose::_internal_x() const {
+  return x_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 Pose::x() const {
+  // @@protoc_insertion_point(field_get:enac.Pose.x)
+  return _internal_x();
+}
+inline void Pose::_internal_set_x(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  x_ = value;
+}
+inline void Pose::set_x(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_x(value);
+  // @@protoc_insertion_point(field_set:enac.Pose.x)
+}
+
+// int32 y = 2;
+inline void Pose::clear_y() {
+  y_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 Pose::_internal_y() const {
+  return y_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 Pose::y() const {
+  // @@protoc_insertion_point(field_get:enac.Pose.y)
+  return _internal_y();
+}
+inline void Pose::_internal_set_y(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  y_ = value;
+}
+inline void Pose::set_y(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_y(value);
+  // @@protoc_insertion_point(field_set:enac.Pose.y)
+}
+
+// float theta = 3;
+inline void Pose::clear_theta() {
+  theta_ = 0;
+}
+inline float Pose::_internal_theta() const {
+  return theta_;
+}
+inline float Pose::theta() const {
+  // @@protoc_insertion_point(field_get:enac.Pose.theta)
+  return _internal_theta();
+}
+inline void Pose::_internal_set_theta(float value) {
+  
+  theta_ = value;
+}
+inline void Pose::set_theta(float value) {
+  _internal_set_theta(value);
+  // @@protoc_insertion_point(field_set:enac.Pose.theta)
+}
+
+// -------------------------------------------------------------------
+
+// Position_old
+
+// float x = 1;
+inline void Position_old::clear_x() {
+  x_ = 0;
+}
+inline float Position_old::_internal_x() const {
+  return x_;
+}
+inline float Position_old::x() const {
+  // @@protoc_insertion_point(field_get:enac.Position_old.x)
+  return _internal_x();
+}
+inline void Position_old::_internal_set_x(float value) {
+  
+  x_ = value;
+}
+inline void Position_old::set_x(float value) {
+  _internal_set_x(value);
+  // @@protoc_insertion_point(field_set:enac.Position_old.x)
+}
+
+// float y = 2;
+inline void Position_old::clear_y() {
+  y_ = 0;
+}
+inline float Position_old::_internal_y() const {
+  return y_;
+}
+inline float Position_old::y() const {
+  // @@protoc_insertion_point(field_get:enac.Position_old.y)
+  return _internal_y();
+}
+inline void Position_old::_internal_set_y(float value) {
+  
+  y_ = value;
+}
+inline void Position_old::set_y(float value) {
+  _internal_set_y(value);
+  // @@protoc_insertion_point(field_set:enac.Position_old.y)
+}
+
+// float theta = 3;
+inline void Position_old::clear_theta() {
+  theta_ = 0;
+}
+inline float Position_old::_internal_theta() const {
+  return theta_;
+}
+inline float Position_old::theta() const {
+  // @@protoc_insertion_point(field_get:enac.Position_old.theta)
+  return _internal_theta();
+}
+inline void Position_old::_internal_set_theta(float value) {
+  
+  theta_ = value;
+}
+inline void Position_old::set_theta(float value) {
+  _internal_set_theta(value);
+  // @@protoc_insertion_point(field_set:enac.Position_old.theta)
+}
+
+// -------------------------------------------------------------------
+
 // Proximity
 
 // float closest_distance = 1;
@@ -956,6 +1392,10 @@ Obstacles::mutable_y() {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

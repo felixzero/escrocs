@@ -1,11 +1,11 @@
 #pragma once
 
-extern amalgame_finder_tuning_t amalgame_finder_tuning;
+#include "pose_refinement.h"
 
-typedef struct {
-    int32_t x;
-    int32_t y;
-} point_t;
+extern amalgame_finder_tuning_t amalgame_finder_tuning;
+extern pose_tuning_t pose_tuning;
+
+
 
 //static point_t beacon_positions[] = {
 //    { .x = 0.0, .y = 0.0 },
