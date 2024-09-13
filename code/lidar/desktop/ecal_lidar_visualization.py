@@ -42,6 +42,7 @@ class LidarCloudDisplay():
         # Datas to display
         self.lidar_dist = np.array([0])
         self.lidar_theta = np.array([0])
+        self.lidar_qualities = np.array([0])
         self.is_displaying = True
 
         # init ecal subscription
@@ -51,6 +52,7 @@ class LidarCloudDisplay():
     def on_lidar_scan(self, topic_name, msg, time):
         self.lidar_dist = np.array(msg.distances)
         self.lidar_theta = np.array(msg.angles)
+        self.lidar_qualities = np.array(msg.intensities)
 
     def on_button_click(self, event): 
         self.is_displaying = not self.is_displaying
@@ -116,7 +118,18 @@ class CorrespondanceDisplay():
 # Amalgames center
 
 # calculated beacons positions
-
+def color_assignement(intensity):
+    if intensity < 100:
+        return 'r'
+    if intensity < 200:
+        return 'y'
+    if intensity < 225:
+        return 'g'
+    if intensity < 235:
+        return 'c'
+    if intensity < 245:
+        return 'b'
+    return 'k'
 
 
 if __name__ == "__main__":
@@ -147,7 +160,8 @@ if __name__ == "__main__":
                 ax.scatter(
                     np.deg2rad(cloud.lidar_theta), 
                     cloud.lidar_dist, 
-                    color=cloud.color
+                    color = [color_assignement(x) for x in cloud.lidar_qualities]
+                    #color=cloud.color
                 )
                 if cloud.display_index:
                     for i in range(len(cloud.lidar_dist)):

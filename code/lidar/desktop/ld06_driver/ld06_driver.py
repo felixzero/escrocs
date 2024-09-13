@@ -10,10 +10,10 @@ class Cloud:
         self.max_angle = float('-inf')
         self.min_angle = float('inf')
     
-    def add(self, distance, angle):
+    def add(self, distance, angle, intensity):
         if self.filter(distance):
             self.count += 1
-            self.points.append((distance, angle))
+            self.points.append((distance, angle, intensity))
             self.max_angle = max(self.max_angle, angle)
             self.min_angle = min(self.min_angle, angle)
 
@@ -29,6 +29,9 @@ class Cloud:
     
     def get_distances(self):
         return [p[0]/1000 for p in self.points]
+    
+    def get_intensities(self):
+        return [p[2] for p in self.points]
 
 
 # This enum contains the part of the lidar message that is expected by the driver
@@ -100,12 +103,12 @@ class Driver:
                     if angle >= 360:
                         angle -= 360
 
-                    self.cloud.add(distance, angle)
+                    self.cloud.add(distance, angle, quality)
 
                 if self.total_angle >= 360:
                     # The points are back to the beginning
                     #print('count:', self.cloud.count, ', span:', self.cloud.span())
-                    self.cb(self.cloud.get_angles(), self.cloud.get_distances())
+                    self.cb(self.cloud.get_angles(), self.cloud.get_distances(), self.cloud.get_intensities())
 
                     # We can start a new point cloud
                     self.total_angle = 0
@@ -115,8 +118,8 @@ class Driver:
                 self.expected_length = 1
 
 
-def test_cb(angles, distances):
-    print(angles, distances)
+def test_cb(angles, distances, intensities):
+    print(angles, distances, intensities)
 
 if __name__ == '__main__':
     driver = Driver(test_cb)
