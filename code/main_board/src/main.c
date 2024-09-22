@@ -25,18 +25,16 @@ void app_main() {
     ESP_LOGI("main", "Starting ESCRObot application...\n");
     init_display();
 
-    char *yes_no[] = { "No", "Yes" };
-    int wifi_active = menu_pick_item("Wifi on?", yes_no, 2);
-
     display_initialization_status("Modbus", init_modbus_rtu_master());
     display_initialization_status("I2C", init_i2c_master());
     display_initialization_status("SPIFFS", init_spiffs());
-    if (wifi_active) {
-        display_initialization_status("Wi-Fi", init_wifi_system());
-        display_initialization_status("HTTP", init_http_server());
-        vTaskDelay(pdMS_TO_TICKS(500));
-        init_udp_logger();
-    }
+    
+    //activate network
+    display_initialization_status("Wi-Fi", init_wifi_system());
+    display_initialization_status("HTTP", init_http_server());
+    vTaskDelay(pdMS_TO_TICKS(500));
+    init_udp_logger();
+    
 
     display_initialization_status("Ultrasonic", init_ultrasonic_board());
     display_initialization_status("US control", init_us_controller());
@@ -44,6 +42,23 @@ void app_main() {
     display_initialization_status("Peripherals", init_peripherals());
 
     char *table_sides[] = { "Left", "Right" };
+
+    enable_motors();
+    write_motor_speed_rad_s(0.0, 0.0, 0.0);
+    vTaskDelay(pdMS_TO_TICKS(500));
+    write_motor_speed_rad_s(3.14, 0.0, 0.0);
+    vTaskDelay(pdMS_TO_TICKS(1000));
+        write_motor_speed_rad_s(0.0, 0.0, 0.0);
+    vTaskDelay(pdMS_TO_TICKS(500));
+    write_motor_speed_rad_s(0.0,3.14, 0.0);
+    vTaskDelay(pdMS_TO_TICKS(1000));
+        write_motor_speed_rad_s(0.0, 0.0, 0.0);
+    vTaskDelay(pdMS_TO_TICKS(500));
+    write_motor_speed_rad_s(0.0,0.0,3.14);
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    write_motor_speed_rad_s(0.0, 0.0, 0.0);
+    disable_motors();
+
     int is_reversed = menu_pick_item("Table side", table_sides, 2);
     display_initialization_status("Motion ctrl", init_motion_control(is_reversed));
 

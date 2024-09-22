@@ -83,6 +83,7 @@ void holonomic_wheel_base_apply_speed_to_motors(
         .y = max_speed_norm * target_displacement.y / target_displacement_norm,
         .theta = max_speed_norm * target_displacement.theta / target_displacement_norm,
     };
+    ESP_LOGI(TAG, "max_speed_norm : %f   MAX8SPEEDMFS %f", max_speed_norm, data->tuning->max_speed_mps);
     pose_t speed_difference = {
         .x = target_speed.x - data->previous_speed.x,
         .y = target_speed.y - data->previous_speed.y,

@@ -22,7 +22,7 @@ static bool reversed_side;
 static float custom_max_speed = -1.0f; //mps, -1.0 is unset
 
 static TaskHandle_t motor_disabler_task_handle;
-static QueueHandle_t input_target_queue, overwrite_pose_queue, output_status_queue;
+static QueueHandle_t input_target_queue, overwrite_pose_queue, output_status_queue, set_speed_queue;
 
 static void motor_disabler_task(void *parameters);
 static void motion_control_task(void *parameters);
@@ -50,6 +50,7 @@ esp_err_t init_motion_control(bool reversed)
     input_target_queue = xQueueCreate(1, sizeof(motion_status_t));
     overwrite_pose_queue = xQueueCreate(1, sizeof(pose_t));
     output_status_queue = xQueueCreate(1, sizeof(motion_status_t));
+    set_speed_queue = xQueueCreate(1, sizeof(float));
 
     xTaskCreatePinnedToCore(
         motor_disabler_task,
@@ -143,18 +144,19 @@ static void motion_control_task(void *parameters)
         .please_stop = false,
     };
 
-    if (custom_max_speed != -1.0f) {
-        motion_data.tuning->max_speed_mps = custom_max_speed;
-    }
-
     int number_of_clear_ultrasonic_iterations_before_movement = 0;
+    float max_speed = motion_data.tuning->max_speed_mps;
 
     TickType_t iteration_time = xTaskGetTickCount();    
     for (int iteration = 0; true; ++iteration) {
         xTaskDelayUntil(&iteration_time, pdMS_TO_TICKS(MOTION_PERIOD_MS));
 
         // Retrieve latest parameters
+        if(xQueuePeek(set_speed_queue, &max_speed, 0)) {
+            motion_data.tuning->max_speed_mps = max_speed;
+        }
         xQueueReceive(overwrite_pose_queue, &current_pose, 0);
+
         int previous_step = motion_target.motion_step;
         if (xQueueReceive(input_target_queue, &motion_target, 0)) {
             if (previous_step == MOTION_STEP_DONE) {
@@ -257,9 +259,9 @@ void enable_motors_and_set_timer(void)
 }
 
 void set_custom_max_speed(float cus_max_speed) {
-    if(cus_max_speed < 0.0f && cus_max_speed > 2.0f) {
+    if(cus_max_speed < 0.0f || cus_max_speed > 0.8f) {
         ESP_LOGW(TAG, "incoherent max_speed set : %.3f", cus_max_speed);
         return;
     }
-    custom_max_speed = cus_max_speed;
+    xQueueOverwrite(set_speed_queue, &cus_max_speed);
 }
