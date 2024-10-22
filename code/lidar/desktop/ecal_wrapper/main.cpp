@@ -9,9 +9,9 @@
 #include "../proto/lidar_data.pb.h"
 
 extern "C" {
-  #include "../loca_lidar/amalgame.h"
-  #include "../loca_lidar/loca_lidar.h"
-  #include "../loca_lidar/pose_refinement.h"
+  #include "../../loca_lidar/amalgame.h"
+  #include "../../loca_lidar/loca_lidar.h"
+  #include "../../loca_lidar/pose_refinement.h"
 }
 
 #define LEGACY_ENAC_FORMAT 1

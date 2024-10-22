@@ -1,6 +1,6 @@
 #pragma once
 #include "esp_types.h"
-#include "../../desktop/loca_lidar/amalgame.h"
+#include "../../loca_lidar/amalgame.h"
 
 #define MAX_NB_FRAMES_FULL_SCAN 46
 enum State {

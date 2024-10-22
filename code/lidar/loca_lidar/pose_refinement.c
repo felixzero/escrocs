@@ -8,6 +8,11 @@ pose_t estimated_lidar = { // Actually robot pose
     .pos.x = 1680,
     .pos.y = 1020
 };
+pose_t empty_pose = {
+    .angle_rad = -1.0,
+    .pos.x = -1.0,
+    .pos.y = -1.0
+};
 pose_t refined_lidar;
 uint16_t last_assos[MAX_NB_BEACONS];
 
@@ -30,7 +35,7 @@ pose_t get_refined_lidar() {
 }
 pose_t refine_pose(point_t* candidates, amalgame_t* amalgames, uint16_t nb_candidates, const pose_tuning_t* tuning) {
     if (estimated_lidar.pos.x == 0 && estimated_lidar.pos.y == 0) {
-        return;
+        return empty_pose;
     }
     uint16_t number_rejects = 0;
     uint16_t number_correspondance = 0;

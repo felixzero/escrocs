@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include "esp_heap_caps.h"
+#include "esp_log.h"
+
 static raw_lidar_t empty_lidar = {
     .count = 0,
     .angles = NULL,
@@ -20,6 +23,7 @@ int calc_amalgames(amalgame_finder_tuning_t tuning, raw_lidar_t data, amalgame_t
     amalgame_t cur_amalg;
     reset_amalgame(&cur_amalg, tuning.max_pt_per_amalg, 0);
 
+
     for (uint16_t i = 0; i < data.count; i++)
     {
         uint16_t cur_dist = data.distances[i];
@@ -32,7 +36,9 @@ int calc_amalgames(amalgame_finder_tuning_t tuning, raw_lidar_t data, amalgame_t
                 cur_amalg.avg_angle = small_angle_nb && high_angle_nb ?
                 junction_avg_angle(cur_amalg.pts->angles, cur_amalg.pts->count) :
                 (uint16_t) (avg_angle / cur_amalg.pts->count);
+                ESP_LOGI("amalgame", "angle value %i %i", small_angle_nb, high_angle_nb);
                 cur_amalg.avg_dist = (uint16_t) (avg_dist / cur_amalg.pts->count);
+                ESP_LOGI("amalgame", "amalgi %i", amalgs_i);
                 amalgames_out[amalgs_i++] = cur_amalg;
             }
             last_dist = 0;
@@ -54,6 +60,7 @@ int calc_amalgames(amalgame_finder_tuning_t tuning, raw_lidar_t data, amalgame_t
         if(data.angles[i] > 1000) high_angle_nb = 1;
 
         last_dist = data.distances[i];
+        
     }
 
     //wrap up last amalgame using if needed first amalgame
@@ -63,10 +70,13 @@ int calc_amalgames(amalgame_finder_tuning_t tuning, raw_lidar_t data, amalgame_t
             combine_amalg(&amalgames_out[0], &cur_amalg, tuning.max_pt_per_amalg);
         }
         else {
+            ESP_LOGI("amalgame", "TEST!#!@");
             amalgames_out[amalgs_i++] = cur_amalg;
         }
     }
 
+    size_t t = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    ESP_LOGI("amalgame", "end calc amalg : %i", t);
     return amalgs_i; // count of amalgames in amalgames_out
     
 }
@@ -103,10 +113,14 @@ static int8_t combine_amalg(amalgame_t* dest_amalg, amalgame_t* add_amalg, uint1
 }
 
 static void reset_amalgame(amalgame_t* item, uint8_t nb_pts, uint8_t need_free) {
+    ESP_LOGI("resetamalgame", "%i %i", nb_pts, need_free);
+    size_t t = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    ESP_LOGI("amalgame", "trrew memory : %i", t);
     if(need_free) {
         free((void*) item->pts);
     }
-    item->pts = calloc(1, sizeof(raw_lidar_t));
+    item->pts = (raw_lidar_t*) calloc(1, sizeof(raw_lidar_t));
+    ESP_LOGI("resetamalgame", "after calloc");
     reset_raw_lidar(item->pts, nb_pts, need_free);
     item->avg_angle = 0;
     item->avg_dist = 0;
