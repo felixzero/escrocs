@@ -17,7 +17,9 @@ extern "C" {
 #define LEGACY_ENAC_FORMAT 1
 #define LIDAR_OFFSET  1.444 //rad
 
+static amalgame_t* full_amalgames = (amalgame_t*) calloc(amalgame_finder_tuning.max_amalg_count, sizeof(amalgame_t));  
 static eCAL::protobuf::CPublisher<enac::Lidar> amalg_pub;
+
 void send_lidar_msg(eCAL::protobuf::CPublisher<enac::Lidar>& pub, amalgame_t* amalgames, uint8_t nb_amalgames) {
   enac::Lidar& msg = enac::Lidar();
   msg.set_nb_pts(nb_amalgames);
@@ -33,7 +35,6 @@ void send_lidar_msg(eCAL::protobuf::CPublisher<enac::Lidar>& pub, amalgame_t* am
 
 void process_lidar(raw_lidar_t lidar) {
   //Generate amalgames
-  amalgame_t* full_amalgames = (amalgame_t*) calloc(amalgame_finder_tuning.max_amalg_count, sizeof(amalgame_t));
   int nb_amalg = calc_amalgames(amalgame_finder_tuning, lidar, full_amalgames);
   send_lidar_msg(amalg_pub, full_amalgames, nb_amalg);
 
@@ -54,6 +55,8 @@ void process_lidar(raw_lidar_t lidar) {
   std::cout << "associations : " << last_assos[0] << " " << last_assos[1] << " " << last_assos[2] << std::endl;
 
   free((void*) pts);
+  free((void*) avg_angles);
+  free((void*) avg_dists);
 
   
 }

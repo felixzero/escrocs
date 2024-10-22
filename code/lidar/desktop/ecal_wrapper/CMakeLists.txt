@@ -19,7 +19,7 @@ include_directories(${CMAKE_SOURCE_DIR}/../loca_lidar)
 
 # Collect all C source files from loca_lidar
 file(GLOB LOC_LIDAR_SOURCES
-    "${CMAKE_SOURCE_DIR}/../loca_lidar/*.c"
+    "${CMAKE_SOURCE_DIR}/../../loca_lidar/*.c"
 )
 
 add_library(lib_c STATIC ${LOC_LIDAR_SOURCES})
@@ -39,3 +39,6 @@ target_link_libraries(${PROJECT_NAME}
   protobuf::libprotobuf
   lib_c
 )
+
+add_compile_options(-fsanitize=address)
+add_link_options(-fsanitize=address)
