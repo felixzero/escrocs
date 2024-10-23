@@ -4,12 +4,27 @@
 #include <stdlib.h>
 #include <math.h>
 
+
 static raw_lidar_t empty_lidar = {
     .count = 0,
     .angles = NULL,
     .distances = NULL,
     .intensities = NULL
 };
+
+void init_amalgames(amalgame_finder_tuning_t tuning, amalgame_t* amalgames) {
+    for (uint8_t i = 0; i < tuning.max_amalg_count; i++)
+    {
+        reset_amalgame(&amalgames[i], tuning.max_pt_per_amalg, 0);
+    }
+}
+
+void clean_amalgames(amalgame_finder_tuning_t tuning, amalgame_t* amalgames, uint8_t count) {
+    for (uint8_t i = 0; i < count; i++)
+    {
+        reset_amalgame(&amalgames[i], tuning.max_pt_per_amalg, 1);
+    }
+}
 
 // returns count of amalgame, and return amalgame points through amalgames_out
 //TODO : handles too many pt per amalg, & too many amalgames
@@ -18,7 +33,7 @@ int calc_amalgames(amalgame_finder_tuning_t tuning, raw_lidar_t data, amalgame_t
     uint32_t avg_angle = 0, avg_dist = 0; //Prevent buffer overflow before averaging
     uint8_t small_angle_nb = 0, high_angle_nb = 0;
     amalgame_t* cur_amalg = &amalgames_out[0];
-    reset_amalgame(cur_amalg, tuning.max_pt_per_amalg, 0);
+    //reset_amalgame(cur_amalg, tuning.max_pt_per_amalg, 1);
 
 
     for (uint16_t i = 0; i < data.count; i++)
@@ -36,12 +51,18 @@ int calc_amalgames(amalgame_finder_tuning_t tuning, raw_lidar_t data, amalgame_t
                 (*cur_amalg).avg_dist = (uint16_t) (avg_dist / (*cur_amalg).pts->count);
                 cur_amalg = &amalgames_out[++amalgs_i];
             }
+            if(amalgs_i == tuning.max_amalg_count - 1) { // TODO : improve management of too many amalgames
+                break;
+            }
             last_dist = 0;
             continue;
         }
         
         if(last_dist == 0) {
-            reset_amalgame(cur_amalg, tuning.max_pt_per_amalg, 0);
+            if ((*cur_amalg).pts->count == 20)
+            {
+                reset_amalgame(cur_amalg, tuning.max_pt_per_amalg, 1);
+            }
             avg_angle = 0, avg_dist = 0;
             small_angle_nb = 0, high_angle_nb = 0;
         }
@@ -56,7 +77,6 @@ int calc_amalgames(amalgame_finder_tuning_t tuning, raw_lidar_t data, amalgame_t
         if(data.angles[i] > 1000) high_angle_nb = 1;
 
         last_dist = ((*cur_amalg).pts->count < 20) ? data.distances[i] : 0; //Prevent "amalgame overflow"
-        
     }
 
     //wrap up last amalgame using if needed first amalgame
@@ -106,13 +126,13 @@ static int8_t combine_amalg(amalgame_t* dest_amalg, amalgame_t* add_amalg, uint1
 }
 
 static void reset_amalgame(amalgame_t* item, uint8_t nb_pts, uint8_t need_free) {
-    if(need_free) {
-        free((void*) item->pts);
+    if(!need_free) {
+        item->pts = (raw_lidar_t*) calloc(1, sizeof(raw_lidar_t));
     }
-    item->pts = (raw_lidar_t*) calloc(1, sizeof(raw_lidar_t));
     reset_raw_lidar(item->pts, nb_pts, need_free);
     item->avg_angle = 0;
     item->avg_dist = 0;
+    
 }
 static void reset_raw_lidar(raw_lidar_t *item, uint8_t nb_pts, uint8_t need_free) {
     if(need_free) {

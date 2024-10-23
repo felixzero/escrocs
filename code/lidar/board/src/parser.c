@@ -60,7 +60,7 @@ uint8_t parse_chunk(uint8_t data[], bool *full_scan) {
             break;
         case DATA:
             frames[cur_frame_i] = (LiDARFrameTypeDef*) malloc(sizeof(LiDARFrameTypeDef));
-            LiDARFrameTypeDef *frame = frames[cur_frame_i];
+            LiDARFrameTypeDef* frame = frames[cur_frame_i];
 
             frame->header = 0x54;
             frame->ver_len = 0x2C;

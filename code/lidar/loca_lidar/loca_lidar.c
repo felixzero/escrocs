@@ -6,7 +6,7 @@ amalgame_finder_tuning_t amalgame_finder_tuning =  {
     .min_dist = 100,
     .max_dist = 3500,
     .max_distance_betwn_pts = 100,
-    .max_amalg_count = 30,
+    .max_amalg_count = 50,
     .max_pt_per_amalg = 20,
 };
 

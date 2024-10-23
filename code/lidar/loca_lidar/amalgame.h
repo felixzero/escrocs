@@ -46,6 +46,8 @@ typedef struct {
     uint16_t avg_dist;
 } amalgame_t;
 
+void init_amalgames(amalgame_finder_tuning_t tuning, amalgame_t* amalgames);
+void clean_amalgames(amalgame_finder_tuning_t tuning, amalgame_t* amalgames, uint8_t count);
 int calc_amalgames(amalgame_finder_tuning_t tuning, raw_lidar_t data, amalgame_t *amalgames_out);
 int get_amalg_center(raw_lidar_t* centers_out, raw_lidar_t* amalgames);
 static void reset_amalgame(amalgame_t* item, uint8_t nb_pts, uint8_t need_free);

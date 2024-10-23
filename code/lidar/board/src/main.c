@@ -13,6 +13,7 @@
 #include "pose_refinement.h"
 
 #include "esp_heap_caps.h"
+#include <sys/time.h>
 
 #define UART_PORT UART_NUM_0
 #define CHUNK_LENGTH 47 //11 + 3 * 12
@@ -39,8 +40,11 @@ void app_main() {
     int expected_length = 1;
     bool full_scan = false;
     bool high_buffer_usage = false;
-
     uint8_t data[128];
+
+    amalgame_t* full_amalgames = (amalgame_t*) calloc(amalgame_finder_tuning.max_amalg_count, sizeof(amalgame_t));
+    init_amalgames(amalgame_finder_tuning, full_amalgames);
+
     while (true)
     {
         //Lidar UART reading management
@@ -63,7 +67,6 @@ void app_main() {
         else if (read_length < expected_length) {
             ESP_LOGE(TAG, "date length from lidar problem");
         }
-
         expected_length = parse_chunk(data, &full_scan);
 
         //lidar fullscan processing
@@ -74,10 +77,12 @@ void app_main() {
             parse_frames(out_lidar);
 
             //Generate amalgames
-            amalgame_t* full_amalgames = (amalgame_t*) calloc(amalgame_finder_tuning.max_amalg_count, sizeof(amalgame_t));
-            size_t t = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-            ESP_LOGI(TAG, "before full scan : %i", t);
             int nb_amalg = calc_amalgames(amalgame_finder_tuning, *out_lidar, full_amalgames);
+            if (nb_amalg >= amalgame_finder_tuning.max_amalg_count - 1)
+            {
+                ESP_LOGI("amalgame", "Max amalgame reached %i", nb_amalg);
+            }
+            
 
             //Convert to cartesian
             point_t* pts = (point_t*) malloc(nb_amalg * sizeof(point_t));
@@ -93,11 +98,14 @@ void app_main() {
             //Calculate pose
             pose_t pose = refine_pose(pts, full_amalgames, nb_amalg, &pose_tuning);
 
+            free((void*)avg_angles);
+            free((void*)avg_dists);
             free((void*) pts);
-            free(out_lidar->angles);
-            free(out_lidar->distances);
-            free(out_lidar->intensities);
-            free(out_lidar);
+            clean_amalgames(amalgame_finder_tuning, full_amalgames, nb_amalg);
+            free((void*) out_lidar->angles);
+            free((void*) out_lidar->distances);
+            free((void*) out_lidar->intensities);
+            free((void*) out_lidar);
             ESP_LOGI(TAG, "Full scan processed");
 
         }       
