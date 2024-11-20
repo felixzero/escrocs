@@ -47,7 +47,11 @@ pose_t refine_pose(point_t* candidates, amalgame_t* amalgames, uint16_t nb_candi
     {
         uint8_t index = index_closest_amalg(expected_positions[i], candidates, 
             nb_candidates, tuning->max_sq_dist_expected);
-        index==-1 ? number_rejects++ : number_correspondance++;
+        if(index == 255) {
+            number_rejects++;
+        } else {
+            number_correspondance++;
+        }
         actual_positions[i] = candidates[index];
         last_assos[i] = index; //For display purposes
         //TODO : 
@@ -74,15 +78,15 @@ static void calc_expected_beacon_pos(point_t* expected_positions) {
         float cos_theta = cos(-estimated_lidar.angle_rad);
         float sin_theta = sin(-estimated_lidar.angle_rad);
 
-        expected_positions[i].x = relative_x * cos_theta - relative_y * sin_theta;
-        expected_positions[i].y = relative_x * sin_theta + relative_y * cos_theta;
+        expected_positions[i].x = -(relative_x * cos_theta - relative_y * sin_theta);
+        expected_positions[i].y = -(relative_x * sin_theta + relative_y * cos_theta);
     }
     
 }
 
-static int8_t index_closest_amalg(point_t expected, const point_t candidates[], size_t nb_candidates, int32_t max_sq_dist) {
+static uint8_t index_closest_amalg(point_t expected, const point_t candidates[], size_t nb_candidates, int32_t max_sq_dist) {
     int32_t min_sq_dist = max_sq_dist;
-    int8_t index = -1;
+    uint8_t index = 255;
     for (size_t i = 0; i < nb_candidates; i++)
     {
         int32_t dist = SQUARE(expected.x - candidates[i].x) + SQUARE(expected.y - candidates[i].y);

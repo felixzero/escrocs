@@ -59,7 +59,7 @@ int calc_amalgames(amalgame_finder_tuning_t tuning, raw_lidar_t data, amalgame_t
         }
         
         if(last_dist == 0) {
-            if ((*cur_amalg).pts->count == 20)
+            if ((*cur_amalg).pts->count == 20 || (*cur_amalg).pts->count < 2)
             {
                 reset_amalgame(cur_amalg, tuning.max_pt_per_amalg, 1);
             }

@@ -14,7 +14,7 @@ extern "C" {
   #include "../../loca_lidar/pose_refinement.h"
 }
 
-#define LEGACY_ENAC_FORMAT 1
+#define LEGACY_ENAC_FORMAT 0
 #define LIDAR_OFFSET  1.444 //rad
 
 static amalgame_t* full_amalgames = (amalgame_t*) calloc(amalgame_finder_tuning.max_amalg_count, sizeof(amalgame_t));  
@@ -48,15 +48,18 @@ void process_lidar(raw_lidar_t lidar) {
     avg_dists[i] = full_amalgames[i].avg_dist;
   }
   convert_xy(pts, nb_amalg, avg_angles, avg_dists);
-
   //Calculate pose
   pose_t pose = refine_pose(pts, full_amalgames, nb_amalg, &pose_tuning);
   std::cout << "pose : " << pose.angle_rad << " x " << pose.pos.x << " y " << pose.pos.y << std::endl;
   std::cout << "associations : " << last_assos[0] << " " << last_assos[1] << " " << last_assos[2] << std::endl;
-
-  free((void*) pts);
-  free((void*) avg_angles);
-  free((void*) avg_dists);
+      free((void*)avg_angles);
+      free((void*)avg_dists);
+      free((void*) pts);
+      clean_amalgames(amalgame_finder_tuning, full_amalgames, nb_amalg);
+      //free((void*) lidar.angles);
+      //free((void*) lidar->distances);
+      //free((void*) lidar->intensities);
+      //free((void*) lidar);
 
   
 }
@@ -65,20 +68,18 @@ void raw_lidar_cb(const enac::Lidar& lidar_msg)
 
   raw_lidar_t lidar;
   lidar.count = LEGACY_ENAC_FORMAT ? lidar_msg.angles_size() : (uint16_t) lidar_msg.nb_pts();
+  std::cout << "lidar count temp fix" << std::endl;
+  lidar.count = 504;
   lidar.angles = (uint16_t*) malloc(lidar.count * sizeof(uint16_t));
   lidar.distances = (uint16_t*) malloc(lidar.count * sizeof(uint16_t));
   lidar.intensities = (uint8_t*) malloc(lidar.count * sizeof(uint8_t));
 
   for (uint16_t i = 0; i < lidar.count; i++)
   {
-    if(LEGACY_ENAC_FORMAT) {
-      lidar.angles[i] = (uint16_t) floor((lidar_msg.angles(i) * 100.0f) + 0.5); // 1/100 of 1°
-      lidar.distances[i] = (uint16_t) floor((lidar_msg.distances(i) * 1000.0f) + 0.5);
-      lidar.intensities[i] = amalgame_finder_tuning.min_intensity;
-    }
-    else {
-      throw "unimplemented new lidar format read";
-    }
+    lidar.angles[i] = (uint16_t) floor((lidar_msg.angles(i) * 100.0f) + 0.5); // 1/100 of 1°
+    lidar.distances[i] = (uint16_t) floor((lidar_msg.distances(i) * 1000.0f) + 0.5);
+    lidar.intensities[i] = LEGACY_ENAC_FORMAT ? 
+      amalgame_finder_tuning.min_intensity : (uint8_t) lidar_msg.intensities(i);
   }
     auto start = std::chrono::high_resolution_clock::now();
 
@@ -92,7 +93,7 @@ void raw_lidar_cb(const enac::Lidar& lidar_msg)
 void pose_cb(const enac::Position_old& pose_msg) {
   int32_t x = (int32_t) (pose_msg.x() * 1000.f);
   int32_t y = (int32_t) (pose_msg.y() * 1000.f);
-  set_estimated_pose(x, y, pose_msg.theta() + LIDAR_OFFSET);
+  set_estimated_pose(x, y, pose_msg.theta());// + LIDAR_OFFSET);
   //set_estimated_pose(pose_msg.x(), pose_msg.y(), pose_msg.theta() + LIDAR_OFFSET);
 }
 
@@ -103,6 +104,8 @@ int main(int argc, char** argv)
   eCAL::protobuf::CSubscriber<enac::Lidar> raw_sub("lidar_data");
   eCAL::protobuf::CSubscriber<enac::Position_old> odom_sub("optitrack_pos");
   amalg_pub.Create("amalgames");
+
+  init_amalgames(amalgame_finder_tuning, full_amalgames);
 
   raw_sub.AddReceiveCallback(std::bind(&raw_lidar_cb, std::placeholders::_2));
   odom_sub.AddReceiveCallback(std::bind(&pose_cb, std::placeholders::_2));

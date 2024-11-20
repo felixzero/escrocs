@@ -17,9 +17,9 @@ message Pose {
 }
 
 message Position_old {
-    float x = 1;
+    float x = 1; //meter
     float y = 2;
-    float theta = 3;
+    float theta = 3; //rad
 }
 
 enum ProximityStatus { 

@@ -4,6 +4,8 @@
         "pose_refinement.h": "c",
         "parser.h": "c",
         "compare": "c",
-        "cstdint": "c"
+        "cstdint": "c",
+        "uart_hal.h": "c",
+        "esp_heap_caps.h": "c"
     }
 }

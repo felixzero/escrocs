@@ -8,13 +8,13 @@ if __name__ == '__main__':
     #init ecal publisher 
     ecal_core.initialize(sys.argv, "pose_pub_manual")
 
-    pub = ProtoPublisher("odom_pose", lidar_data.Pose)
+    pub = ProtoPublisher("optitrack_pos", lidar_data.Position_old)
 
     while ecal_core.ok():
-        pose = lidar_data.Pose()
+        pose = lidar_data.Position_old()
         user = input("x (en m), y(en m), theta (en rad)   ").split(",")
-        pose.x = int(float(user[0]) * 1000.0)
-        pose.y = int(float(user[1]) * 1000.0)
+        pose.x = float(user[0])
+        pose.y = float(user[1])
         pose.theta = float(user[2])
         pub.send(pose)
         time.sleep(0.1)

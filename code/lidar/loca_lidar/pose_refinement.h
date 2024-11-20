@@ -17,10 +17,14 @@ extern uint16_t last_assos[MAX_NB_BEACONS]; //index of last_asso = beacon, conte
 
 
 static point_t beacon_positions[3] = {
-    {50, -94}, 
-    {1500, 2094},
-    {2950, -94}
+    {3094, 50},
+    {-94, 1000},
+    {3094, 1950}
 };
+    // ENAC 2022 :
+    //{50, -94}, 
+    //{1500, 2094},
+    //{2950, -94}
 
 pose_t get_refined_lidar();
 void set_estimated_pose(int32_t x, int32_t y, float angle);

@@ -1,2 +1,7 @@
 /build
 .vs
+.venv
+ecal_wrapper/build
+ecal_wrapper/CMakeFiles
+loca_lidar/build
+../loca_lidar/build
