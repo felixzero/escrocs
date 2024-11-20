@@ -55,7 +55,6 @@ int calc_amalgames(amalgame_finder_tuning_t tuning, raw_lidar_t data, amalgame_t
                 break;
             }
             last_dist = 0;
-            continue;
         }
         
         if(last_dist == 0) {

@@ -40,6 +40,7 @@ pose_t refine_pose(point_t* candidates, amalgame_t* amalgames, uint16_t nb_candi
     uint16_t number_rejects = 0;
     uint16_t number_correspondance = 0;
     point_t expected_positions[MAX_NB_BEACONS];
+    point_t refinement_beacons_positions[MAX_NB_BEACONS];
     point_t actual_positions[MAX_NB_BEACONS];
 
     calc_expected_beacon_pos(expected_positions);
@@ -50,9 +51,10 @@ pose_t refine_pose(point_t* candidates, amalgame_t* amalgames, uint16_t nb_candi
         if(index == 255) {
             number_rejects++;
         } else {
-            number_correspondance++;
+            refinement_beacons_positions[number_correspondance] = beacon_positions[i];
+            actual_positions[number_correspondance++] = candidates[index];
         }
-        actual_positions[i] = candidates[index];
+
         last_assos[i] = index; //For display purposes
         //TODO : 
         //actual_positions[i] = refine_pos_beacon(amalgames[i].pts->angles, amalgames[i].pts->distances);
@@ -60,7 +62,7 @@ pose_t refine_pose(point_t* candidates, amalgame_t* amalgames, uint16_t nb_candi
     
 
     //ESP_LOGI(TAG, "Refining pose with %d identified beacons - %d rejects", number_of_identified_beacons, number_of_rejects);
-    pose_t refined_pose = find_pose_from_beacons(beacon_positions, actual_positions, 
+    pose_t refined_pose = find_pose_from_beacons(refinement_beacons_positions, actual_positions, 
         (size_t) number_correspondance, estimated_lidar);
 
     estimated_lidar = refined_pose;
@@ -72,14 +74,14 @@ pose_t refine_pose(point_t* candidates, amalgame_t* amalgames, uint16_t nb_candi
 static void calc_expected_beacon_pos(point_t* expected_positions) {
     for (uint16_t i = 0; i < MAX_NB_BEACONS; i++)
     {
-        int32_t relative_x = estimated_lidar.pos.x - beacon_positions[i].x;
-        int32_t relative_y = estimated_lidar.pos.y - beacon_positions[i].y;
+        int32_t relative_x = beacon_positions[i].x - estimated_lidar.pos.x;
+        int32_t relative_y = beacon_positions[i].y - estimated_lidar.pos.y;
 
         float cos_theta = cos(-estimated_lidar.angle_rad);
         float sin_theta = sin(-estimated_lidar.angle_rad);
 
-        expected_positions[i].x = -(relative_x * cos_theta - relative_y * sin_theta);
-        expected_positions[i].y = -(relative_x * sin_theta + relative_y * cos_theta);
+        expected_positions[i].x = relative_x * cos_theta - relative_y * sin_theta;
+        expected_positions[i].y = relative_x * sin_theta + relative_y * cos_theta;
     }
     
 }
