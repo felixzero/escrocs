@@ -72,7 +72,7 @@ class Zoom():
         self.zoom.on_clicked(self.on_button_click)
 
     def on_button_click(self, event):
-        self.y_lim = 1.0 if self.y_lim == 3.1 else 3.1
+        self.y_lim = 0.3 if self.y_lim == 3.1 else 3.1
 
 
 plt.style.use('ggplot')

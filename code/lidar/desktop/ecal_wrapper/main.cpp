@@ -60,6 +60,9 @@ void process_lidar(raw_lidar_t lidar) {
       //free((void*) lidar->distances);
       //free((void*) lidar->intensities);
       //free((void*) lidar);
+    if((last_assos[0] != 255) + (last_assos[1] != 255) + (last_assos[2] != 255) >= 2) {
+      set_estimated_pose(pose.pos.x, pose.pos.y, pose.angle_rad);
+    }
 
   
 }
@@ -68,8 +71,6 @@ void raw_lidar_cb(const enac::Lidar& lidar_msg)
 
   raw_lidar_t lidar;
   lidar.count = LEGACY_ENAC_FORMAT ? lidar_msg.angles_size() : (uint16_t) lidar_msg.nb_pts();
-  std::cout << "lidar count temp fix" << std::endl;
-  lidar.count = 504;
   lidar.angles = (uint16_t*) malloc(lidar.count * sizeof(uint16_t));
   lidar.distances = (uint16_t*) malloc(lidar.count * sizeof(uint16_t));
   lidar.intensities = (uint8_t*) malloc(lidar.count * sizeof(uint8_t));

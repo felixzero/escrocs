@@ -108,7 +108,7 @@ class Driver:
                 if self.total_angle >= 360:
                     # The points are back to the beginning
                     #print('count:', self.cloud.count, ', span:', self.cloud.span())
-                    self.cb(self.cloud.get_angles(), self.cloud.get_distances(), self.cloud.get_intensities())
+                    self.cb(self.cloud.count, self.cloud.get_angles(), self.cloud.get_distances(), self.cloud.get_intensities())
 
                     # We can start a new point cloud
                     self.total_angle = 0
@@ -118,8 +118,8 @@ class Driver:
                 self.expected_length = 1
 
 
-def test_cb(angles, distances, intensities):
-    print(angles, distances, intensities)
+def test_cb(count, angles, distances, intensities):
+    print(count, angles, distances, intensities)
 
 if __name__ == '__main__':
     driver = Driver(test_cb)

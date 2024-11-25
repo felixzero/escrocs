@@ -1,5 +1,5 @@
 {
-    "cmake.sourceDirectory": "C:/Users/jonathanTIE/git/escrocs/code/lidar/desktop/ecal_wrapper",
+    "cmake.sourceDirectory": "G:/Code_projects/escrocs/code/lidar/desktop/ecal_wrapper",
     "files.associations": {
         "iterator": "c",
         "xhash": "c",
@@ -73,5 +73,6 @@
         "amalgame.h": "c",
         "loca_lidar.h": "c",
         "least_square_helpers.h": "c"
-    }
+    },
+    "cmake.ignoreCMakeListsMissing": true
 }
