@@ -52,6 +52,12 @@ void process_lidar(raw_lidar_t lidar) {
   pose_t pose = refine_pose(pts, full_amalgames, nb_amalg, &pose_tuning);
   std::cout << "pose : " << pose.angle_rad << " x " << pose.pos.x << " y " << pose.pos.y << std::endl;
   std::cout << "associations : " << last_assos[0] << " " << last_assos[1] << " " << last_assos[2] << std::endl;
+  //TODO : a delete
+  std::cout << 
+  "dist" << sqrt(SQUARE(pts[last_assos[1]].x - pts[last_assos[2]].x) + SQUARE(pts[last_assos[1]].y - pts[last_assos[2]].y))
+  <<std::endl;
+  
+  
       free((void*)avg_angles);
       free((void*)avg_dists);
       free((void*) pts);
@@ -62,6 +68,7 @@ void process_lidar(raw_lidar_t lidar) {
       //free((void*) lidar);
     if((last_assos[0] != 255) + (last_assos[1] != 255) + (last_assos[2] != 255) >= 2) {
       set_estimated_pose(pose.pos.x, pose.pos.y, pose.angle_rad);
+
     }
 
   
