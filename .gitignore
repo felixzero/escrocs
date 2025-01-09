@@ -3,4 +3,9 @@
 **/*.sch-bak
 **/sdkconfig.esp32dev
 *.FCStd1
-
+code/lidar/board/.*
+code/lidar/desktop/.*
+code/lidar/desktop/build
+code/lidar/desktop/ecal_wrapper/build
+code/lidar/desktop/ecal_wrapper/CMakeFiles
+code/lidar/loca_lidar/build
