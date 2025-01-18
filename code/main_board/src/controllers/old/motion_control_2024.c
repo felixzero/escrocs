@@ -1,3 +1,5 @@
+#ifdef OLD
+
 #include "motion_control.h"
 #include "holonomic_wheel_base.h"
 
@@ -31,6 +33,12 @@ esp_err_t init_motion_control(bool reversed)
 {
     esp_err_t err;
 
+    err = disable_motors();
+    if (err) {
+        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        return err;
+    }
+
     err = write_motor_speed_rad_s(0.0, 0.0, 0.0);
     if (err) {
         ESP_ERROR_CHECK_WITHOUT_ABORT(err);
@@ -44,6 +52,15 @@ esp_err_t init_motion_control(bool reversed)
     overwrite_pose_queue = xQueueCreate(1, sizeof(pose_t));
     output_status_queue = xQueueCreate(1, sizeof(motion_status_t));
 
+    xTaskCreatePinnedToCore(
+        motor_disabler_task,
+        "motor_disabler",
+        TASK_STACK_SIZE,
+        NULL,
+        DISABLE_MOTOR_PRIORITY,
+        &motor_disabler_task_handle,
+        LOW_CRITICITY_CORE
+    );
     xTaskCreatePinnedToCore(motion_control_task, "motion_control", TASK_STACK_SIZE, NULL, MOTION_CONTROL_PRIORITY, &task, TIME_CRITICAL_CORE);
 
     return ESP_OK;
@@ -67,7 +84,8 @@ void set_motion_target(const pose_t *target, bool perform_detection)
     motion_target.pose.y = isnan(target->y) ? current_pose.y : target->y;
     motion_target.pose.theta = isnan(target->theta) ? current_pose.theta : target->theta;
     motion_target.pose = apply_reverse_transformation(&motion_target.pose, reversed_side);
-    motion_control_on_motion_target_set(&motion_target, &setpoint_pose, &current_pose);
+
+    motion_target.motion_step = MOTION_STEP_RUNNING;
 
     // Send request to task
     ESP_LOGI(TAG, "Setting target to: %f %f %f", target->x, target->y, target->theta);
@@ -214,3 +232,24 @@ static pose_t apply_reverse_transformation(const pose_t *pose, bool reversed_sid
     }
     return reversed_pose;
 }
+
+static void motor_disabler_task(void *parameters)
+{
+    while (true) {
+        uint32_t notified_value;
+        if (!xTaskNotifyWait(0, ULONG_MAX, &notified_value, MOTOR_DISABLING_TIMEOUT)) {
+            ESP_LOGI(TAG, "Disabling stepper motors");
+            //disable_motors();
+            //ESP_LOGI(TAG, "Enabled status: %d", are_motors_enabled());
+        }
+
+        vTaskDelay(10);
+    }
+}
+
+void enable_motors_and_set_timer(void)
+{
+    enable_motors();
+    xTaskNotify(motor_disabler_task_handle, 1, eSetValueWithoutOverwrite);
+}
+#endif

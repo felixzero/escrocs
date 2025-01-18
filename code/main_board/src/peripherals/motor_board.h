@@ -3,6 +3,8 @@
 #include <esp_err.h>
 #include <stdbool.h>
 
+#define MOTOR_BOARD_VERSION 2
+
 /**
  * Position of each channel, in degree
  */
@@ -12,7 +14,7 @@ typedef struct {
     float channel3;
 } encoder_measurement_t;
 
-esp_err_t init_motor_board_v3(void);
+esp_err_t init_motor_board(void);
 
 /**
  * Read the current encoder positions

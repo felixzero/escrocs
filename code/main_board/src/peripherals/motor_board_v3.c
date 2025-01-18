@@ -1,5 +1,8 @@
-#include "motor_board_v3.h"
+#include "motor_board.h"
 #include "../system/modbus_rtu_master.h"
+
+#define __THIS_VERSION 3
+#if MOTOR_BOARD_VERSION == __THIS_VERSION
 
 #include <esp_log.h>
 #include <math.h>
@@ -20,7 +23,7 @@
 
 static int16_t previous_encoder_raw_values[3];
 
-esp_err_t init_motor_board_v3(void)
+esp_err_t init_motor_board(void)
 {
     esp_err_t err = disable_motors();
     ESP_ERROR_CHECK_WITHOUT_ABORT(err);
@@ -91,3 +94,5 @@ bool are_motors_enabled(void)
     ESP_ERROR_CHECK_WITHOUT_ABORT(modbus_read_coil_status(MOTOR_BOARD_MODBUS_ADDR, MOTOR_BOARD_ENABLE_COIL, 1, &output));
     return output;
 }
+
+#endif
