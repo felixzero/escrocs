@@ -65,4 +65,3 @@ bool is_motion_done(void);
  */
 bool is_blocked(void);
 
-void enable_motors_and_set_timer(void);

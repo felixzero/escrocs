@@ -3,6 +3,7 @@
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include <esp_log.h>
 
 #define OK_MESSAGE_LENGTH_MS    500
 #define ERR_MESSAGE_LENGTH_MS   5000
@@ -19,6 +20,7 @@ void display_initialization_status(const char *name, esp_err_t status)
     } else {
         lcd_printf(0, "%s: err", name);
         lcd_printf(1, "Error %d", status);
+        ESP_LOGE("UserI", "%s: %d", name, status);
         vTaskDelay(pdMS_TO_TICKS(ERR_MESSAGE_LENGTH_MS));
     }
 }

@@ -5,7 +5,7 @@
 #include "peripherals/stepper_board.h"
 #include "peripherals/display.h"
 #include "peripherals/peripherals.h"
-#include "peripherals/motor_board_v3.h"
+#include "peripherals/motor_board.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
