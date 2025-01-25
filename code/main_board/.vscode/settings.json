@@ -64,7 +64,8 @@
         "us_control.h": "c",
         "esp_spiffs.h": "c",
         "actions_lua_functions.h": "c",
-        "motor_board_v2.h": "c"
+        "motor_board_v2.h": "c",
+        "stddef.h": "c"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }

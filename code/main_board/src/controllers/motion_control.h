@@ -4,6 +4,8 @@
 #include <sdkconfig.h>
 #include <esp_err.h>
 
+#define DIFFERENTIAL 1
+
 #define MOTION_STEP_DONE                0
 #define MOTION_STEP_RUNNING             1
 

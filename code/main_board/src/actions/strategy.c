@@ -150,7 +150,7 @@ static void trigger_timer_task(void *parameters)
     lcd_printf(1, "");
 
     ESP_LOGI(TAG, "Starting key has been removed; starting strategy");
-    enable_motors_and_set_timer();
+    //enable_motors_and_set_timer();
 
     int queue_buffer = 1;
     xQueueOverwrite(on_run_queue, &queue_buffer);

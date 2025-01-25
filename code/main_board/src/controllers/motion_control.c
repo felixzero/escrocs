@@ -1,5 +1,5 @@
 #include "motion_control.h"
-#include "holonomic_wheel_base.h"
+#include "wheel_base.h"
 
 #include "../peripherals/motor_board.h"
 #include "system/task_priority.h"
@@ -20,10 +20,10 @@
 
 static bool reversed_side;
 
-static TaskHandle_t motor_disabler_task_handle;
+//static TaskHandle_t motor_disabler_task_handle;
 static QueueHandle_t input_target_queue, overwrite_pose_queue, output_status_queue;
 
-static void motor_disabler_task(void *parameters);
+//static void motor_disabler_task(void *parameters);
 static void motion_control_task(void *parameters);
 static pose_t apply_reverse_transformation(const pose_t *pose, bool reversed_side);
 
@@ -65,9 +65,8 @@ void set_motion_target(const pose_t *target, bool perform_detection)
 
     motion_target.pose.x = isnan(target->x) ? current_pose.x : target->x;
     motion_target.pose.y = isnan(target->y) ? current_pose.y : target->y;
-    motion_target.pose.theta = isnan(target->theta) ? current_pose.theta : target->theta;
+    motion_target.pose.theta = target->theta;
     motion_target.pose = apply_reverse_transformation(&motion_target.pose, reversed_side);
-    motion_control_on_motion_target_set(&motion_target, &setpoint_pose, &current_pose);
 
     // Send request to task
     ESP_LOGI(TAG, "Setting target to: %f %f %f", target->x, target->y, target->theta);
@@ -117,9 +116,9 @@ static void motion_control_task(void *parameters)
         .is_blocked = false,
     };
     motion_control_tuning_t tuning;
-    holonomic_wheel_base_set_values(&tuning);
+    motion_control_on_init(&tuning);
 
-    struct motion_data_t motion_data = {
+    motion_data_t motion_data = {
         .tuning = &tuning,
         .previous_speed = { 0 },
         .previous_time = 0,
@@ -146,7 +145,7 @@ static void motion_control_task(void *parameters)
         // Update pose according to encoders
         encoder_measurement_t encoder_increment;
         if (read_encoder_increment(&encoder_increment) == ESP_OK) {
-            holonomic_wheel_base_update_pose(&motion_data, &current_pose, &encoder_increment);
+            motion_control_update_pose(&motion_data, &current_pose, &encoder_increment);
         }
 
         if (iteration % 10 == 0) {
@@ -160,7 +159,7 @@ static void motion_control_task(void *parameters)
         float center_scanning_angle, cone_scanning_angle;
         bool need_detection = false;
         scan_angle_t motion_cone;
-        holonomic_wheel_base_get_detection_scanning_angles(
+        motion_control_scanning_angles(
             &motion_data, &motion_target, &current_pose,
             &center_scanning_angle, &cone_scanning_angle, &need_detection
         );
@@ -184,8 +183,8 @@ static void motion_control_task(void *parameters)
         if (motion_target.motion_step == MOTION_STEP_DONE) {
             write_motor_speed_rad_s(0.0, 0.0, 0.0);
         } else {
-            enable_motors_and_set_timer();
-            holonomic_wheel_base_apply_speed_to_motors(
+            //enable_motors_and_set_timer();
+            motion_control_apply_speed(
                 &motion_data,
                 &motion_target,
                 &current_pose,
