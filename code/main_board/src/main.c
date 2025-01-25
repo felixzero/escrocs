@@ -35,13 +35,13 @@ void app_main() {
     //display_initialization_status("Ultrasonic", init_ultrasonic_board());
     //display_initialization_status("US control", init_us_controller());
     display_initialization_status("Motor board", init_motor_board());
+    display_initialization_status("Motion ctrl", init_motion_control(false));//is_reversed));
 
     //display_initialization_status("Peripherals", init_peripherals());
 
     //char *table_sides[] = { "Left", "Right" };
     //int is_reversed = menu_pick_item("Table side", table_sides, 2);
 
-    //display_initialization_status("Motion ctrl", init_motion_control(is_reversed));
 
     //char *strategies[MAX_STRATEGY_DISPLAY];
     //int number_of_strategies = MAX_STRATEGY_DISPLAY;

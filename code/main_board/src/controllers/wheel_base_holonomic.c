@@ -1,3 +1,5 @@
+#ifdef OLD
+
 #include "holonomic_wheel_base.h"
 
 #include <stddef.h>
@@ -137,3 +139,4 @@ void holonomic_wheel_base_get_detection_scanning_angles(
     *cone_angle = 2 * data->tuning->ultrasonic_detection_angle;
 }
 
+#endif
