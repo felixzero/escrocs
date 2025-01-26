@@ -49,7 +49,8 @@ void process_lidar(raw_lidar_t lidar) {
   }
   convert_xy(pts, nb_amalg, avg_angles, avg_dists);
   //Calculate pose
-  pose_t pose = refine_pose(pts, full_amalgames, nb_amalg, &pose_tuning);
+  //TODO : separate estimated_lidar and estimated_pose
+  pose_t pose = refine_pose(pts, full_amalgames, nb_amalg, estimated_lidar, &pose_tuning);
   std::cout << "pose : " << pose.angle_rad << " x " << pose.pos.x << " y " << pose.pos.y << std::endl;
   std::cout << "associations : " << last_assos[0] << " " << last_assos[1] << " " << last_assos[2] << std::endl;
   //TODO : a delete
@@ -117,11 +118,14 @@ int main(int argc, char** argv)
 
   raw_sub.AddReceiveCallback(std::bind(&raw_lidar_cb, std::placeholders::_2));
   odom_sub.AddReceiveCallback(std::bind(&pose_cb, std::placeholders::_2));
+
+  set_estimated_pose(600,1000,0.0);
   while (eCAL::Ok())
   {
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
   }
+
 
 
   // finalize eCAL API
