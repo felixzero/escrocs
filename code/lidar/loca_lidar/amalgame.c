@@ -93,6 +93,11 @@ int calc_amalgames(amalgame_finder_tuning_t tuning, raw_lidar_t data, amalgame_t
     
 }
 
+bool are_poses_equal(const pose_t* a, const pose_t* b) {
+    return (a->pos.x == b->pos.x) &&
+           (a->pos.y == b->pos.y) &&
+           (fabsf(a->angle_rad - b->angle_rad) < ANGLE_EPSILON);
+}
 
 
 static int8_t combine_amalg(amalgame_t* dest_amalg, amalgame_t* add_amalg, uint16_t max_count) {

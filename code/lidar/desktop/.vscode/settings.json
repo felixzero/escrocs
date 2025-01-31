@@ -72,7 +72,8 @@
         "xtr1common": "cpp",
         "amalgame.h": "c",
         "loca_lidar.h": "c",
-        "least_square_helpers.h": "c"
+        "least_square_helpers.h": "c",
+        "stdint.h": "c"
     },
     "cmake.ignoreCMakeListsMissing": true
 }

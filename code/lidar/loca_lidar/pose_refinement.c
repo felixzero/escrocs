@@ -2,6 +2,9 @@
 
 #include "amalgame.h"
 #include "math.h"
+#include "stdbool.h"
+
+#define MAX_COMBINATIONS 100
 
 pose_t estimated_lidar = { // Actually robot pose
     .angle_rad = 1.48,
@@ -14,10 +17,22 @@ pose_t empty_pose = {
     .pos.y = -1.0
 };
 
+pose_t too_many_corr_pose = {
+    .angle_rad = -1.0,
+    .pos.x = -2.0,
+    .pos.y = -1.0
+}; //Used for error handling
+
 //use generate_sq_dist_beacons.py
-uint32_t distances_beacons[MAX_NB_BEACONS][MAX_NB_BEACONS] = {
-    {0, 11065844, 3610000}, {0, 0, 11065844}, {0, 0, 0},
-};//COmment faire distances beacons ??
+//uint32_t distances_beacons[MAX_NB_BEACONS][MAX_NB_BEACONS] = {
+//    {0, 11065844, 3610000}, {0, 0, 11065844}, {0, 0, 0},
+//};//COmment faire distances beacons ??
+float distances_beacons[MAX_NB_BEACONS][MAX_NB_BEACONS] = {
+    {0, 3326.5f, 1900.f}, {0, 0, 3326.5f}, {0, 0, 0},
+};
+
+static float sq_dist(point_t a, point_t b);
+static bool in_range(float dist, float expected_dist, float err_tolerance);
 
 pose_t refined_lidar;
 uint16_t last_assos[MAX_NB_BEACONS];
@@ -62,6 +77,7 @@ pose_t refine_pose(point_t* candidates, amalgame_t* amalgames, uint16_t nb_amalg
     point_t expected_positions[MAX_NB_BEACONS];
     point_t refinement_beacons_positions[MAX_NB_BEACONS];
     point_t actual_positions[MAX_NB_BEACONS];
+    memset(last_assos, 0, sizeof(last_assos));
 
     calculate_coor:
         calc_expected_beacon_pos(estimated_odom, expected_positions);
@@ -77,6 +93,9 @@ pose_t refine_pose(point_t* candidates, amalgame_t* amalgames, uint16_t nb_amalg
         //TODO : proper typing on find_correspondance
         uint8_t nb_corr = find_correspondance(correspondance, indexs_possibles_candidates, candidates, nb_amalgs, tuning);
         //If can't find beacon using odometry, do it once using larger area (& last lidar data)
+        if(nb_corr == 11111) {
+            return too_many_corr_pose;
+        }
         if(nb_corr < 2 && max_sq_dist != tuning->max_sq_dist_large_expected) {
             estimated_odom = estimated_lidar;
             max_sq_dist = tuning->max_sq_dist_large_expected;
@@ -126,79 +145,47 @@ static uint8_t find_correspondance(uint8_t* correspondances, uint8_t indexs[MAX_
             const point_t candidates[], size_t nb_candidates, pose_tuning_t* tuning) {
     pose_t a,b;
     uint32_t square_dist;
-    valid_combination_t valid_combination = {
-        .nb_beacons = 0,
-    };
-    many_corr = 1; 
 
-    for (uint8_t beacon_i = 0; beacon_i < MAX_NB_BEACONS; beacon_i++)
-    {
-        //foreach amalgame that could be a beacon, check every "geometric shape" : 
-        for (uint8_t beacon_candidate_i = 0; beacon_candidate_i < MAX_CANDIDATES_BEACONS; beacon_candidate_i++)
-        {
-            if(indexs[beacon_i][beacon_candidate_i] == 255) {
-                break;
+    valid_combination_t combinations[MAX_COMBINATIONS];
+    //TODO : manage case 2
+    size_t nb_comb = generate_combination(combinations, MAX_COMBINATIONS, indexs, candidates, tuning->max_dist_beacons);
+    if (nb_comb >= MAX_COMBINATIONS) {
+        //TODO ERROR
+    }
+    uint8_t counts[MAX_COMBINATIONS];
+    size_t max_non_255 = 0;
+
+    for (size_t i = 0; i < nb_comb; i++) {
+        uint8_t count = 0;
+        for (int j = 0; j < MAX_NB_BEACONS; j++) {
+            if (combinations[i].index[j] != 255) {
+                count++;
             }
-            uint8_t matchs[MAX_NB_BEACONS][MAX_CANDIDATES_BEACONS];
-            memset(matchs, 255, sizeof(matchs));
-            point_t a = candidates[indexs[beacon_i][beacon_candidate_i]];
+        }
+        counts[i] = count;
+        if (count >= 2 && count > max_non_255) {
+            max_non_255 = count;
+        }
+    }
 
-            // Remplissage de matchs :
-            for (uint8_t other_i = beacon_i+1; other_i < MAX_NB_BEACONS; other_i++)
-            {
-                uint8_t index_of_match = 0;
-                for (uint8_t other_candidate_i = 0; other_candidate_i < MAX_CANDIDATES_BEACONS; other_candidate_i++)
-                {
-                    if(indexs[other_i][other_candidate_i] == 255) {
-                        break;
-                    }
-                    point_t b = candidates[indexs[other_i][other_candidate_i]];
-                    square_dist = SQUARE(a.x - b.x) + SQUARE(a.y - b.y);
-                    if(fabs(sqrt(square_dist) - sqrt(distances_beacons[beacon_i][other_i])) < tuning->max_dist_beacons) {
-                        matchs[beacon_candidate_i][index_of_match++] = indexs[other_i][other_candidate_i];
-                    }
-
-                }
-                
-            }
-
-            valid_combination_t* combinations;
-                //.nb_beacons = 3,
-                //.index = {0, 0, 0};
-            uint8_t nb_comb = generate_combination(&combinations, matchs);
-            uint8_t unvalid_combination = 0;
-
-            //Verifications de combinaisons, on ne garde que les combinaisons valide les plus longues : 
-            for (size_t comb_i = 0; comb_i < nb_comb; comb_i++)
-            {
-                for (size_t cur_beacon = 1; cur_beacon < MAX_NB_BEACONS; cur_beacon++)
-                {
-                    if(combinations[comb_i].index[cur_beacon-1] == 255 || combinations[comb_i].index[cur_beacon] == 255) {
-                        continue;
-                    }
-                    point_t a = candidates[combinations[comb_i].index[cur_beacon-1]];
-                    point_t b = candidates[combinations[comb_i].index[cur_beacon]];
-                    uint32_t square_dist = SQUARE(a.x - b.x) + SQUARE(a.y - b.y);
-                    if(fabs(sqrt(square_dist) - sqrt(distances_beacons[cur_beacon-1][cur_beacon])) > tuning->max_dist_beacons) {
-                        unvalid_combination = 1;
-                        break;
-                    }
-                }
-                if (unvalid_combination)
-                {
-                    unvalid_combination = 0;
-                    continue;
-                }
-                many_corr = update_valid_combination(&valid_combination, combinations[comb_i]);
-                
-            }
+    // Process combinations that meet the criteria
+    uint8_t nb_max_length = 0;
+    uint16_t index_valid_comb = 0;
+    for (size_t i = 0; i < nb_comb; i++) {
+        if (counts[i] >= 2 && counts[i] == max_non_255) {
+            nb_max_length++;
+            index_valid_comb = i;
         }
     }
     for (size_t i = 0; i < MAX_NB_BEACONS; i++)
     {
-        correspondances[i] = valid_combination.index[i];
+        correspondances[i] = combinations[index_valid_comb].index[i];
     }
-    return valid_combination.nb_beacons;
+    
+    if(nb_max_length > 255) { //TODO : change this RANDOM VALUE
+        return 11111; //TODO : ERROR TO HANDLE
+    }
+    return max_non_255;
 }
 
 //REturns 0 if reaching max amount  candidates
@@ -219,50 +206,65 @@ static uint8_t indexs_closest_amalg(uint8_t indexs[MAX_CANDIDATES_BEACONS], poin
     return 1;
 }
 
+//Returns length of number of combination
+static size_t generate_combination(valid_combination_t* combinations, uint16_t max_combinations, 
+    const uint8_t indexs[MAX_NB_BEACONS][MAX_CANDIDATES_BEACONS], const point_t candidates[], uint32_t max_dist) {
+    size_t combination_count = 0;
+    uint8_t temp_combinations[MAX_NB_BEACONS][MAX_CANDIDATES_BEACONS];
+    uint8_t nb_candidates[MAX_NB_BEACONS];
+    memset(temp_combinations, 255, sizeof(temp_combinations));
+    memset(nb_candidates, 1, sizeof(nb_candidates));
 
-//generate combination keeping order (exemple : [1, [3,4], [6,7]] -> [1,3,6], [1,4,6], [1,3,7], [1,4,7] )
-static size_t generate_combination(valid_combination_t **combinations, const uint8_t matchs[MAX_NB_BEACONS][MAX_CANDIDATES_BEACONS]) {
-    //TODO : gérer combinaison plein de 255
-    //TODO : gérer combinaison avec matchs[0][0] = 255
-    uint8_t possibilities[MAX_NB_BEACONS] = {1};
-    uint16_t count = 1;
-
-    //calculate number of combinations
-    for (size_t i = 0; i < MAX_NB_BEACONS; i++)
-    {
-        for (size_t amalg = 0; amalg < MAX_CANDIDATES_BEACONS; amalg++)
-        {
-            if(matchs[i][amalg] == 255) {
-                possibilities[i] = amalg;
-                break;
+    //Filter valid beacons with distance of "first beacon" in the combination
+    for (size_t beacon = 0; beacon < MAX_NB_BEACONS-1; ++beacon) {
+        for (size_t i = 0; i < MAX_CANDIDATES_BEACONS; ++i) {
+            if (indexs[beacon][i] == 255) {
+                break; // No more valid candidates for this beacon
             }
 
-        }
-        if(possibilities[i] != 0) {
-            count *= possibilities[i];
-        }
-    }
-    
-    *combinations = (valid_combination_t*) calloc(count, sizeof(valid_combination_t));;
-    uint8_t max_comb = 0;
-    for (size_t beacon = 0; beacon < count; beacon++)
-    {
-        for (size_t i = 0; i < max_comb; i++)
-        {
-            (*combinations)[i].index[beacon] = matchs[beacon][0];
-        }
-        
-       for (size_t amalg = 1; amalg < possibilities[beacon]; amalg++)
-       {
-            for (size_t i = 0; i < max_comb; i++)
+            //generate combination keeping order (exemple : [1, [3,4], [6,7]])
+            for (size_t other_beacon = beacon+1; other_beacon < MAX_NB_BEACONS; other_beacon++)
             {
-                (*combinations)[max_comb] = (*combinations)[i];
-                (*combinations)[max_comb].index[beacon] = matchs[beacon][amalg];
+                size_t temp_idx_cand_other = 0;
+                for (size_t j = 0; j < MAX_CANDIDATES_BEACONS; ++j) {
+                    if (indexs[other_beacon][j] == 255) {
+                        break;
+                    }
+                    float dist_beacons = sqrt(sq_dist(candidates[indexs[beacon][i]],
+                    candidates[indexs[other_beacon][j]]));
+                    if (in_range(dist_beacons, distances_beacons[beacon][other_beacon], max_dist)) {
+                        temp_combinations[other_beacon][temp_idx_cand_other++] = indexs[other_beacon][j];
+                        nb_candidates[other_beacon]++;
+                    }
+                }
             }
-            max_comb *= possibilities[beacon]; 
-       }
+    
+           uint16_t possibilities = 1;
+            for (size_t j = 0; j < MAX_NB_BEACONS; j++)
+            {
+                possibilities *= nb_candidates[j];
+            }
+
+            if(combination_count + possibilities >= max_combinations) {
+                return max_combinations; //ERROR : too many combinations found
+            }
+            for (uint16_t combo_id = combination_count; combo_id < combination_count + possibilities; combo_id++) {
+                // Calculate indices for each array
+                uint16_t divisor = possibilities;
+                for (int8_t j = 0; j < MAX_NB_BEACONS; j++) {
+                    divisor /= nb_candidates[j];
+                    uint8_t array_index = (combo_id / divisor) % nb_candidates[j];
+                    combinations[combo_id].index[j] = temp_combinations[j][array_index];
+                }
+                combinations[combo_id].index[beacon] = indexs[beacon][i]; //Force current "first compared beacon"
+            }
+            combination_count += possibilities;
+        }
     }
-    return count;
+    return combination_count;
+
+
+
     
 }
 
@@ -287,3 +289,11 @@ static uint8_t update_valid_combination(valid_combination_t* valid_combination, 
     }
     
 }
+
+static float sq_dist(point_t a, point_t b) {
+    return SQUARE(a.x - b.x) + SQUARE(a.y - b.y); 
+}
+
+static bool in_range(float dist, float expected_dist, float err_tolerance) {
+    return abs(dist-expected_dist) < err_tolerance;
+} 

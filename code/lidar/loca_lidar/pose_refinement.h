@@ -6,6 +6,7 @@
 
 #define MAX_NB_BEACONS 3
 #define MAX_CANDIDATES_BEACONS 5
+#define POW_CANDIDATE_BEACONS 25 //MAX_CANDIDATES_BEACONS^MAX_NB_BEACONS = 5^(3-1)
 #define SQUARE(x) ((x) * (x))
 
 typedef struct {
@@ -23,6 +24,7 @@ extern pose_t estimated_lidar;
 extern pose_t refined_lidar;
 extern uint16_t last_assos[MAX_NB_BEACONS]; //index of last_asso = beacon, content = amalgame
 
+extern pose_t too_many_corr_pose;
 
 static point_t beacon_positions[3] = {
     {3094, 50},
@@ -48,7 +50,8 @@ static int8_t index_closest_amalg(point_t expected, const point_t candidates[], 
     int32_t max_sq_dist);
 static uint8_t indexs_closest_amalg(uint8_t indexs[MAX_CANDIDATES_BEACONS], point_t expected, const point_t candidates[], 
     size_t nb_candidates, int32_t max_sq_dist);
-static size_t generate_combination(valid_combination_t* combinations, const uint8_t matchs[MAX_NB_BEACONS][MAX_CANDIDATES_BEACONS]);
+static size_t generate_combination(valid_combination_t* combinations, uint16_t max_combinations, 
+    const uint8_t indexs[MAX_NB_BEACONS][MAX_CANDIDATES_BEACONS], const point_t candidates[], uint32_t max_dist);
 static uint8_t update_valid_combination(valid_combination_t* valid_combination, valid_combination_t combination_add);
 
 

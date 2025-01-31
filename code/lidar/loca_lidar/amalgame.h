@@ -2,10 +2,12 @@
 
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #ifndef M_PI
 #define M_PI 3.1415926535
 #endif
+#define ANGLE_EPSILON 1e-6
 
 #define CENTIDEGREES_TO_RADIANS(deg) ((deg / 100.0) * (M_PI / 180.0))
 #define RADIANS_TO_CENTIDEGREES(rad) ((rad) * (180.0 / M_PI) * 100.0)
@@ -52,6 +54,7 @@ int calc_amalgames(amalgame_finder_tuning_t tuning, raw_lidar_t data, amalgame_t
 int get_amalg_center(raw_lidar_t* centers_out, raw_lidar_t* amalgames);
 static void reset_amalgame(amalgame_t* item, uint8_t nb_pts, uint8_t need_free);
 static void reset_raw_lidar(raw_lidar_t *item, uint8_t nb_pts, uint8_t need_free);
+bool are_poses_equal(const pose_t* a, const pose_t* b);
 static int8_t combine_amalg(amalgame_t* dest, amalgame_t* add, uint16_t max_count);
 static uint16_t junction_avg_angle(uint16_t* angles, uint8_t count); //manage edge case when both angles overlap 360°/0°
 

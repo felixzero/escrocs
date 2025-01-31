@@ -51,6 +51,9 @@ void process_lidar(raw_lidar_t lidar) {
   //Calculate pose
   //TODO : separate estimated_lidar and estimated_pose
   pose_t pose = refine_pose(pts, full_amalgames, nb_amalg, estimated_lidar, &pose_tuning);
+  if(are_poses_equal(&pose, &too_many_corr_pose)) {
+    std::cout << "too many correspondances error !" <<std::endl;
+  }
   std::cout << "pose : " << pose.angle_rad << " x " << pose.pos.x << " y " << pose.pos.y << std::endl;
   std::cout << "associations : " << last_assos[0] << " " << last_assos[1] << " " << last_assos[2] << std::endl;
   //TODO : a delete
