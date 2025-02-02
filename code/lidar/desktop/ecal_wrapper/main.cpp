@@ -54,6 +54,10 @@ void process_lidar(raw_lidar_t lidar) {
   if(are_poses_equal(&pose, &too_many_corr_pose)) {
     std::cout << "too many correspondances error !" <<std::endl;
   }
+    if(are_poses_equal(&pose, &too_many_candidates_pose)) {
+    std::cout << +indexs_debug[0] << " " << +indexs_debug[1] << " " << +indexs_debug[2] << " " << +indexs_debug[3] << " " << +indexs_debug[4] << std::endl; 
+    std::cout << "too many candidates error !" <<std::endl;
+  }
   std::cout << "pose : " << pose.angle_rad << " x " << pose.pos.x << " y " << pose.pos.y << std::endl;
   std::cout << "associations : " << last_assos[0] << " " << last_assos[1] << " " << last_assos[2] << std::endl;
   //TODO : a delete

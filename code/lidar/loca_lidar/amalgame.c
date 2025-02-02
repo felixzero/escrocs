@@ -4,6 +4,10 @@
 #include <stdlib.h>
 #include <math.h>
 
+#define MIN_FAR_AMALG_COUNT 1
+#define MIN_CLOSE_AMALG_COUNT 4
+#define FAR_DIST_MM 1000
+#define OFFSET_AMALG_CENTER 40 //mm //Used to better approximate center of beacon by adding distance, should be radius of beacon
 
 static raw_lidar_t empty_lidar = {
     .count = 0,
@@ -44,11 +48,15 @@ int calc_amalgames(amalgame_finder_tuning_t tuning, raw_lidar_t data, amalgame_t
         || (data.intensities[i] < tuning.min_intensity)
         || (last_dist != 0 && abs(last_dist - cur_dist) > tuning.max_distance_betwn_pts)
         ) {
-            if(last_dist != 0 && (*cur_amalg).pts->count >= 2) {  //exclude too small amalgame & reset it
+
+            if(last_dist != 0 && ((*cur_amalg).pts->count >= 
+                ((last_dist > FAR_DIST_MM) ? MIN_FAR_AMALG_COUNT : MIN_CLOSE_AMALG_COUNT))
+            ) {  //exclude too small amalgame & reset it
                 (*cur_amalg).avg_angle = small_angle_nb && high_angle_nb ?
                 junction_avg_angle((*cur_amalg).pts->angles, (*cur_amalg).pts->count) :
                 (uint16_t) (avg_angle / (*cur_amalg).pts->count);
                 (*cur_amalg).avg_dist = (uint16_t) (avg_dist / (*cur_amalg).pts->count);
+                (*cur_amalg).avg_dist += OFFSET_AMALG_CENTER;
                 cur_amalg = &amalgames_out[++amalgs_i];
             }
             if(amalgs_i == tuning.max_amalg_count - 1) { // TODO : improve management of too many amalgames
@@ -58,7 +66,7 @@ int calc_amalgames(amalgame_finder_tuning_t tuning, raw_lidar_t data, amalgame_t
         }
         
         if(last_dist == 0) {
-            if ((*cur_amalg).pts->count == 20 || (*cur_amalg).pts->count < 2)
+            if ((*cur_amalg).pts->count == tuning.max_pt_per_amalg || (*cur_amalg).pts->count < MIN_CLOSE_AMALG_COUNT)
             {
                 reset_amalgame(cur_amalg, tuning.max_pt_per_amalg, 1);
             }

@@ -73,7 +73,8 @@
         "amalgame.h": "c",
         "loca_lidar.h": "c",
         "least_square_helpers.h": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "pose_refinement.h": "c"
     },
     "cmake.ignoreCMakeListsMissing": true
 }

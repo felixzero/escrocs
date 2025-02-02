@@ -5,7 +5,7 @@
 #include "least_square_helpers.h"
 
 #define MAX_NB_BEACONS 3
-#define MAX_CANDIDATES_BEACONS 5
+#define MAX_CANDIDATES_BEACONS 8 //Careful : last index is kept as 255 for further processing
 #define POW_CANDIDATE_BEACONS 25 //MAX_CANDIDATES_BEACONS^MAX_NB_BEACONS = 5^(3-1)
 #define SQUARE(x) ((x) * (x))
 
@@ -23,8 +23,10 @@ typedef struct {
 extern pose_t estimated_lidar;
 extern pose_t refined_lidar;
 extern uint16_t last_assos[MAX_NB_BEACONS]; //index of last_asso = beacon, content = amalgame
+extern uint8_t indexs_debug[MAX_CANDIDATES_BEACONS];
 
 extern pose_t too_many_corr_pose;
+extern pose_t too_many_candidates_pose;
 
 static point_t beacon_positions[3] = {
     {3094, 50},

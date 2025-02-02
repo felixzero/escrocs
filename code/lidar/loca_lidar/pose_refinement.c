@@ -23,6 +23,12 @@ pose_t too_many_corr_pose = {
     .pos.y = -1.0
 }; //Used for error handling
 
+pose_t too_many_candidates_pose = {
+    .angle_rad = -1.0,
+    .pos.x = -3.0,
+    .pos.y = -1.0
+}; //Used for error handling
+
 //use generate_sq_dist_beacons.py
 //uint32_t distances_beacons[MAX_NB_BEACONS][MAX_NB_BEACONS] = {
 //    {0, 11065844, 3610000}, {0, 0, 11065844}, {0, 0, 0},
@@ -36,6 +42,7 @@ static bool in_range(float dist, float expected_dist, float err_tolerance);
 
 pose_t refined_lidar;
 uint16_t last_assos[MAX_NB_BEACONS];
+uint8_t indexs_debug[MAX_CANDIDATES_BEACONS];
 uint8_t many_corr = 1; //Used to know if multiple correspondances of maximum length has been found (=> 0)
 
 void convert_xy(point_t* pts, uint16_t count, const uint16_t angles[], const uint16_t distances[]) {
@@ -86,6 +93,12 @@ pose_t refine_pose(point_t* candidates, amalgame_t* amalgames, uint16_t nb_amalg
             uint8_t status = indexs_closest_amalg(indexs_possibles_candidates[i], expected_positions[i], 
             candidates, nb_amalgs, max_sq_dist);
             if(status != 1) {
+                for (size_t j = 0; j < MAX_CANDIDATES_BEACONS; j++)
+                {
+                    indexs_debug[j] = indexs_possibles_candidates[i][j];
+                }
+                
+                return too_many_candidates_pose;
                 //TODO error management 
             }
         }
@@ -198,7 +211,7 @@ static uint8_t indexs_closest_amalg(uint8_t indexs[MAX_CANDIDATES_BEACONS], poin
         if(dist < max_sq_dist) {
             indexs[cur_index++] = i;
         }
-        if (cur_index >= MAX_CANDIDATES_BEACONS)
+        if (cur_index >= MAX_CANDIDATES_BEACONS - 1)
         {
             return 0;
         }        
