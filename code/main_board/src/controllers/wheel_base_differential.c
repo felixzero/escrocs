@@ -68,16 +68,17 @@ void motion_control_update_pose(
     float inc1 = ((current_encoder->channel1 - previous_encoder->channel1) / 360.0) * (motion_data->tuning->wheel_radius_mm * 2) * M_PI;
     float inc2 = ((current_encoder->channel2 - previous_encoder->channel2) / 360.0) * (motion_data->tuning->wheel_radius_mm * 2) * M_PI;
 
-    current_pose->x += (inc1 + inc2) * cosf(current_pose->theta) / 2.0;
-    current_pose->y += (inc1 + inc2) * sinf(current_pose->theta) / 2.0;
-    current_pose->theta += (inc2 - inc1) / motion_data->tuning->robot_radius_mm;
+   //jonathan test
+    //current_pose->x += (inc1 + inc2) * cosf(current_pose->theta) / 2.0;
+    //current_pose->y += (inc1 + inc2) * sinf(current_pose->theta) / 2.0;
+    //current_pose->theta += (inc2 - inc1) / motion_data->tuning->robot_radius_mm;
     //OLD 
     //float inc1 = ((current_encoder->channel1 - previous_encoder->channel1) / 360.0) * (motion_data->tuning->wheel_radius_mm * 2) * M_PI;
     //float inc2 = ((current_encoder->channel2 - previous_encoder->channel2) / 360.0) * (motion_data->tuning->wheel_radius_mm * 2) * M_PI;
 //
-    //current_pose->x += (inc1 - inc2) * cosf(current_pose->theta) / 2.0;
-    //current_pose->y += (inc1 - inc2) * sinf(current_pose->theta) / 2.0;
-    //current_pose->theta -= (inc2 + inc1) / motion_data->tuning->robot_radius_mm;
+    current_pose->x += (inc1 - inc2) * cosf(current_pose->theta) / 2.0;
+    current_pose->y += (inc1 - inc2) * sinf(current_pose->theta) / 2.0;
+    current_pose->theta -= (inc2 + inc1) / motion_data->tuning->robot_radius_mm;
 }
 
 void motion_control_apply_speed(motion_data_t *motion_data, motion_status_t *motion_target, const pose_t *current_pose, bool force_deceleration)
