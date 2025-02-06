@@ -6,6 +6,8 @@
 #include <stdint.h>
 #include <math.h>
 
+#include "esp_log.h"
+
 #define MOTOR_I2C_ADDR 0x0A
 #define TICK_PER_DEGREE 1.0
 
@@ -44,9 +46,10 @@ esp_err_t read_encoder_increment(encoder_measurement_t *measurement) {
 esp_err_t write_motor_speed_raw(float speed1, float speed2, float speed3) {
     int8_t buffer[7];
     buffer[0] = I2C_REG_MOTOR_PWM_0L;
-    *((int16_t*)&buffer[1]) = 255 * CLAMP_ABS(speed1, 0.66); //0.66 due to 18V battery
-    *((int16_t*)&buffer[3]) = 255 * CLAMP_ABS(speed2, 0.66);
-    *((int16_t*)&buffer[5]) = 255 * CLAMP_ABS(speed3, 0.66);
+    *((int16_t*)&buffer[1]) = 160 * CLAMP_ABS(speed1, 1.0); //160 instead of 255 due to 18V battery
+    *((int16_t*)&buffer[3]) = 160 * CLAMP_ABS(speed2, 1.0);
+    *((int16_t*)&buffer[5]) = 160 * CLAMP_ABS(speed3, 1.0);
+    ESP_LOGI("Motor", "Speeds: %d %d %d", *((int16_t*)&buffer[1]), *((int16_t*)&buffer[3]), *((int16_t*)&buffer[5]));
     send_to_i2c(I2C_PORT_MOTOR, MOTOR_I2C_ADDR, &buffer, sizeof(buffer));
     return ESP_OK;
 }
