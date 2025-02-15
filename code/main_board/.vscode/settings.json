@@ -65,7 +65,10 @@
         "esp_spiffs.h": "c",
         "actions_lua_functions.h": "c",
         "motor_board_v2.h": "c",
-        "stddef.h": "c"
+        "stddef.h": "c",
+        "game_actions.h": "c",
+        "compare": "c",
+        "cstdint": "c"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }
