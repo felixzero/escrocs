@@ -32,11 +32,23 @@ void app_main() {
     vTaskDelay(pdMS_TO_TICKS(500));
     init_udp_logger();
     ESP_LOGI("main", "init done !");
+
+    //TODO : create mockup of all the peripherals
+    if (motion_cone_queue == NULL) {
+        motion_cone_queue = xQueueCreate(1, sizeof(scan_angle_t));
+    }
     //display_initialization_status("Ultrasonic", init_ultrasonic_board());
     //display_initialization_status("US control", init_us_controller());
     display_initialization_status("Motor board", init_motor_board());
     display_initialization_status("Motion ctrl", init_motion_control(false));//is_reversed));
 
+    //vTaskDelay(pdMS_TO_TICKS(1000));
+    //pose_t target;
+    //target.x = 0.0f;
+    //target.y = 0.0f;
+    //target.theta = 3.14f;
+    //set_motion_target(&target, false);
+    
     //display_initialization_status("Peripherals", init_peripherals());
 
     //char *table_sides[] = { "Left", "Right" };
