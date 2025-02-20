@@ -1,0 +1,730 @@
+eived message: I (89919) Motion control [DD]: target 6.280718, anglecorr : -0.076785, error : -0.005337, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (89929) Motion control [DD]: wheel1 : -0.480804, wheel2 : 0.519196, 
+from ('192.168.6.1', 61290)
+received message: I (89939) Motion control [DD]: pose 1033.463867 -305.652557 -0.002870 enc 0.000000 859.000000 -858.000000
+from ('192.168.6.1', 61290)
+received message: I (89949) Motion control [DD]: target 6.280718, anglecorr : 0.012187, error : 0.000403, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (89959) Motion control [DD]: wheel1 : -0.503047, wheel2 : 0.496953, 
+from ('192.168.6.1', 61290)
+received message: I (89969) Motion control [DD]: pose 1022.232727 -305.620331 -0.008611 enc 0.000000 847.000000 -844.000000
+from ('192.168.6.1', 61290)
+received message: I (89979) Motion control [DD]: target 6.280718, anglecorr : 0.104038, error : 0.006144, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (89989) Motion control [DD]: wheel1 : -0.526009, wheel2 : 0.473991, 
+from ('192.168.6.1', 61290)
+received message: I (89999) Motion control [DD]: pose 1011.001953 -305.523621 -0.014351 enc 0.000000 835.000000 -830.000000
+from ('192.168.6.1', 61290)
+received message: I (90009) Motion control [DD]: target 6.280718, anglecorr : 0.195880, error : 0.011884, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (90059) Motion control [DD]: pose 987.678528 -305.155426 -0.020092 enc 0.000000 809.000000 -802.000000
+from ('192.168.6.1', 61290)
+received message: I (90069) Motion control [DD]: target 6.280718, anglecorr : 0.284860, error : 0.017624, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (90079) Motion control [DD]: wheel1 : -0.571215, wheel2 : 0.428785, 
+from ('192.168.6.1', 61290)
+received message: I (90089) Motion control [DD]: pose 976.449585 -304.929779 -0.014351 enc 0.000000 795.000000 -790.000000
+from ('192.168.6.1', 61290)
+received message: I (90099) Motion control: Encoders: 0.000000 795.000000 -790.000000
+from ('192.168.6.1', 61290)
+received message: I (90099) Motion control: Pose: 976.449585 -304.929779 -0.014351
+from ('192.168.6.1', 61290)
+received message: I (90109) Motion control [DD]: target 6.280718, anglecorr : 0.184399, error : 0.011884, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (90159) Motion control [DD]: pose 947.941589 -304.621063 0.002870 enc 0.000000 759.000000 -760.000000
+from ('192.168.6.1', 61290)
+received message: I (90169) Motion control [DD]: target 6.280718, anglecorr : -0.094007, error : -0.005337, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (90179) Motion control [DD]: wheel1 : -0.476498, wheel2 : 0.523502, 
+from ('192.168.6.1', 61290)
+received message: I (90189) Motion control [DD]: pose 936.278503 -304.654541 0.011481 enc 0.000000 744.000000 -748.000000
+from ('192.168.6.1', 61290)
+received message: I (90199) Motion control [DD]: target 6.280718, anglecorr : -0.231778, error : -0.013948, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (90209) Motion control [DD]: wheel1 : -0.442055, wheel2 : 0.557945, 
+from ('192.168.6.1', 61290)
+received message: I (90269) Motion control [DD]: wheel1 : -0.420528, wheel2 : 0.579472, 
+from ('192.168.6.1', 61290)
+received message: I (90279) Motion control [DD]: pose 900.860779 -305.164124 0.017221 enc 0.000000 702.000000 -708.000000
+from ('192.168.6.1', 61290)
+received message: I (90279) Motion control [DD]: target 6.280718, anglecorr : -0.315018, error : -0.019689, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (90299) Motion control [DD]: wheel1 : -0.421246, wheel2 : 0.578754, 
+from ('192.168.6.1', 61290)
+received message: I (90309) Motion control [DD]: pose 889.631226 -305.357544 0.011481 enc 0.000000 690.000000 -694.000000
+from ('192.168.6.1', 61290)
+received message: I (90309) Motion control [DD]: target 6.280718, anglecorr : -0.217427, error : -0.013948, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (90319) Motion control [DD]: wheel1 : -0.445643, wheel2 : 0.554357, 
+from ('192.168.6.1', 61290)
+received message: I (90329) Motion control [DD]: pose 877.968811 -305.491455 0.002870 enc 0.000000 678.000000 -679.000000
+from ('192.168.6.1', 61290)
+received message: I (90339) Motion control [DD]: target 6.280718, anglecorr : -0.076785, error : -0.005337, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (90349) Motion control [DD]: wheel1 : -0.480804, wheel2 : 0.519196, 
+from ('192.168.6.1', 61290)
+received message: I (90359) Motion control [DD]: pose 866.305725 -305.524933 -0.005740 enc 0.000000 666.000000 -664.000000
+from ('192.168.6.1', 61290)
+received message: I (90369) Motion control [DD]: target 6.280718, anglecorr : 0.060987, error : 0.003273, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (90379) Motion control [DD]: wheel1 : -0.515247, wheel2 : 0.484753, 
+from ('192.168.6.1', 61290)
+received message: I (90389) Motion control [DD]: pose 854.642761 -305.457977 -0.020092 enc 0.000000 655.000000 -648.000000
+from ('192.168.6.1', 61290)
+received message: I (90399) Motion control: Encoders: 0.000000 655.000000 -648.000000
+from ('192.168.6.1', 61290)
+received message: I (90409) Motion control: Pose: 854.642761 -305.457977 -0.020092
+from ('192.168.6.1', 61290)
+received message: I (90409) Motion control [DD]: target 6.280718, anglecorr : 0.296341, error : 0.017624, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (90579) Motion control [DD]: pose 779.932922 -303.845123 0.011481 enc 0.000000 563.000000 -567.000000
+from ('192.168.6.1', 61290)
+received message: I (90669) Motion control [DD]: target 6.280718, anglecorr : -0.447049, error : -0.028299, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (90679) Motion control [DD]: wheel1 : -0.388238, wheel2 : 0.611762, 
+from ('192.168.6.1', 61290)
+received message: I (90689) Motion control [DD]: pose 732.430847 -304.969574 0.017221 enc 0.000000 507.000000 -513.000000
+from ('192.168.6.1', 61290)
+received message: I (90699) Motion control: Encoders: 0.000000 507.000000 -513.000000
+from ('192.168.6.1', 61290)
+received message: I (90709) Motion control: Pose: 732.430847 -304.969574 0.017221
+from ('192.168.6.1', 61290)
+received message: I (90769) Motion control [DD]: target 6.280718, anglecorr : -0.269096, error : -0.016819, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (90789) Motion control [DD]: wheel1 : -0.432726, wheel2 : 0.567274, 
+from ('192.168.6.1', 61290)
+received message: I (90799) Motion control [DD]: pose 693.126465 -305.582001 0.008611 enc 0.000000 463.000000 -466.000000
+from ('192.168.6.1', 61290)
+received message: I (90799) Motion control [DD]: target 6.280718, anglecorr : -0.171505, error : -0.011078, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (90879) Motion control [DD]: pose 660.297302 -305.645233 -0.002870 enc 0.000000 427.000000 -426.000000
+from ('192.168.6.1', 61290)
+received message: I (90889) Motion control [DD]: target 6.280718, anglecorr : 0.006447, error : 0.000403, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (90899) Motion control [DD]: wheel1 : -0.501612, wheel2 : 0.498388, 
+from ('192.168.6.1', 61290)
+received message: I (90909) Motion control [DD]: pose 648.634216 -305.611755 -0.005740 enc 0.000000 414.000000 -412.000000
+from ('192.168.6.1', 61290)
+received message: I (90919) Motion control [DD]: target 6.280718, anglecorr : 0.055246, error : 0.003273, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (90989) Motion control [DD]: wheel1 : -0.489414, wheel2 : 0.510586, 
+from ('192.168.6.1', 61290)
+received message: I (90999) Motion control [DD]: pose 615.372803 -305.516296 0.002870 enc 0.000000 374.000000 -375.000000
+from ('192.168.6.1', 61290)
+received message: I (90999) Motion control: Encoders: 0.000000 374.000000 -375.000000
+from ('192.168.6.1', 61290)
+received message: I (91009) Motion control: Pose: 615.372803 -305.516296 0.002870
+from ('192.168.6.1', 61290)
+received message: I (91019) Motion control [DD]: target 6.280718, anglecorr : -0.088266, error : -0.005337, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (91029) Motion control [DD]: wheel1 : -0.477934, wheel2 : 0.522066, 
+from ('192.168.6.1', 61290)
+received message: I (91089) Motion control [DD]: wheel1 : -0.419093, wheel2 : 0.580907, 
+from ('192.168.6.1', 61290)
+received message: I (91099) Motion control [DD]: pose 575.201843 -305.859741 0.022962 enc 0.000000 324.000000 -332.000000
+from ('192.168.6.1', 61290)
+received message: I (91109) Motion control [DD]: target 6.280718, anglecorr : -0.412601, error : -0.025429, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (91119) Motion control [DD]: wheel1 : -0.396850, wheel2 : 0.603150, 
+from ('192.168.6.1', 61290)
+received message: I (91129) Motion control [DD]: pose 564.405457 -306.107697 0.020092 enc 0.000000 312.000000 -319.000000
+from ('192.168.6.1', 61290)
+received message: I (91129) Motion control [DD]: target 6.280718, anglecorr : -0.358069, error : -0.022559, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (91149) Motion control [DD]: wheel1 : -0.410483, wheel2 : 0.589517, 
+from ('192.168.6.1', 61290)
+received message: I (91179) Motion control [DD]: pose 541.082703 -306.511841 0.002870 enc 0.000000 288.000000 -289.000000
+from ('192.168.6.1', 61290)
+received message: I (91189) Motion control [DD]: target 6.280718, anglecorr : -0.073915, error : -0.005337, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (91199) Motion control [DD]: wheel1 : -0.481521, wheel2 : 0.518479, 
+from ('192.168.6.1', 61290)
+received message: I (91209) Motion control [DD]: pose 529.851562 -306.544067 -0.008611 enc 0.000000 277.000000 -274.000000
+from ('192.168.6.1', 61290)
+received message: I (91219) Motion control [DD]: target 6.280718, anglecorr : 0.109778, error : 0.006144, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (91229) Motion control [DD]: wheel1 : -0.527444, wheel2 : 0.472556, 
+from ('192.168.6.1', 61290)
+received message: I (91239) Motion control [DD]: pose 518.188843 -306.443634 -0.022962 enc 0.000000 266.000000 -258.000000
+from ('192.168.6.1', 61290)
+received message: I (91249) Motion control [DD]: target 6.280718, anglecorr : 0.342262, error : 0.020494, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (91259) Motion control [DD]: wheel1 : -0.585566, wheel2 : 0.414434, 
+from ('192.168.6.1', 61290)
+received message: I (91269) Motion control [DD]: pose 506.960602 -306.185760 -0.034443 enc 0.000000 255.000000 -243.000000
+from ('192.168.6.1', 61290)
+received message: I (91279) Motion control [DD]: target 6.280718, anglecorr : 0.523093, error : 0.031976, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (91289) Motion control [DD]: wheel1 : -0.630773, wheel2 : 0.369227, 
+from ('192.168.6.1', 61290)
+received message: I (91299) Motion control [DD]: pose 495.736084 -305.799011 -0.040183 enc 0.000000 243.000000 -229.000000
+from ('192.168.6.1', 61290)
+received message: I (91309) Motion control: Encoders: 0.000000 243.000000 -229.000000
+from ('192.168.6.1', 61290)
+received message: I (91309) Motion control: Pose: 495.736084 -305.799011 -0.040183
+from ('192.168.6.1', 61290)
+received message: I (91319) Motion control [DD]: target 6.280718, anglecorr : 0.609195, error : 0.037716, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (91329) Motion control [DD]: wheel1 : -0.652299, wheel2 : 0.347701, 
+from ('192.168.6.1', 61290)
+received message: I (91339) Motion control [DD]: pose 478.902893 -305.122223 -0.037313 enc 0.000000 223.000000 -210.000000
+from ('192.168.6.1', 61290)
+received message: I (91389) Motion control [DD]: wheel1 : -0.590590, wheel2 : 0.409410, 
+from ('192.168.6.1', 61290)
+received message: I (91489) Motion control [DD]: target 6.280718, anglecorr : -0.280578, error : -0.016819, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (91509) Motion control [DD]: wheel1 : -0.429856, wheel2 : 0.570144, 
+from ('192.168.6.1', 61290)
+received message: I (91519) Motion control [DD]: pose 410.666840 -304.297852 0.020092 enc 0.000000 134.000000 -141.000000
+from ('192.168.6.1', 61290)
+received message: I (91519) Motion control [DD]: target 6.280718, anglecorr : -0.366679, error : -0.022559, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (91529) Motion control [DD]: wheel1 : -0.408330, wheel2 : 0.591670, 
+from ('192.168.6.1', 61290)
+received message: I (91539) Motion control [DD]: pose 399.437927 -304.523499 0.014351 enc 0.000000 122.000000 -127.000000
+from ('192.168.6.1', 61290)
+received message: I (91599) Motion control [DD]: pose 376.977448 -304.814880 0.002870 enc 0.000000 98.000000 -99.000000
+from ('192.168.6.1', 61290)
+received message: I (91609) Motion control: Encoders: 0.000000 98.000000 -99.000000
+from ('192.168.6.1', 61290)
+received message: I (91619) Motion control: Pose: 376.977448 -304.814880 0.002870
+from ('192.168.6.1', 61290)
+received message: I (91619) Motion control [DD]: target 6.280718, anglecorr : -0.076785, error : -0.005337, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (91639) Motion control [DD]: wheel1 : -0.480804, wheel2 : 0.519196, 
+from ('192.168.6.1', 61290)
+received message: I (91639) Motion control [DD]: pose 360.130737 -304.863220 -0.011481 enc 0.000000 81.000000 -77.000000
+from ('192.168.6.1', 61290)
+received message: I (91699) Motion control [DD]: pose 337.670746 -304.540863 -0.017221 enc 0.000000 56.000000 -50.000000
+from ('192.168.6.1', 61290)
+received message: I (91709) Motion control [DD]: target 6.280718, anglecorr : 0.236069, error : 0.014754, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (91719) Motion control [DD]: wheel1 : -0.559017, wheel2 : 0.440983, 
+from ('192.168.6.1', 61290)
+received message: I (91729) Motion control [DD]: pose 326.441223 -304.347443 -0.017221 enc 0.000000 43.000000 -37.000000
+from ('192.168.6.1', 61290)
+received message: I (91739) Motion control [DD]: target 6.280718, anglecorr : 0.236069, error : 0.014754, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (91749) Motion control [DD]: wheel1 : -0.559017, wheel2 : 0.440983, 
+from ('192.168.6.1', 61290)
+received message: I (91809) Motion control [DD]: wheel1 : -0.523139, wheel2 : 0.476861, 
+from ('192.168.6.1', 61290)
+received message: I (91819) Motion control [DD]: pose 292.750824 -303.899872 -0.005740 enc 0.000000 2.000000 0.000000
+from ('192.168.6.1', 61290)
+received message: I (91819) Motion control [DD]: target 6.280718, anglecorr : 0.049506, error : 0.003273, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (91839) Motion control [DD]: wheel1 : -0.512376, wheel2 : 0.487624, 
+from ('192.168.6.1', 61290)
+received message: I (91849) Motion control [DD]: pose 281.519806 -303.835388 0.000000 enc 0.000000 -12.000000 12.000000
+from ('192.168.6.1', 61290)
+received message: I (91849) Motion control [DD]: target 6.280718, anglecorr : -0.045215, error : -0.002467, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (91859) Motion control [DD]: wheel1 : -0.488696, wheel2 : 0.511304, 
+from ('192.168.6.1', 61290)
+received message: I (91869) Motion control [DD]: pose 269.856628 -303.835388 0.002870 enc 0.000000 -26.000000 25.000000
+from ('192.168.6.1', 61290)
+received message: I (91879) Motion control [DD]: target 6.280718, anglecorr : -0.088266, error : -0.005337, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (91889) Motion control [DD]: wheel1 : -0.477934, wheel2 : 0.522066, 
+from ('192.168.6.1', 61290)
+received message: I (91899) Motion control [DD]: pose 258.193512 -303.868866 0.000000 enc 0.000000 -39.000000 39.000000
+from ('192.168.6.1', 61290)
+received message: I (91909) Motion control: Encoders: 0.000000 -39.000000 39.000000
+from ('192.168.6.1', 61290)
+received message: I (91919) Motion control: Pose: 258.193512 -303.868866 0.000000
+from ('192.168.6.1', 61290)
+received message: I (91919) Motion control [DD]: target 6.280718, anglecorr : -0.036604, error : -0.002467, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (91939) Motion control [DD]: wheel1 : -0.490849, wheel2 : 0.509151, 
+from ('192.168.6.1', 61290)
+received message: I (91949) Motion control [DD]: pose 241.346725 -303.868866 -0.008611 enc 0.000000 -57.000000 60.000000
+from ('192.168.6.1', 61290)
+received message: I (91949) Motion control [DD]: target 6.280718, anglecorr : 0.106908, error : 0.006144, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (92009) Motion control [DD]: target 6.280718, anglecorr : 0.241809, error : 0.014754, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (92019) Motion control [DD]: wheel1 : -0.560452, wheel2 : 0.439548, 
+from ('192.168.6.1', 61290)
+received message: I (92029) Motion control [DD]: pose 206.792099 -303.438660 -0.014351 enc 0.000000 -96.000000 101.000000
+from ('192.168.6.1', 61290)
+received message: I (92109) Motion control [DD]: wheel1 : -0.487979, wheel2 : 0.512021, 
+from ('192.168.6.1', 61290)
+received message: I (92119) Motion control [DD]: pose 172.668121 -303.177063 0.011481 enc 0.000000 -140.000000 136.000000
+from ('192.168.6.1', 61290)
+received message: I (92129) Motion control [DD]: target 6.280718, anglecorr : -0.234648, error : -0.013948, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (92139) Motion control [DD]: wheel1 : -0.441338, wheel2 : 0.558662, 
+from ('192.168.6.1', 61290)
+received message: I (92149) Motion control [DD]: pose 161.437668 -303.306000 0.022962 enc 0.000000 -155.000000 147.000000
+from ('192.168.6.1', 61290)
+received message: I (92149) Motion control [DD]: target 6.280718, anglecorr : -0.418341, error : -0.025429, absolute_speed : 0.500000
+from ('192.168.6.1', 61290)
+received message: I (92169) Motion control [DD]: wheel1 : -0.395415, wheel2 : 0.604585, 
+from ('192.168.6.1', 61290)
+received message: I (92209) Motion control: Encoders: 0.000000 -182.000000 173.000000
+from ('192.168.6.1', 61290)
+received message: I (92219) Motion control: Pose: 138.550140 -303.863892 0.025832
+from ('192.168.6.1', 61290)
+received message: I (92229) Motion control [DD]: target 6.280718, anglecorr : -0.452789, error : -0.028299, absolute_speed : 0.484414
+from ('192.168.6.1', 61290)
+received message: I (92239) Motion control [DD]: wheel1 : -0.371217, wheel2 : 0.597612, 
+from ('192.168.6.1', 61290)
+received message: I (92249) Motion control [DD]: pose 121.277145 -304.310181 0.020092 enc 0.000000 -201.000000 194.000000
+from ('192.168.6.1', 61290)
+received message: I (92309) Motion control [DD]: target 6.280718, anglecorr : -0.027994, error : -0.002467, absolute_speed : 0.347374
+from ('192.168.6.1', 61290)
+received message: I (92319) Motion control [DD]: wheel1 : -0.340376, wheel2 : 0.354373, 
+from ('192.168.6.1', 61290)
+received message: I (92539) Motion control [DD]: wheel1 : -0.169093, wheel2 : 0.330907, 
+from ('192.168.6.1', 61290)
+received message: I (92549) Motion control [DD]: pose 40.504574 -304.539520 0.028702 enc 0.000000 -296.000000 286.000000
+from ('192.168.6.1', 61290)
+received message: I (92559) Motion control [DD]: target 6.280718, anglecorr : -0.510191, error : -0.031169, absolute_speed : 0.250000
+from ('192.168.6.1', 61290)
+received message: I (92629) Motion control [DD]: wheel1 : -0.149720, wheel2 : 0.350280, 
+from ('192.168.6.1', 61290)
+received message: I (92719) Motion control [DD]: pose 14.592804 -305.088715 0.005740 enc 0.000000 -322.000000 320.000000
+from ('192.168.6.1', 61290)
+received message: I (92729) Motion control [DD]: target 6.280718, anglecorr : -0.125585, error : -0.008208, absolute_speed : 0.250000
+from ('192.168.6.1', 61290)
+received message: I (92829) Motion control [DD]: target 6.280718, anglecorr : -0.036604, error : -0.002467, absolute_speed : 0.250000
+from ('192.168.6.1', 61290)
+received message: I (92929) Motion control [DD]: pose -7.437458 -305.153198 0.014351 enc 0.000000 -349.000000 344.000000
+from ('192.168.6.1', 61290)
+received message: I (93029) Motion control [DD]: pose -7.437458 -305.153198 0.014351 enc 0.000000 -349.000000 344.000000
+from ('192.168.6.1', 61290)
+received message: I (93039) Motion control [DD]: pose -7.437458 -305.153198 0.014351 enc 0.000000 -349.000000 344.000000
+from ('192.168.6.1', 61290)
+received message: I (93049) Motion control [DD]: pose -7.437458 -305.153198 0.014351 enc 0.000000 -349.000000 344.000000
+from ('192.168.6.1', 61290)
+received message: I (93059) Motion control [DD]: pose -7.005534 -305.147003 0.017221 enc 0.000000 -349.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93069) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93079) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93089) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93139) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93149) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93229) Motion control: Pose: -6.573629 -305.139557 0.014351
+from ('192.168.6.1', 61290)
+received message: I (93239) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93249) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93259) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93269) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93279) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93339) Motion control: Encoders: 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93349) Motion control: Pose: -6.573629 -305.139557 0.014351
+from ('192.168.6.1', 61290)
+received message: I (93359) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93369) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93379) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93389) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93539) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93559) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93649) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93659) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93669) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93679) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93689) Motion control: Encoders: 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93699) Motion control: Pose: -6.573629 -305.139557 0.014351
+from ('192.168.6.1', 61290)
+received message: I (93759) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93769) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93779) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93789) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93799) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93799) Motion control: Encoders: 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93849) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93859) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93869) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93879) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93889) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93899) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93909) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93919) Motion control: Encoders: 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93929) Motion control: Pose: -6.573629 -305.139557 0.014351
+from ('192.168.6.1', 61290)
+received message: I (93939) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (93949) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94059) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94069) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94079) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94289) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94299) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94309) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94319) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94329) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94339) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94349) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94359) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94369) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94469) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94479) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94489) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94499) Motion control: Encoders: 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94499) Motion control: Pose: -6.573629 -305.139557 0.014351
+from ('192.168.6.1', 61290)
+received message: I (94509) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94519) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94529) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94539) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94549) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94559) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94569) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94579) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94669) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94679) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94689) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94699) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94709) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94719) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94769) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94779) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94789) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94799) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94879) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94889) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (94969) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95079) Motion control: Pose: -6.573629 -305.139557 0.014351
+from ('192.168.6.1', 61290)
+received message: I (95089) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95099) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95109) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95119) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95129) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95139) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95149) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95159) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95169) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95179) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95189) Motion control: Encoders: 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95199) Motion control: Pose: -6.573629 -305.139557 0.014351
+from ('192.168.6.1', 61290)
+received message: I (95199) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95209) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95289) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95299) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95299) Motion control: Encoders: 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95309) Motion control: Pose: -6.573629 -305.139557 0.014351
+from ('192.168.6.1', 61290)
+received message: I (95319) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95329) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95389) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95489) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95499) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95509) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95519) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95529) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95539) Motion control: Encoders: 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95539) Motion control: Pose: -6.573629 -305.139557 0.014351
+from ('192.168.6.1', 61290)
+received message: I (95549) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95559) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95569) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95579) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95589) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95599) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95609) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95619) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95629) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95639) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95649) Motion control: Encoders: 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95659) Motion control: Pose: -6.573629 -305.139557 0.014351
+from ('192.168.6.1', 61290)
+received message: I (95669) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95679) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95689) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95699) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95709) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95719) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95729) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95739) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95749) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95759) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95769) Motion control: Encoders: 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95769) Motion control: Pose: -6.573629 -305.139557 0.014351
+from ('192.168.6.1', 61290)
+received message: I (95779) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95789) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95799) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95809) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95819) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95829) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95839) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95849) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95859) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95869) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95879) Motion control: Encoders: 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95889) Motion control: Pose: -6.573629 -305.139557 0.014351
+from ('192.168.6.1', 61290)
+received message: I (95899) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95909) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95919) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (95999) Motion control: Pose: -6.573629 -305.139557 0.014351
+from ('192.168.6.1', 61290)
+received message: I (96009) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96099) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96109) Motion control: Encoders: 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96209) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96219) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96229) Motion control: Encoders: 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96229) Motion control: Pose: -6.573629 -305.139557 0.014351
+from ('192.168.6.1', 61290)
+received message: I (96239) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96309) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96319) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96329) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96339) Motion control: Encoders: 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96349) Motion control: Pose: -6.573629 -305.139557 0.014351
+from ('192.168.6.1', 61290)
+received message: I (96409) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96419) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96429) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96439) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96449) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96459) Motion control: Encoders: 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96469) Motion control: Pose: -6.573629 -305.139557 0.014351
+from ('192.168.6.1', 61290)
+received message: I (96469) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96479) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96489) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96499) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96509) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96519) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96529) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96539) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96549) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96559) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96569) Motion control: Encoders: 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96579) Motion control: Pose: -6.573629 -305.139557 0.014351
+from ('192.168.6.1', 61290)
+received message: I (96589) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96599) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96609) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96619) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96629) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96639) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96649) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96659) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96669) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96709) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96819) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96829) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96839) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96849) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96929) Motion control: Pose: -6.573629 -305.139557 0.014351
+from ('192.168.6.1', 61290)
+received message: I (96929) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96939) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96949) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (96969) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (97029) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (97029) Motion control: Encoders: 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (97259) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (97269) Motion control: Encoders: 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (97269) Motion control: Pose: -6.573629 -305.139557 0.014351
+from ('192.168.6.1', 61290)
+received message: I (97279) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (97289) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (97299) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (97439) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (97449) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (97459) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (97469) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+received message: I (97479) Motion control [DD]: pose -6.573629 -305.139557 0.014351 enc 0.000000 -348.000000 343.000000
+from ('192.168.6.1', 61290)
+
+OSSCILIATION SUR LA FIN

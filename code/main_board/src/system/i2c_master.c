@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "system/i2c_master.h"
+#include "esp_log.h"
 
 #define I2C_SDA_PIN_MOTOR 18
 #define I2C_SCL_PIN_MOTOR 19
@@ -74,6 +75,7 @@ void send_to_i2c(int port, uint8_t slave_addr, const void *buffer, size_t length
     ESP_ERROR_CHECK_WITHOUT_ABORT(err);
     if (err != ESP_OK) {
         i2c_reset_tx_fifo(port);
+        ESP_LOGW("I2C", "Error sending to I2C port : %i", port);
     }
     i2c_cmd_link_delete(i2c_handle);
 }

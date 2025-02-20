@@ -18,6 +18,9 @@ typedef struct {
     float allowed_angle_error_rad;
     float deceleration_factor;
     float angle_feedback_p;
+    float angle_feedback_i;
+    float angle_feedback_d;
+    float angle_max_slew_rate;
     float position_feedback_p;
     //Differential drive specific
     float left_right_balance;
