@@ -41,38 +41,30 @@ void app_main() {
     //display_initialization_status("US control", init_us_controller());
     display_initialization_status("Motor board", init_motor_board());
     display_initialization_status("Motion ctrl", init_motion_control(false));//is_reversed));
+    display_initialization_status("Peripherals", init_peripherals());
 
-    //vTaskDelay(pdMS_TO_TICKS(1000));
-    //pose_t target;
-    //target.x = 0.0f;
-    //target.y = 0.0f;
-    //target.theta = 3.14f;
-    //set_motion_target(&target, false);
-    
-    //display_initialization_status("Peripherals", init_peripherals());
-
-    //char *table_sides[] = { "Left", "Right" };
-    //int is_reversed = menu_pick_item("Table side", table_sides, 2);
+    char *table_sides[] = { "Left", "Right" };
+    int is_reversed = menu_pick_item("Table side", table_sides, 2);
 
 
-    //char *strategies[MAX_STRATEGY_DISPLAY];
-    //int number_of_strategies = MAX_STRATEGY_DISPLAY;
-    //for (int index = 0; index < MAX_STRATEGY_DISPLAY; ++index) {
-    //    char *strategy = malloc(STRATEGY_DISPLAYED_LENGTH);
-    //    if (!list_spiffs_files(index, strategy, STRATEGY_DISPLAYED_LENGTH)) {
-    //        free(strategy);
-    //        number_of_strategies = index;
-    //        break;
-    //    }
-    //    strategies[index] = strategy;
-    //}
-    //int picked_strategy = menu_pick_item("Strategy", strategies, number_of_strategies);
-    //for (int index = 0; index < number_of_strategies; ++index) {
-    //    free(strategies[index]);
-    //}
-    //lcd_printf(0, "Side: %s", table_sides[is_reversed]);
-//
-    //init_lua_executor(is_reversed);
-    //pick_strategy_by_spiffs_index(picked_strategy);
+    char *strategies[MAX_STRATEGY_DISPLAY];
+    int number_of_strategies = MAX_STRATEGY_DISPLAY;
+    for (int index = 0; index < MAX_STRATEGY_DISPLAY; ++index) {
+        char *strategy = malloc(STRATEGY_DISPLAYED_LENGTH);
+        if (!list_spiffs_files(index, strategy, STRATEGY_DISPLAYED_LENGTH)) {
+            free(strategy);
+            number_of_strategies = index;
+            break;
+        }
+        strategies[index] = strategy;
+    }
+    int picked_strategy = menu_pick_item("Strategy", strategies, number_of_strategies);
+    for (int index = 0; index < number_of_strategies; ++index) {
+        free(strategies[index]);
+    }
+    lcd_printf(0, "Side: %s", table_sides[is_reversed]);
+
+    init_lua_executor(is_reversed);
+    pick_strategy_by_spiffs_index(picked_strategy);
 
 }

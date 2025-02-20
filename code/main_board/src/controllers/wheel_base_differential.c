@@ -26,6 +26,8 @@ typedef struct {
     float target_x;
     float target_y;
     float target_theta;
+    float sum_angle_err;
+    float last_angle_err;
     const motion_control_tuning_t* tuning;
     unsigned int timer;
 } translation_state_t;
@@ -41,7 +43,7 @@ static pose_t previous_pose;
 
 static void *init_rotation(float destination_angle, const pose_t *current_pose, const motion_control_tuning_t *tuning);
 static bool handle_rotation(void *data, const pose_t *current_pose);
-static void *init_translation(const pose_t *target_pose, const motion_control_tuning_t *tuning);
+static void *init_translation(const pose_t *target_pose, const motion_control_tuning_t *tuning, const pose_t *current_pose);
 static bool handle_translation(void *data, const pose_t *current_pose);
 static float optimal_target_angle(const pose_t *target_pose, const pose_t *current_pose);
 static bool is_xy_close(const pose_t *target_pose, const pose_t *current_pose, const motion_control_tuning_t *tuning);
@@ -49,20 +51,23 @@ static bool is_xy_close(const pose_t *target_pose, const pose_t *current_pose, c
 void motion_control_on_init(motion_control_tuning_t *tuning)
 {
     tuning->wheel_radius_mm = 49.5; //50.05
-    tuning->robot_diameter_mm = 301.0;
+    tuning->robot_diameter_mm = 299.6;
     tuning->min_speed_mps = 0.25f; 
-    tuning->max_speed_mps = 0.5f;
-    tuning->acceleration_mps2 = 0.4f;
+    tuning->max_speed_mps = 0.5f; //0.5
+    tuning->acceleration_mps2 = 0.4f; //0.4f
     tuning->emergency_acceleration_mps2 = 0.2;
     tuning->ultrasonic_detection_angle = 1.0;
     tuning->ultrasonic_min_detection_distance_mm = 30;
     tuning->ultrasonic_ignore_distance_mm = 400;
-    tuning->slow_approach_position_mm = 50; //50
+    tuning->slow_approach_position_mm = 70; //50
     tuning->allowed_error_mm = 3; //3 For "is_xy_close", x2 of this value
     tuning->allowed_angle_error_rad = 0.06f; //about 3 deg
     tuning->deceleration_factor = 0.7;
-    tuning->left_right_balance = 0.00;
-    tuning->angle_feedback_p = 12.0; //12.0
+    tuning->left_right_balance = 0.00; //Somewhat useless
+    tuning->angle_feedback_p = 10.0; //10.0
+    tuning->angle_feedback_i = 1.0;//8.0
+    tuning->angle_feedback_d = 24.0; //16.0
+    tuning->angle_max_slew_rate = 0.1;
     tuning->position_feedback_p = 0.02;
 }
 
@@ -91,7 +96,7 @@ void motion_control_update_pose(
     current_pose->x += (inc1 - inc2) * cosf(current_pose->theta) / 2.0;
     current_pose->y += (inc1 - inc2) * sinf(current_pose->theta) / 2.0;
     current_pose->theta -= (inc2 + inc1) / (motion_data->tuning->robot_diameter_mm);
-    ESP_LOGI(TAG, "pose %f %f %f enc %f %f %f", current_pose->x, current_pose->y, current_pose->theta, current_encoder->channel1, current_encoder->channel2, current_encoder->channel3);
+    //ESP_LOGI(TAG, "pose %f %f %f enc %f %f %f", current_pose->x, current_pose->y, current_pose->theta, current_encoder->channel1, current_encoder->channel2, current_encoder->channel3);
 }
 
 void motion_control_apply_speed(motion_data_t *motion_data, motion_status_t *motion_target, const pose_t *current_pose, bool force_deceleration)
@@ -129,7 +134,7 @@ void motion_control_apply_speed(motion_data_t *motion_data, motion_status_t *mot
         }
     } else if (motion_target->motion_step == MOTION_STEP_TRANSLATION) {
         if (data->current_state == NULL) {
-            data->current_state = init_translation(&motion_target->pose, data->tuning);
+            data->current_state = init_translation(&motion_target->pose, data->tuning, current_pose);
         }
         if (handle_translation(data->current_state, current_pose)) {
             ESP_LOGI(TAG, "Finished translation; going to perform final rotation");
@@ -227,14 +232,16 @@ static bool handle_rotation(void *data, const pose_t *current_pose)
     }
 }
 
-static void *init_translation(const pose_t *target_pose, const motion_control_tuning_t *tuning)
+static void *init_translation(const pose_t *target_pose, const motion_control_tuning_t *tuning, const pose_t *current_pose)
 {
     static translation_state_t state;
     state.target_x = target_pose->x;
     state.target_y = target_pose->y;
-    state.target_theta = target_pose->theta;
-    float target_angle = optimal_target_angle(&target_pose, current_pose);
-    remainderf(target_angle - current_pose->theta, 2 * M_PI)
+    state.target_theta = optimal_target_angle(target_pose, current_pose);
+    state.last_angle_err = 0;
+    state.sum_angle_err = 0;
+    //state.target_theta = remainderf(target_angle - current_pose->theta, 2 * M_PI);
+    ESP_LOGI(TAG, "target_angle %f", state.target_theta);
     state.tuning = tuning;
     state.timer = 0;
     return &state;
@@ -253,12 +260,30 @@ static bool handle_translation(void *data, const pose_t *current_pose)
         .y = state->target_y,
         .theta = 0
     };
-    float target_angle = optimal_target_angle(&target_pose, current_pose);
-    float angle_correction = tuning->angle_feedback_p * remainderf(target_angle - current_pose->theta, 2 * M_PI);
+    //float target_angle = optimal_target_angle(&target_pose, current_pose);
+    //float angle_correction = tuning->angle_feedback_p * remainderf(target_angle - current_pose->theta, 2 * M_PI);
+    float angle_error = remainderf(state->target_theta - current_pose->theta, 2 * M_PI);
+    float derivative_angle = angle_error - state->last_angle_err;
+    state->sum_angle_err += angle_error;
+    state->last_angle_err = angle_error;
+
+
+    //Limit max integral_angle
+    float integral_angle = tuning->angle_feedback_i * state->sum_angle_err;
+    if(fabsf(integral_angle) > 0.25f) {
+        integral_angle = copysignf(0.25f, integral_angle);
+    }
+    float angle_correction = tuning->angle_feedback_p * angle_error + integral_angle + tuning->angle_feedback_d * derivative_angle;
+    float target_angle = state->target_theta;
+
+    //limit by clamping the slew rate/acceleration rate of rotation correction to avoid osciliation, except when near 0
+    //if(fabsf(angle_correction) - fabsf(state->last_angle_err) > tuning->angle_max_slew_rate) {
+    //    angle_correction = state->last_angle_err + copysignf(tuning->angle_max_slew_rate, angle_correction);
+    //}
     if (angle_correction > 1.0 || angle_correction < -1.0) {
         angle_correction /= fabsf(angle_correction);
     }
-    //if(fabsf(remainderf(target_angle - current_pose->theta, 2 * M_PI)) < 0.06f) {
+    //if(fabsf() < 0.06f) {
     //    angle_correction = 0;
     //}
 
@@ -276,10 +301,10 @@ static bool handle_translation(void *data, const pose_t *current_pose)
 
     state->timer++;
 
-    ESP_LOGI(TAG, "target %f, anglecorr : %f, error : %f, absolute_speed : %f", target_angle, angle_correction, remainderf(target_angle - current_pose->theta, 2 * M_PI), absolute_speed);
-    float wheel1 = (translation_speed - angle_correction * absolute_speed) * (1.0 - tuning->left_right_balance);
-    float wheel2 = (-translation_speed - angle_correction * absolute_speed) * (1.0 + tuning->left_right_balance);
-    ESP_LOGI(TAG, "wheel1 : %f, wheel2 : %f", wheel1, wheel2);
+    ESP_LOGI(TAG, "Truetarget %f, anglecorr : %f, Integrale : %f, abs_speed : %f", remainderf(target_angle - current_pose->theta, 2 * M_PI), angle_correction, integral_angle , absolute_speed);
+    float wheel1 = (translation_speed - angle_correction * tuning->min_speed_mps) * (1.0 - tuning->left_right_balance);
+    float wheel2 = (-translation_speed - angle_correction * tuning->min_speed_mps) * (1.0 + tuning->left_right_balance);
+    ESP_LOGI(TAG, "wheel1 : %f, wheel2 : %f, ", wheel1, wheel2);
     float max_value = fmaxf(fabsf(wheel1), fabsf(wheel2));
     if (max_value > 1.0) {
         wheel1 /= max_value;
