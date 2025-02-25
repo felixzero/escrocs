@@ -7,10 +7,11 @@
 #include <rom/ets_sys.h>
 
 #include "parser.h"
+#include "collision_handler.h"
 
-#include "amalgame.h"
-#include "loca_lidar.h"
-#include "pose_refinement.h"
+#include "../loca_lidar/amalgame.h"
+#include "../loca_lidar/loca_lidar.h"
+#include "../loca_lidar/pose_refinement.h"
 
 #include "esp_heap_caps.h"
 #include <sys/time.h>
@@ -41,6 +42,10 @@ void app_main() {
     bool full_scan = false;
     bool high_buffer_usage = false;
     uint8_t data[128];
+    pose_t estimated_odom = {
+        .angle_rad = 0,
+        .pos = {0.0, 0.0}
+    };
 
     amalgame_t* full_amalgames = (amalgame_t*) calloc(amalgame_finder_tuning.max_amalg_count, sizeof(amalgame_t));
     init_amalgames(amalgame_finder_tuning, full_amalgames);
@@ -96,7 +101,7 @@ void app_main() {
             convert_xy(pts, nb_amalg, avg_angles, avg_dists);
 
             //Calculate pose
-            pose_t pose = refine_pose(pts, full_amalgames, nb_amalg, &pose_tuning);
+            pose_t pose = refine_pose(pts, full_amalgames, nb_amalg, estimated_odom, &pose_tuning);
 
             free((void*)avg_angles);
             free((void*)avg_dists);

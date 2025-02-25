@@ -36,6 +36,9 @@ void send_lidar_msg(eCAL::protobuf::CPublisher<enac::Lidar>& pub, amalgame_t* am
 void process_lidar(raw_lidar_t lidar) {
   //Generate amalgames
   int nb_amalg = calc_amalgames(amalgame_finder_tuning, lidar, full_amalgames);
+
+  //full_amalgames[i].avg_angle en Centidegrees, avg_dist en mm
+  
   send_lidar_msg(amalg_pub, full_amalgames, nb_amalg);
 
   //Convert to cartesian

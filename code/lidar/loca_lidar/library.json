@@ -1,0 +1,8 @@
+{
+    "name": "loca_lidar",
+    "version": "0.8.0",
+    "description": "Absolute localization using LD06 with fixed known beacons",
+    "license": "GPL3",
+    "frameworks": "*",
+    "platforms": "esp32"
+}
