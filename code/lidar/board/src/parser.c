@@ -1,6 +1,7 @@
 #include "parser.h"
-
 #include "esp_log.h"
+
+#define CHUNK_LENGTH 47 //11 + 3 * 12
 
 static uint8_t data_length = 1;
 

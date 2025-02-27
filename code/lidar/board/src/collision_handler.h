@@ -4,9 +4,10 @@
 #include "stdbool.h"
 #include "esp_err.h"
 
-amalgame_t* current_amalgames;
-uint16_t max_amalg_length;
-esp_err_t init_collision(amalgame_t* pointer_to_amalgames, uint16_t max_amalg_length);
+extern amalgame_t* current_amalgames;
+extern uint16_t max_amalg_length;
+static uint16_t obstacle_trig_dist = 0;
+esp_err_t init_collision(amalgame_t* pointer_to_amalgames, uint16_t maximum_amalg_length);
 /*
 Returns : number of amalgames
 */

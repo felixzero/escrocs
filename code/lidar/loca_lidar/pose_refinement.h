@@ -38,7 +38,7 @@ static point_t beacon_positions[3] = {
     //{1500, 2094},
     //{2950, -94}
 
-extern uint32_t distances_beacons[MAX_NB_BEACONS][MAX_NB_BEACONS];
+extern float distances_beacons[MAX_NB_BEACONS][MAX_NB_BEACONS];
 pose_t get_refined_lidar();
 void set_estimated_pose(int32_t x, int32_t y, float angle);
 void convert_xy(point_t* pts, uint16_t count, const uint16_t angles[], const uint16_t distances[]);

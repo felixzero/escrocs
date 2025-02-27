@@ -297,7 +297,9 @@ static uint8_t update_valid_combination(valid_combination_t* valid_combination, 
     if (valid_combination->nb_beacons < count)
     {
         valid_combination->nb_beacons = 0;
-        (*valid_combination->index) = combination_add.index;
+                for (size_t i = 0; i < MAX_NB_BEACONS; i++) {
+            valid_combination->index[i] = combination_add.index[i];
+        }
         return 1;
     }
     
