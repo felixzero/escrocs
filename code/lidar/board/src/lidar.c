@@ -7,7 +7,6 @@
 #include <rom/ets_sys.h>
 
 #include "parser.h"
-#include "collision_handler.h"
 
 #include "../loca_lidar/amalgame.h"
 #include "../loca_lidar/loca_lidar.h"
@@ -24,6 +23,8 @@
 #define TAG "LIDAR"
 
 static QueueHandle_t uart0_queue;
+
+int nb_amalg = 0;
 static void lidar_task(void *pvParameter);
 void init_uart() {
     uart_config_t uart_config = {
@@ -87,12 +88,11 @@ static void lidar_task(void *pvParameter) {
             parse_frames(out_lidar);
 
             //Generate amalgames
-            int nb_amalg = calc_amalgames(amalgame_finder_tuning, *out_lidar, full_amalgames);
+            nb_amalg = calc_amalgames(amalgame_finder_tuning, *out_lidar, full_amalgames);
             if (nb_amalg >= amalgame_finder_tuning.max_amalg_count - 1)
             {
                 ESP_LOGI("amalgame", "Max amalgame reached %i", nb_amalg);
             }
-            
 
             //Convert to cartesian
             point_t* pts = (point_t*) malloc(nb_amalg * sizeof(point_t));
