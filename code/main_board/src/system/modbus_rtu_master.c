@@ -85,7 +85,7 @@ esp_err_t init_modbus_rtu_master(void)
     hal_context.dev = UART_LL_GET_HW(UART_NUM);
 
     uart_isr_handle_t isr_handle;
-    err = esp_intr_alloc(ETS_UART1_INTR_SOURCE, (void*)NULL, uart_intr_handle, NULL, &isr_handle);
+    err = esp_intr_alloc(ETS_UART1_INTR_SOURCE, 0, uart_intr_handle, NULL, &isr_handle);
     if (err) {
         ESP_ERROR_CHECK_WITHOUT_ABORT(err);
         return err;
