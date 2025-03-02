@@ -5,7 +5,7 @@
 
 typedef struct {
     float wheel_radius_mm;
-    float robot_radius_mm;
+    float robot_diameter_mm;
     float min_speed_mps;
     float max_speed_mps;
     float acceleration_mps2;
@@ -15,9 +15,12 @@ typedef struct {
     float ultrasonic_ignore_distance_mm;
     float slow_approach_position_mm;
     float allowed_error_mm;
-    float allowed_angle_error_deg;
+    float allowed_angle_error_rad;
     float deceleration_factor;
     float angle_feedback_p;
+    float angle_feedback_i;
+    float angle_feedback_d;
+    float angle_max_slew_rate;
     float position_feedback_p;
     //Differential drive specific
     float left_right_balance;

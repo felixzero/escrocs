@@ -17,6 +17,7 @@
 
 #define MOTOR_DISABLING_TIMEOUT             pdMS_TO_TICKS(5000)
 #define NUMBER_OF_CLEAR_ULTRASONIC_SCANS    5
+#define AVOIDANCE_ENABLED                   0
 
 static bool reversed_side;
 
@@ -166,7 +167,7 @@ static void motion_control_task(void *parameters)
         motion_cone.center_angle = center_scanning_angle;
         motion_cone.cone = cone_scanning_angle;
 
-        if (motion_target.motion_step == MOTION_STEP_RUNNING && xQueueReceive(scan_over_queue, &has_obstacle, 0)) {
+        if (AVOIDANCE_ENABLED && motion_target.motion_step == MOTION_STEP_RUNNING && xQueueReceive(scan_over_queue, &has_obstacle, 0)) {
             //Perform obstacle detection logic
             if (need_detection && has_obstacle && motion_target.perform_detection) {
                 number_of_clear_ultrasonic_iterations_before_movement = NUMBER_OF_CLEAR_ULTRASONIC_SCANS;
