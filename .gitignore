@@ -14,4 +14,8 @@ code/lidar/desktop/build
 code/lidar/desktop/ecal_wrapper/build
 code/lidar/desktop/ecal_wrapper/CMakeFiles
 code/lidar/loca_lidar/build
+<<<<<<< HEAD
 >>>>>>> 4770198 (init branch)
+=======
+build/
+>>>>>>> 0ef5c7e (add ignore)
