@@ -9,3 +9,4 @@ code/lidar/desktop/build
 code/lidar/desktop/ecal_wrapper/build
 code/lidar/desktop/ecal_wrapper/CMakeFiles
 code/lidar/loca_lidar/build
+build/
