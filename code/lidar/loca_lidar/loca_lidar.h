@@ -5,6 +5,8 @@
 extern amalgame_finder_tuning_t amalgame_finder_tuning;
 extern pose_tuning_t pose_tuning;
 
+#define MAX_AMALG_COUNT 70
+
 
 
 //static point_t beacon_positions[] = {

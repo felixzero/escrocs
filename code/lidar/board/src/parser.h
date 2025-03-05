@@ -2,7 +2,7 @@
 #include "esp_types.h"
 #include "../../loca_lidar/amalgame.h"
 
-#define MAX_NB_FRAMES_FULL_SCAN 46
+#define MAX_NB_FRAMES_FULL_SCAN 60
 enum State {
     HEADER,
     LEN,
@@ -55,6 +55,7 @@ static const uint8_t CrcTable[256] =
 
 bool check_update_full_circle(LiDARFrameTypeDef *frame);
 
+void reset_parser(); //To use when the lidar is resetting
 uint8_t parse_chunk(uint8_t data[], bool *full_scan);
 
 void parse_frames(raw_lidar_t *out_lidar);

@@ -74,16 +74,22 @@ int calc_amalgames(amalgame_finder_tuning_t tuning, raw_lidar_t data, amalgame_t
             small_angle_nb = 0, high_angle_nb = 0;
         }
 
-        (*cur_amalg).pts->angles[(*cur_amalg).pts->count] = data.angles[i];
-        (*cur_amalg).pts->distances[(*cur_amalg).pts->count] = data.distances[i];
-        (*cur_amalg).pts->intensities[(*cur_amalg).pts->count] = data.intensities[i];
-        avg_angle += data.angles[i];
-        avg_dist += data.distances[i];        
-        (*cur_amalg).pts->count++;
-        if(data.angles[i] < 1000) small_angle_nb = 1;
-        if(data.angles[i] > 1000) high_angle_nb = 1;
+        //If valid point, start/continue the amalgame with it
+        if(cur_dist > tuning.min_dist && cur_dist < tuning.max_dist
+            && (data.intensities[i] > tuning.min_intensity)) {
 
-        last_dist = ((*cur_amalg).pts->count < 20) ? data.distances[i] : 0; //Prevent "amalgame overflow"
+            (*cur_amalg).pts->angles[(*cur_amalg).pts->count] = data.angles[i];
+            (*cur_amalg).pts->distances[(*cur_amalg).pts->count] = data.distances[i];
+            (*cur_amalg).pts->intensities[(*cur_amalg).pts->count] = data.intensities[i];
+            avg_angle += data.angles[i];
+            avg_dist += data.distances[i];        
+            (*cur_amalg).pts->count++;
+            if(data.angles[i] < 1000) small_angle_nb = 1;
+            if(data.angles[i] > 1000) high_angle_nb = 1;
+    
+            last_dist = ((*cur_amalg).pts->count < 20) ? data.distances[i] : 0; //Prevent "amalgame overflow"
+        
+        }
     }
 
     //wrap up last amalgame using if needed first amalgame
@@ -107,6 +113,15 @@ bool are_poses_equal(const pose_t* a, const pose_t* b) {
            (fabsf(a->angle_rad - b->angle_rad) < ANGLE_EPSILON);
 }
 
+//polar_out need to be prealocated !
+bool copy_amalgames_avg(polar_t *polar_out, int nb_amalg, amalgame_t* last_amalg) {
+    // Copy avg_angle and avg_dist from amalgames_out to last_amalg
+    for (int i = 0; i < nb_amalg; i++) {
+        polar_out[i].angle = (last_amalg)[i].avg_angle;
+        polar_out[i].distance = (last_amalg)[i].avg_dist;
+    }
+    return true;
+}
 
 static int8_t combine_amalg(amalgame_t* dest_amalg, amalgame_t* add_amalg, uint16_t max_count) {
     raw_lidar_t* dest = dest_amalg->pts;
@@ -171,3 +186,5 @@ static uint16_t junction_avg_angle(uint16_t* angles, uint8_t count) {
     return (uint16_t) (RADIANS_TO_CENTIDEGREES(atan2(y, x)));
     
 }
+
+

@@ -21,5 +21,5 @@ if __name__ == '__main__':
         lidar_msg.intensities.extend(intensities)
         pub.send(lidar_msg, ecal_core.getmicroseconds()[1])
 
-    driver = lidar.Driver(publish_reading, 'COM5')
+    driver = lidar.Driver(publish_reading, '/dev/ttyUSB0')
     driver.scan()

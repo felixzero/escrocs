@@ -5,6 +5,7 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <cmath>
 
 #include "../proto/lidar_data.pb.h"
 
@@ -21,7 +22,7 @@ static amalgame_t* full_amalgames = (amalgame_t*) calloc(amalgame_finder_tuning.
 static eCAL::protobuf::CPublisher<enac::Lidar> amalg_pub;
 
 void send_lidar_msg(eCAL::protobuf::CPublisher<enac::Lidar>& pub, amalgame_t* amalgames, uint8_t nb_amalgames) {
-  enac::Lidar& msg = enac::Lidar();
+  enac::Lidar msg;
   msg.set_nb_pts(nb_amalgames);
   for (int i = 0; i < nb_amalgames; i++)
   {
@@ -61,6 +62,7 @@ void process_lidar(raw_lidar_t lidar) {
     std::cout << +indexs_debug[0] << " " << +indexs_debug[1] << " " << +indexs_debug[2] << " " << +indexs_debug[3] << " " << +indexs_debug[4] << std::endl; 
     std::cout << "too many candidates error !" <<std::endl;
   }
+  std::cout << "nb amalg : " << nb_amalg << std::endl;
   std::cout << "pose : " << pose.angle_rad << " x " << pose.pos.x << " y " << pose.pos.y << std::endl;
   std::cout << "associations : " << last_assos[0] << " " << last_assos[1] << " " << last_assos[2] << std::endl;
   //TODO : a delete

@@ -4,9 +4,9 @@
 amalgame_finder_tuning_t amalgame_finder_tuning =  {
     .min_intensity = 5,
     .min_dist = 150, //mm //TODO : voir pour inhiber moins 
-    .max_dist = 3800,
+    .max_dist = 3800,//3800,
     .max_distance_betwn_pts = 100,
-    .max_amalg_count = 70,
+    .max_amalg_count = MAX_AMALG_COUNT,
     .max_pt_per_amalg = 20,
 };
 

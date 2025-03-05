@@ -5,3 +5,4 @@
 *.FCStd1
 
 code/lidar/loca_lidar/build
+build/

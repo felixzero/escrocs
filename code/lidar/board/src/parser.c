@@ -21,6 +21,11 @@ static uint8_t CalcCRC8(uint8_t *p, uint8_t len)
     return crc;
 }
 
+void reset_parser() {
+    cur_frame_i = 0;
+    total_angle = 0;
+}
+
 bool check_update_full_circle(LiDARFrameTypeDef *frame) {
     if (frame->start_angle > frame->end_angle) {
         total_angle += 36000 - frame->start_angle + frame->end_angle;
@@ -38,7 +43,9 @@ bool check_update_full_circle(LiDARFrameTypeDef *frame) {
 uint8_t parse_chunk(uint8_t data[], bool *full_scan) {
     if (cur_frame_i >= MAX_NB_FRAMES_FULL_SCAN)
     {
-        ESP_LOGI("parser", "Max number of frames reached");
+        ESP_LOGI("parser", "Max number frames reached %i", cur_frame_i);
+        ESP_LOGI("parser", "angle start of first frame : %i", frames[cur_frame_i]->start_angle);
+        reset_parser();
     } 
     
     *full_scan = false;

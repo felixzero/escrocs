@@ -13,11 +13,21 @@
 #include "esp_heap_caps.h"
 #include <sys/time.h>
 
-#include "esp_wifi.h"
+
 
 
 #define TAG "MAIN"
 void app_main() {
+
     init_uart();
+    xTaskCreate(update_amalgames_task, "update_amalgames_task", 2048, NULL, 8, NULL);
+    update_cone(0.0f, 0.7f);
+    update_dist(500);
+    for(;;) {
+        vTaskDelay(200 / portTICK_PERIOD_MS);
+        ESP_LOGI(TAG, "closest_dist %i", has_obstacle());
+    }
+
+
 
 }
