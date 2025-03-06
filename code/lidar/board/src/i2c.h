@@ -1,13 +1,12 @@
-#ifndef I2C_SLAVE_H
-#define I2C_SLAVE_H
+#pragma once
 
-// Define the I2C slave address
 #define I2C_SLAVE_ADDRESS 0x12 //Same as US board
+#define I2C_BUFFER_SIZE 64
 
+#define I2C_REG_IS_OK 0x01
+#define I2C_REG_CONE   0x03
+#define I2C_REG_BOOL_OBSTACLE 0x10
+#define I2C_REG_MM_OBSTACLE 0x11
 // Function prototypes
 void i2c_slave_task(void *pvParameters);
-void i2c_slave_write(uint8_t *data, size_t length);
-void i2c_slave_read(uint8_t *data, size_t length);
-
-#endif // I2C_SLAVE_H
  

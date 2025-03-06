@@ -32,6 +32,14 @@ void app_main() {
     vTaskDelay(pdMS_TO_TICKS(500));
     init_udp_logger();
     ESP_LOGI("main", "init done !");
+    for (;;)
+    {
+        uint8_t buffer[1] = {I2C_REG_IS_OK};
+        ESP_LOGI("LD06", "sending lidar");
+        send_to_i2c(I2C_PORT_PERIPH, LIDAR_I2C_ADDR, &buffer, 1);
+        vTaskDelay(500/portTICK_PERIOD_MS);
+    }
+    
 
     //TODO : create mockup of all the peripherals
     if (motion_cone_queue == NULL) {

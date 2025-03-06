@@ -3,16 +3,9 @@
 #include "esp_log.h"
 #include "math.h"
 
-#define LIDAR_I2C_ADDR 0x12
-#define I2C_BUFFER_SIZE 64
-
-#define I2C_REG_IS_OK 0x01
-#define I2C_REG_CONE   0x03
-#define I2C_REG_BOOL_OBSTACLE 0x10
-#define I2C_REG_MM_OBSTACLE 0x11
-
 esp_err_t init_ld06_board(void) {
     uint8_t buffer[1] = {I2C_REG_IS_OK};
+    ESP_LOGI("LD06", "sending lidar");
     send_to_i2c(I2C_PORT_PERIPH, LIDAR_I2C_ADDR, &buffer, 1);
     request_from_i2c(I2C_PORT_PERIPH, LIDAR_I2C_ADDR, &buffer, 1);
     ESP_LOGI("LD06", "bufer : %i", buffer[0]);
