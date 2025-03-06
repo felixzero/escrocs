@@ -68,7 +68,8 @@
         "stddef.h": "c",
         "game_actions.h": "c",
         "compare": "c",
-        "cstdint": "c"
+        "cstdint": "c",
+        "ld06_board.h": "c"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }

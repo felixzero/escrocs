@@ -4,7 +4,7 @@
 #include "parser.h"
 #include "collision_handler.h"
 #include "lidar.h"
-#include "ota.h"
+#include "i2c.h"
 
 #include "../loca_lidar/amalgame.h"
 #include "../loca_lidar/loca_lidar.h"
@@ -21,6 +21,7 @@ void app_main() {
 
     init_uart();
     xTaskCreate(update_amalgames_task, "update_amalgames_task", 2048, NULL, 8, NULL);
+    xTaskCreate(i2c_slave_task, "i2c_slave_task", 2048, NULL, 8, NULL);
     update_cone(0.0f, 0.7f);
     update_dist(500);
     for(;;) {

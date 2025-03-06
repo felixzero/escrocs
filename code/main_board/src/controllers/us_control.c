@@ -6,7 +6,7 @@
 
 #define TAG "US_controller"
 // FIXME: Remove duplicate info in Lua
-#define CONE_OFFSET 2.513274122871834 //pi - pi/5
+#define CONE_OFFSET 0 //2.513274122871834 //pi - pi/5
 
 #define US_OBSTACLE_DISTANCE_MM     450
 #define US_WARNING_DISTANCE_MM      (2 * US_OBSTACLE_DISTANCE_MM)

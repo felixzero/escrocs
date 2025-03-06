@@ -7,7 +7,7 @@
 #include "wireless/udp_logger.h"
 #include "peripherals/stepper_board.h"
 #include "peripherals/peripherals.h"
-#include "peripherals/ultrasonic_board.h"
+#include "peripherals/ld06_board.h"
 #include "peripherals/motor_board.h"
 #include "peripherals/display.h"
 #include "controllers/motion_control.h"
@@ -37,6 +37,8 @@ void app_main() {
     if (motion_cone_queue == NULL) {
         motion_cone_queue = xQueueCreate(1, sizeof(scan_angle_t));
     }
+
+    ESP_ERROR_CHECK_WITHOUT_ABORT(init_ld06_board());
     //display_initialization_status("Ultrasonic", init_ultrasonic_board());
     //display_initialization_status("US control", init_us_controller());
     display_initialization_status("Motor board", init_motor_board());
