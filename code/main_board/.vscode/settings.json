@@ -68,8 +68,12 @@
         "stddef.h": "c",
         "game_actions.h": "c",
         "compare": "c",
+<<<<<<< HEAD
         "cstdint": "c",
         "ld06_board.h": "c"
+=======
+        "cstdint": "c"
+>>>>>>> origin/robot_25
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }

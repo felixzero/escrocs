@@ -3,19 +3,16 @@
 **/*.sch-bak
 **/sdkconfig.esp32dev
 *.FCStd1
-<<<<<<< HEAD
-
-code/lidar/loca_lidar/build
-build/
-=======
 code/lidar/board/.*
 code/lidar/desktop/.*
 code/lidar/desktop/build
 code/lidar/desktop/ecal_wrapper/build
 code/lidar/desktop/ecal_wrapper/CMakeFiles
 code/lidar/loca_lidar/build
-<<<<<<< HEAD
->>>>>>> 4770198 (init branch)
-=======
 build/
->>>>>>> 0ef5c7e (add ignore)
+code/lidar/board/.*
+code/lidar/desktop/.*
+code/lidar/desktop/build
+code/lidar/desktop/ecal_wrapper/build
+code/lidar/desktop/ecal_wrapper/CMakeFiles
+code/lidar/loca_lidar/build
