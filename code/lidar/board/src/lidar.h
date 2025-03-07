@@ -17,3 +17,4 @@ typedef struct {
 
 
 void init_uart();
+bool is_lidar_running();

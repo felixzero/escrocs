@@ -30,6 +30,7 @@
 #define TAG "LIDAR"
 
 static QueueHandle_t uart0_queue;
+static bool is_ok = false;
 QueueHandle_t polar_array_queue;
 
 amalgame_t* full_amalgames = NULL;
@@ -52,13 +53,13 @@ void init_uart() {
     polar_array_queue = xQueueCreate(1, sizeof(polar_array_t));
 
     //Prevent strange signal sending to lidar (until having a proper PWM)
-    gpio_config_t io_conf;
-    io_conf.intr_type = GPIO_INTR_DISABLE; // Disable interrupts
-    io_conf.mode = GPIO_MODE_INPUT;        // Set as input mode
-    io_conf.pin_bit_mask = (1ULL << GPIO_NUM_21); // Bit mask of the pin
-    io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;    // Disable pull-down
-    io_conf.pull_up_en = GPIO_PULLUP_DISABLE;        // Disable pull-up
-    gpio_config(&io_conf);   
+    //gpio_config_t io_conf;
+    //io_conf.intr_type = GPIO_INTR_DISABLE; // Disable interrupts
+    //io_conf.mode = GPIO_MODE_INPUT;        // Set as input mode
+    //io_conf.pin_bit_mask = (1ULL << GPIO_NUM_21); // Bit mask of the pin
+    //io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;    // Disable pull-down
+    //io_conf.pull_up_en = GPIO_PULLUP_DISABLE;        // Disable pull-up
+    //gpio_config(&io_conf);   
 }
 
 static void lidar_task(void *pvParameter) {
@@ -114,6 +115,7 @@ static void lidar_task(void *pvParameter) {
         //lidar fullscan processing
         if (full_scan)
         {
+            is_ok = true;
             timeout_wait = 0;
             //generate raw lidar
             raw_lidar_t* out_lidar = (raw_lidar_t*) malloc(sizeof(raw_lidar_t));
@@ -158,4 +160,8 @@ static void lidar_task(void *pvParameter) {
     }
     
 
+}
+
+bool is_lidar_running() {
+    return is_ok;
 }

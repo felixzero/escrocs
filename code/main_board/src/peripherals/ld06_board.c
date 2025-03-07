@@ -5,11 +5,21 @@
 
 esp_err_t init_ld06_board(void) {
     uint8_t buffer[1] = {I2C_REG_IS_OK};
-    ESP_LOGI("LD06", "sending lidar");
     send_to_i2c(I2C_PORT_PERIPH, LIDAR_I2C_ADDR, &buffer, 1);
+    buffer[0] = 3;
     request_from_i2c(I2C_PORT_PERIPH, LIDAR_I2C_ADDR, &buffer, 1);
-    ESP_LOGI("LD06", "bufer : %i", buffer[0]);
-    return ESP_OK;
+    switch (buffer[0])
+    {
+    case 0x03:
+        return ESP_ERR_NOT_FOUND; //The PCB is not connected
+    case 0x00:
+        return ESP_ERR_NOT_FINISHED; //The PCB is connected but the LD06 is not ready
+    case 0x01:
+       return ESP_OK; //The PCB is connected and the LD06 is ready
+    default:
+        return ESP_ERR_INVALID_RESPONSE; //Shouldn't receive it from the ld06 board
+        break;
+    }
 }
 
 esp_err_t set_cone(float center_angle, float half_cone_width) {

@@ -1,5 +1,6 @@
 #include <esp_err.h>
 #include <esp_log.h>
+#include "driver/ledc.h"
 
 #include "parser.h"
 #include "collision_handler.h"
@@ -14,38 +15,48 @@
 #include <sys/time.h>
 
 
-#include "driver/gpio.h"
-static void IRAM_ATTR gpio_isr_handler(void* arg) {
-    uint32_t gpio_num = (uint32_t) arg;
-    int level = gpio_get_level(gpio_num);
-    ESP_LOGI("GPIO", "GPIO %i changed state to %i", (uint16_t) gpio_num, level);
-}
-
-void setup_gpio_interrupt(gpio_num_t gpio_num1, gpio_num_t gpio_num2) {
-    // Configure the GPIO pin as input
-    gpio_config_t io_conf = {};
-    io_conf.intr_type = GPIO_INTR_ANYEDGE; // Interrupt on any edge
-    io_conf.pin_bit_mask = (1ULL << gpio_num1) || (1ULL << gpio_num2);
-    io_conf.mode = GPIO_MODE_INPUT;
-    io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
-    io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
-    gpio_config(&io_conf);
-
-    // Install the GPIO ISR service
-    gpio_install_isr_service(0);
-
-    // Hook the ISR handler
-    gpio_isr_handler_add(gpio_num1, gpio_isr_handler, (void*) gpio_num1);
-    gpio_isr_handler_add(gpio_num2, gpio_isr_handler, (void*) gpio_num2);
-}
-
 #define TAG "MAIN"
-void app_main() {
+#define SPEED_LIDAR_PRCNT 40
 
+#define LEDC_TIMER              LEDC_TIMER_0
+#define LEDC_MODE               LEDC_LOW_SPEED_MODE
+#define LEDC_OUTPUT_IO          21
+#define LEDC_CHANNEL            LEDC_CHANNEL_0
+#define LEDC_DUTY_RES           LEDC_TIMER_8_BIT
+#define LEDC_DUTY               256
+#define LEDC_FREQUENCY          30000
+
+void app_main() {
+    // Configuration du timer LEDC
+    ledc_timer_config_t ledc_timer = {
+        .speed_mode       = LEDC_MODE,
+        .timer_num        = LEDC_TIMER,
+        .duty_resolution  = LEDC_DUTY_RES,
+        .freq_hz          = LEDC_FREQUENCY,
+        .clk_cfg          = LEDC_AUTO_CLK
+    };
+    ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer));
+
+    // Configuration du canal LEDC
+    ledc_channel_config_t ledc_channel = {
+        .speed_mode     = LEDC_MODE,
+        .channel        = LEDC_CHANNEL,
+        .timer_sel      = LEDC_TIMER,
+        .intr_type      = LEDC_INTR_DISABLE,
+        .gpio_num       = LEDC_OUTPUT_IO,
+        .duty           = 0, // Valeur initiale du duty cycle
+        .hpoint         = 0
+    };
+    ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
+
+    uint32_t duty = (uint32_t)((float)LEDC_DUTY * SPEED_LIDAR_PRCNT * 0.01);
+    ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, duty));
+    ESP_ERROR_CHECK(ledc_update_duty(LEDC_MODE, LEDC_CHANNEL));
+
+    xTaskCreate(i2c_slave_task, "i2c_slave_task", 4096, NULL, 9, NULL);
     init_uart();
     xTaskCreate(update_amalgames_task, "update_amalgames_task", 2048, NULL, 8, NULL);
-    xTaskCreate(i2c_slave_task, "i2c_slave_task", 4096, NULL, 9, NULL);
-    //setup_gpio_interrupt(GPIO_NUM_3, GPIO_NUM_4);
+    xTaskCreate(i2c_request_task, "i2c_request_task", 1024, NULL, 10, NULL);
     update_cone(0.0f, 0.7f);
     update_dist(500);
     for(;;) {

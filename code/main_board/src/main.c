@@ -32,17 +32,12 @@ void app_main() {
     vTaskDelay(pdMS_TO_TICKS(500));
     init_udp_logger();
     vTaskDelay(3000 / portTICK_PERIOD_MS);
-    ESP_LOGI("main", "init done !");
-    for (;;)
+    esp_err_t ld06_board_ret = ESP_FAIL;
+    while (ld06_board_ret != ESP_OK)
     {
-        uint8_t buffer[1] = {I2C_REG_IS_OK, 0xA1, 0xA2};
-        ESP_LOGI("LD06", "sending lidar");
-        send_to_i2c(I2C_PORT_PERIPH, LIDAR_I2C_ADDR, &buffer, 1);
-        //write_i2c_register(I2C_PORT_PERIPH, LIDAR_I2C_ADDR, 0x99, 8);
-        vTaskDelay(1/portTICK_PERIOD_MS);
-        send_to_i2c(I2C_PORT_PERIPH, 0x0B, &buffer, 3);
-        //write_i2c_register(I2C_PORT_PERIPH, 0x0B, 0x99, 8);
-        vTaskDelay(100/portTICK_PERIOD_MS);
+        ld06_board_ret = init_ld06_board();
+        ESP_LOGI("main", "ld06 state : %s", esp_err_to_name(ld06_board_ret));
+        vTaskDelay(200/portTICK_PERIOD_MS);
     }
     
 
