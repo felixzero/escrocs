@@ -1,4 +1,4 @@
-#include "i2c.h"
+#include "esp_i2c.h"
 #include "driver/i2c_slave.h"
 
 #include "freertos/FreeRTOS.h"
@@ -39,6 +39,7 @@ void i2c_slave_task(void *pvParameters) {
     i2c_slave_queue = xQueueCreate(5, sizeof(i2c_slave_rx_done_event_data_t));
 
     i2c_slave_config_t i2c_slv_config = {
+        .addr_bit_len = I2C_ADDR_BIT_LEN_7,
         .i2c_port = I2C_PORT_NUM,
         .clk_source = I2C_CLK_SRC_DEFAULT,
         .scl_io_num = I2C_SLAVE_SCL_IO,

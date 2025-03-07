@@ -31,13 +31,18 @@ void app_main() {
     display_initialization_status("HTTP", init_http_server());
     vTaskDelay(pdMS_TO_TICKS(500));
     init_udp_logger();
+    vTaskDelay(3000 / portTICK_PERIOD_MS);
     ESP_LOGI("main", "init done !");
     for (;;)
     {
-        uint8_t buffer[1] = {I2C_REG_IS_OK};
+        uint8_t buffer[1] = {I2C_REG_IS_OK, 0xA1, 0xA2};
         ESP_LOGI("LD06", "sending lidar");
         send_to_i2c(I2C_PORT_PERIPH, LIDAR_I2C_ADDR, &buffer, 1);
-        vTaskDelay(500/portTICK_PERIOD_MS);
+        //write_i2c_register(I2C_PORT_PERIPH, LIDAR_I2C_ADDR, 0x99, 8);
+        vTaskDelay(1/portTICK_PERIOD_MS);
+        send_to_i2c(I2C_PORT_PERIPH, 0x0B, &buffer, 3);
+        //write_i2c_register(I2C_PORT_PERIPH, 0x0B, 0x99, 8);
+        vTaskDelay(100/portTICK_PERIOD_MS);
     }
     
 

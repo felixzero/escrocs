@@ -4,7 +4,7 @@
 #include "parser.h"
 #include "collision_handler.h"
 #include "lidar.h"
-#include "i2c.h"
+#include "esp_i2c.h"
 
 #include "../loca_lidar/amalgame.h"
 #include "../loca_lidar/loca_lidar.h"

@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 
-#define LIDAR_I2C_ADDR 0x12
+#define LIDAR_I2C_ADDR 0x13
 #define I2C_BUFFER_SIZE 64
 
 #define I2C_REG_IS_OK 0x01
