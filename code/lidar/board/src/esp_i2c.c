@@ -28,7 +28,8 @@ static IRAM_ATTR bool i2c_slave_receive_cb(i2c_slave_dev_handle_t i2c_slave, con
     i2c_slave_rx_done_event_data_t *context = (i2c_slave_rx_done_event_data_t *)arg;
     i2c_slave_event_t evt = I2C_SLAVE_EVT_RX;
     BaseType_t xTaskWoken = 0;
-    context->buffer = evt_data->buffer;
+    context->buffer = (uint8_t *) malloc(evt_data->length);
+    memcpy(context->buffer, evt_data->buffer, evt_data->length);
     context->length = evt_data->length;
     xQueueSendFromISR(i2c_slave_queue, &evt, &xTaskWoken);
     return xTaskWoken;
@@ -37,6 +38,7 @@ static IRAM_ATTR bool i2c_slave_receive_cb(i2c_slave_dev_handle_t i2c_slave, con
 // Initialize the I2C slave
 void i2c_slave_task(void *pvParameters) {
     i2c_slave_queue = xQueueCreate(5, sizeof(i2c_slave_rx_done_event_data_t));
+    rx_data.buffer = (uint8_t *)malloc(I2C_BUFFER_SIZE);
 
     i2c_slave_config_t i2c_slv_config = {
         .addr_bit_len = I2C_ADDR_BIT_LEN_7,
@@ -62,16 +64,18 @@ void i2c_slave_task(void *pvParameters) {
     uint32_t buffer_size = 0;
     while (true) {
         i2c_slave_rx_done_event_data_t data;
+        data.buffer = (uint8_t *)malloc(I2C_BUFFER_SIZE);
         if (xQueueReceive(i2c_slave_queue, &data, 10) == pdTRUE) {
             if(data.length < 1) {
                 ESP_LOGE("I2C", "Invalid data length < 1");
                 continue;
             }
             ESP_LOGI("I2C", "Received %"PRIu32 "bytes", data.length);
+            ESP_LOGI("I2C", "data %i", data.buffer[0]);
             switch (data.buffer[0])
             {
             case I2C_REG_IS_OK:
-                /* code */
+                //ESP_LOGI("I2C", "Received I2C_REG_IS_OK");
                 break;
             case I2C_REG_CONE:
                /* code */

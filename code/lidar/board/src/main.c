@@ -44,7 +44,7 @@ void app_main() {
 
     init_uart();
     xTaskCreate(update_amalgames_task, "update_amalgames_task", 2048, NULL, 8, NULL);
-    xTaskCreate(i2c_slave_task, "i2c_slave_task", 2048, NULL, 9, NULL);
+    xTaskCreate(i2c_slave_task, "i2c_slave_task", 4096, NULL, 9, NULL);
     //setup_gpio_interrupt(GPIO_NUM_3, GPIO_NUM_4);
     update_cone(0.0f, 0.7f);
     update_dist(500);
