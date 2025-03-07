@@ -33,7 +33,7 @@ void app_main() {
     init_udp_logger();
     vTaskDelay(3000 / portTICK_PERIOD_MS);
     esp_err_t ld06_board_ret = ESP_FAIL;
-    while (ld06_board_ret != ESP_OK)
+    while (ld06_board_ret != ESP_OK) //Wait for lidar to boot up and make a full scan
     {
         ld06_board_ret = init_ld06_board();
         ESP_LOGI("main", "ld06 state : %s", esp_err_to_name(ld06_board_ret));
@@ -46,7 +46,6 @@ void app_main() {
         motion_cone_queue = xQueueCreate(1, sizeof(scan_angle_t));
     }
 
-    ESP_ERROR_CHECK_WITHOUT_ABORT(init_ld06_board());
     //display_initialization_status("Ultrasonic", init_ultrasonic_board());
     //display_initialization_status("US control", init_us_controller());
     display_initialization_status("Motor board", init_motor_board());
