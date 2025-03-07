@@ -7,11 +7,7 @@
 #include "wireless/udp_logger.h"
 #include "peripherals/stepper_board.h"
 #include "peripherals/peripherals.h"
-<<<<<<< HEAD
 #include "peripherals/ld06_board.h"
-=======
-#include "peripherals/ultrasonic_board.h"
->>>>>>> origin/robot_25
 #include "peripherals/motor_board.h"
 #include "peripherals/display.h"
 #include "controllers/motion_control.h"
