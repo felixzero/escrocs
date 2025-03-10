@@ -22,6 +22,7 @@ esp_err_t init_ld06_board(void) {
     }
 }
 
+//Takes input as rad, send it through I2C via uint8_t
 esp_err_t set_cone(float center_angle, float half_cone_width) {
     uint8_t center_angle_mapped = (uint8_t)((center_angle + M_PI) / (2 * M_PI) * 256);
     uint8_t half_cone_width_mapped = (uint8_t)(half_cone_width / M_PI * 256);

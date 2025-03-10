@@ -3,7 +3,7 @@
 
 #include "../peripherals/motor_board.h"
 #include "system/task_priority.h"
-#include "controllers/us_control.h"
+#include "controllers/avoidance_control.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>

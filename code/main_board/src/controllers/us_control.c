@@ -1,3 +1,5 @@
+#ifdef US_BOARD
+
 #include "us_control.h"
 #include "../system/task_priority.h"
 #include <esp_log.h>
@@ -111,3 +113,4 @@ static int set_ultrasonic_scan_angle(float center_angle, float cone)
     return number_of_active_channels;
 }
 
+#endif

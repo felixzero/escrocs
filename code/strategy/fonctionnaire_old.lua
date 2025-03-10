@@ -1,5 +1,4 @@
-pi_half = 1.57079
-x_initial, y_initial, theta_initial = 0, 0, 1.57
+x_initial, y_initial, theta_initial = 0, 0, 0
 
 function on_init(side)
     move(100, 0, 0)
