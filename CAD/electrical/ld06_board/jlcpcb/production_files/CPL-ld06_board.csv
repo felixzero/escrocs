@@ -1,0 +1,21 @@
+Designator,Val,Package,Mid X,Mid Y,Rotation,Layer
+BTN1-5,Conn_01x02_Pin,Molex_KK-254_AE-6410-02A_1x02_P2.54mm_Vertical,75.69,-35.5,0.0,top
+BTN2-7,Conn_01x02_Pin,Molex_KK-254_AE-6410-02A_1x02_P2.54mm_Vertical,75.73,-42.5,0.0,top
+C1,10u,CP_Radial_D8.0mm_P3.80mm,46.4,-41.0,180.0,top
+C2,100n,R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Vertical,40.95,-35.5,180.0,top
+C3,10u,CP_Radial_D8.0mm_P3.80mm,32.5,-39.097349,-90.0,top
+C4,100n,R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Vertical,38.0,-25.55,-90.0,top
+D1,1N4007,D_T-1_P12.70mm_Horizontal,49.5,-28.65,-90.0,top
+D2,1N4007,D_T-1_P12.70mm_Horizontal,28.15,-25.0,180.0,top
+J1,SERIAL,Molex_KK-254_AE-6410-04A_1x04_P2.54mm_Vertical,60.0,-63.27,-90.0,top
+J2,LED Strip,Molex_KK-254_AE-6410-03A_1x03_P2.54mm_Vertical,76.0,-51.46,90.0,top
+J4,I2C,Molex_KK-254_AE-6410-04A_1x04_P2.54mm_Vertical,18.77,-58.5,0.0,top
+J6,Conn_01x02_Pin,Molex_KK-254_AE-6410-02A_1x02_P2.54mm_Vertical,67.73,-61.5,0.0,top
+J7,I2C,Molex_KK-254_AE-6410-04A_1x04_P2.54mm_Vertical,18.73,-48.0,0.0,top
+J9,Battery in,BarrelJack_Horizontal,22.625,-36.85,0.0,top
+R1,R,R_Axial_DIN0309_L9.0mm_D3.2mm_P12.70mm_Horizontal,59.0,-55.0,0.0,top
+R2,R,R_Axial_DIN0309_L9.0mm_D3.2mm_P12.70mm_Horizontal,59.0,-51.0,0.0,top
+U1,TXBN0304RUT,I2C_ali_level_shifter,43.58,-57.81,-90.0,top
+U2,ESP32-C3_SUPERMINI_TH,MODULE_ESP32-C3_SUPERMINI,62.0,-33.99,0.0,top
+U3,LM7805_TO220,TO-220-3_Vertical,42.555,-28.04,-90.0,top
+U4,TXBN0304RUT,PCA9306_ali,44.5875,-59.0625,90.0,top

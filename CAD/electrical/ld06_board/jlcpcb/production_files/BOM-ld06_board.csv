@@ -1,0 +1,21 @@
+Comment,Designator,Footprint,LCSC,Quantity
+R,R2,R_Axial_DIN0309_L9.0mm_D3.2mm_P12.70mm_Horizontal,,1
+TXBN0304RUT,U1,I2C_ali_level_shifter,,1
+Conn_01x02_Pin,BTN1-5,Molex_KK-254_AE-6410-02A_1x02_P2.54mm_Vertical,,1
+100n,C4,R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Vertical,,1
+Conn_01x02_Pin,BTN2-7,Molex_KK-254_AE-6410-02A_1x02_P2.54mm_Vertical,,1
+Conn_01x02_Pin,J6,Molex_KK-254_AE-6410-02A_1x02_P2.54mm_Vertical,,1
+SERIAL,J1,Molex_KK-254_AE-6410-04A_1x04_P2.54mm_Vertical,,1
+TXBN0304RUT,U4,PCA9306_ali,,1
+1N4007,D1,D_T-1_P12.70mm_Horizontal,,1
+100n,C2,R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Vertical,,1
+10u,C3,CP_Radial_D8.0mm_P3.80mm,,1
+I2C,J4,Molex_KK-254_AE-6410-04A_1x04_P2.54mm_Vertical,,1
+ESP32-C3_SUPERMINI_TH,U2,MODULE_ESP32-C3_SUPERMINI,,1
+LM7805_TO220,U3,TO-220-3_Vertical,,1
+I2C,J7,Molex_KK-254_AE-6410-04A_1x04_P2.54mm_Vertical,,1
+LED Strip,J2,Molex_KK-254_AE-6410-03A_1x03_P2.54mm_Vertical,,1
+10u,C1,CP_Radial_D8.0mm_P3.80mm,,1
+1N4007,D2,D_T-1_P12.70mm_Horizontal,,1
+R,R1,R_Axial_DIN0309_L9.0mm_D3.2mm_P12.70mm_Horizontal,,1
+Battery in,J9,BarrelJack_Horizontal,,1
