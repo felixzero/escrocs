@@ -52,11 +52,11 @@ void motion_control_on_init(motion_control_tuning_t *tuning)
 {
     tuning->wheel_radius_mm = 49.5; //50.05
     tuning->robot_diameter_mm = 299.6;
-    tuning->min_speed_mps = 0.25f; 
+    tuning->min_speed_mps = 0.3f; 
     tuning->max_speed_mps = 0.5f; //0.5
     tuning->acceleration_mps2 = 0.4f; //0.4f
     tuning->emergency_acceleration_mps2 = 0.2;
-    tuning->ultrasonic_detection_angle = 1.0;
+    tuning->ultrasonic_detection_angle = 0.8;
     tuning->ultrasonic_min_detection_distance_mm = 30;
     tuning->ultrasonic_ignore_distance_mm = 400;
     tuning->slow_approach_position_mm = 70; //50
@@ -64,7 +64,7 @@ void motion_control_on_init(motion_control_tuning_t *tuning)
     tuning->allowed_angle_error_rad = 0.06f; //about 3 deg
     tuning->deceleration_factor = 0.7;
     tuning->left_right_balance = 0.00; //Somewhat useless
-    tuning->angle_feedback_p = 10.0; //10.0
+    tuning->angle_feedback_p = 8.0; //10.0
     tuning->angle_feedback_i = 1.0;//8.0
     tuning->angle_feedback_d = 24.0; //16.0
     tuning->angle_max_slew_rate = 0.1;
@@ -169,9 +169,9 @@ void motion_control_scanning_angles(
 
     *perform_detection = true;
     if (way_to_go > 0) {
-        *center_angle = M_PI / 2;
+        *center_angle = 0;
     } else {
-        *center_angle = -M_PI / 2;
+        *center_angle = M_PI; // 2;
     }
     *cone_angle = 2 * data->tuning->ultrasonic_detection_angle;
 }
@@ -196,6 +196,7 @@ static bool handle_rotation(void *data, const pose_t *current_pose)
 
     float error_x = state->target_pose.x - current_pose->x;
     float error_y = state->target_pose.y - current_pose->y;
+    ESP_LOGI(TAG, "theta %f, error_ %fx, error_y %f", current_pose->theta, error_x, error_y);
     float position_error = cosf(current_pose->theta) * error_x + sinf(current_pose->theta) * error_y;
     float position_error_correction = tuning->position_feedback_p * position_error;
 

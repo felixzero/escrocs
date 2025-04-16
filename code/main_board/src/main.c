@@ -33,19 +33,18 @@ void app_main() {
     init_udp_logger();
     vTaskDelay(1000 / portTICK_PERIOD_MS);
     esp_err_t ld06_board_ret = ESP_FAIL;
-    //while (ld06_board_ret != ESP_OK) //Wait for lidar to boot up and make a full scan
-    //{
-    //    ld06_board_ret = init_ld06_board();
-    //    ESP_LOGI("main", "ld06 state : %s", esp_err_to_name(ld06_board_ret));
-    //    vTaskDelay(200/portTICK_PERIOD_MS);
-    //}
+    while (ld06_board_ret != ESP_OK) //Wait for lidar to boot up and make a full scan
+    {
+        ld06_board_ret = init_ld06_board();
+        ESP_LOGI("main", "ld06 state : %s", esp_err_to_name(ld06_board_ret));
+        vTaskDelay(200/portTICK_PERIOD_MS);
+    }
     
-    display_initialization_status("mockup avoidance", init_mockup());
-    //display_initialization_status("Ultrasonic", init_ultrasonic_board());
-    //display_initialization_status("US control", init_us_controller());
+    //display_initialization_status("mockup avoidance", init_mockup());
+    display_initialization_status("avoidance_controller", init_avoidance_controller());
     display_initialization_status("Motor board", init_motor_board());
     display_initialization_status("Motion ctrl", init_motion_control(false));//is_reversed));
-    display_initialization_status("Peripherals", init_peripherals());
+    //display_initialization_status("Peripherals", init_peripherals());
     ESP_LOGI("main", "2nd Initialization done!\n");
 
     char *table_sides[] = { "Left", "Right" };

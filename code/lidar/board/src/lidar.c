@@ -120,9 +120,10 @@ static void lidar_task(void *pvParameter) {
             //generate raw lidar
             raw_lidar_t* out_lidar = (raw_lidar_t*) malloc(sizeof(raw_lidar_t));
             parse_frames(out_lidar);
-
+            taskYIELD();
             //Generate amalgames
             nb_amalg = calc_amalgames(amalgame_finder_tuning, *out_lidar, full_amalgames);
+            taskYIELD();
             if (nb_amalg >= amalgame_finder_tuning.max_amalg_count - 1)
             {
                 ESP_LOGI("amalgame", "Max amalgame reached %i", nb_amalg);
@@ -131,7 +132,7 @@ static void lidar_task(void *pvParameter) {
             copy_amalgames_avg(polar_array.pts, nb_amalg, full_amalgames);
             polar_array.length = nb_amalg;
             xQueueOverwrite(polar_array_queue, &polar_array);
-
+            taskYIELD();
             //Convert to cartesian
             point_t* pts = (point_t*) malloc(nb_amalg * sizeof(point_t));
             uint16_t* avg_angles = (uint16_t*) malloc(nb_amalg * sizeof(uint16_t));
@@ -142,10 +143,10 @@ static void lidar_task(void *pvParameter) {
                 avg_dists[i] = full_amalgames[i].avg_dist;
             }
             convert_xy(pts, nb_amalg, avg_angles, avg_dists);
-
+            taskYIELD();
             //Calculate pose
             pose_t pose = refine_pose(pts, full_amalgames, nb_amalg, estimated_odom, &pose_tuning);
-
+            taskYIELD();
             free((void*)avg_angles);
             free((void*)avg_dists);
             free((void*) pts);
@@ -155,7 +156,7 @@ static void lidar_task(void *pvParameter) {
             free((void*) out_lidar->intensities);
             free((void*) out_lidar);
             //ESP_LOGI(TAG, "Full scan processed");
-
+            taskYIELD();
         }       
     }
     

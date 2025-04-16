@@ -16,8 +16,8 @@
 #define TAG "Motion control"
 
 #define MOTOR_DISABLING_TIMEOUT             pdMS_TO_TICKS(5000)
-#define NUMBER_OF_CLEAR_ULTRASONIC_SCANS    5
-#define AVOIDANCE_ENABLED                   0
+#define NUMBER_OF_CLEAR_ULTRASONIC_SCANS    3
+#define AVOIDANCE_ENABLED                   1
 
 static bool reversed_side;
 
@@ -84,7 +84,8 @@ void stop_motion(void)
 {
     ESP_LOGI(TAG, "Stopping motion");
     motion_status_t target = {
-        .motion_step = MOTION_STEP_DONE
+        .motion_step = MOTION_STEP_DONE,
+        .pose = get_current_pose()
     };
     xQueueOverwrite(input_target_queue, &target);
 }
@@ -166,8 +167,7 @@ static void motion_control_task(void *parameters)
         );
         motion_cone.center_angle = center_scanning_angle;
         motion_cone.cone = cone_scanning_angle;
-
-        if (AVOIDANCE_ENABLED && motion_target.motion_step == MOTION_STEP_RUNNING && xQueueReceive(scan_over_queue, &has_obstacle, 0)) {
+        if (AVOIDANCE_ENABLED && xQueueReceive(scan_over_queue, &has_obstacle, 0)) {
             //Perform obstacle detection logic
             if (need_detection && has_obstacle && motion_target.perform_detection) {
                 number_of_clear_ultrasonic_iterations_before_movement = NUMBER_OF_CLEAR_ULTRASONIC_SCANS;
@@ -179,10 +179,11 @@ static void motion_control_task(void *parameters)
             }
         }
         xQueueOverwrite(motion_cone_queue, &motion_cone);
+        motion_target.is_blocked = (number_of_clear_ultrasonic_iterations_before_movement > 0);
 
         // Calculate new motor targets
-        if (motion_target.motion_step == MOTION_STEP_DONE) {
-            write_motor_speed_rad_s(0.0, 0.0, 0.0);
+        if (motion_target.motion_step == MOTION_STEP_DONE || motion_target.is_blocked) {
+            write_motor_speed_raw(0.0, 0.0, 0.0);
         } else {
             //enable_motors_and_set_timer();
             motion_control_apply_speed(
@@ -193,7 +194,6 @@ static void motion_control_task(void *parameters)
             );
         }
 
-        motion_target.is_blocked = (number_of_clear_ultrasonic_iterations_before_movement > 0);
         // Broadcast current pose
         motion_status_t status;
         status.pose = current_pose;

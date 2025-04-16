@@ -53,15 +53,16 @@ void app_main() {
     ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, duty));
     ESP_ERROR_CHECK(ledc_update_duty(LEDC_MODE, LEDC_CHANNEL));
 
+    
     xTaskCreate(i2c_slave_task, "i2c_slave_task", 4096, NULL, 9, NULL);
     init_uart();
     xTaskCreate(update_amalgames_task, "update_amalgames_task", 2048, NULL, 8, NULL);
-    xTaskCreate(printer_log_task, "printer_log_task", 2048, NULL, 12, NULL);
+    xTaskCreate(printer_log_task, "printer_log_task", 2048, NULL, 12, NULL); //I2C Doesn't work without this task !
     update_cone(0.0f, 0.7f);
     update_dist(500);
     for(;;) {
         vTaskDelay(100 / portTICK_PERIOD_MS);
-        ESP_LOGI(TAG, "closest_dist %i", has_obstacle());
+        ESP_LOGI(TAG, "closest_dist %i", closest_obstacle_dist());
     }
 
 

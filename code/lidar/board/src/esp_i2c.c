@@ -74,7 +74,7 @@ void i2c_slave_task(void *pvParameters) {
         .slave_addr = I2C_SLAVE_ADDRESS,
         .send_buf_depth = I2C_BUFFER_SIZE,
         .receive_buf_depth = I2C_BUFFER_SIZE,
-        .flags.enable_internal_pullup = false,
+        .flags.enable_internal_pullup = true,
     };
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
@@ -124,15 +124,17 @@ void i2c_slave_task(void *pvParameters) {
                     data_buffer[0] = (uint8_t) dist;
                     data_buffer[1] = (uint8_t) (dist >> 8);
                     data_len = 2;
+                    QUEUE_STRING(log_queue, "MM_OBS : %i, %i", data_buffer[0], data_buffer[1]);
                     break;
                 default:
-                    //ESP_LOGE("I2C", "Invalid register %"PRIu8, data.buffer[0]);
+                    ESP_LOGE("I2C", "Invalid register %"PRIu8, cur_ctxt.data[0]);
                     break;
                 }
             }
             if(cur_ctxt.is_requested) {
 
             ESP_ERROR_CHECK(i2c_slave_write(slave_handle, data_buffer, data_len, &write_len, 1000));
+            ESP_LOGI("I2C PRINTER", "wrote %i", data_buffer[0]);
             }
         }
     }
@@ -142,9 +144,11 @@ void i2c_slave_task(void *pvParameters) {
 void printer_log_task(void *pvParameters) {
     char *log;
     for(;;) {
-        if(xQueueReceive(log_queue, &log, portMAX_DELAY)) { 
-            ESP_LOGI("PRINTER", "%s", log);
-            vPortFree(log);
+        while (uxQueueMessagesWaiting(log_queue) > 0) {
+            if (xQueueReceive(log_queue, &log, portMAX_DELAY)) {
+                ESP_LOGI("PRINTER", "%s", log);
+                vPortFree(log);
+            }
         }
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
