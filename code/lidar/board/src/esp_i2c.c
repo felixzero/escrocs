@@ -146,7 +146,7 @@ void printer_log_task(void *pvParameters) {
     for(;;) {
         while (uxQueueMessagesWaiting(log_queue) > 0) {
             if (xQueueReceive(log_queue, &log, portMAX_DELAY)) {
-                ESP_LOGI("PRINTER", "%s", log);
+                //ESP_LOGI("PRINTER", "%s", log);
                 vPortFree(log);
             }
         }

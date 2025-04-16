@@ -68,10 +68,12 @@ static void lidar_board_task(void *parameters)
             iteration_since_last = 0;
             last_dist = dist;
             xQueueOverwrite(scan_over_queue, &scan_over);
-            ESP_LOGI(TAG, "closest obstacle %i", dist);
+            ESP_LOGI(TAG, "closest obstacle %i, scan_over %i", dist, scan_over);
         } 
         else {
             iteration_since_last++;
+            ESP_LOGI(TAG, "UNUPDATED closest obstacle %i, scan_over %i", dist, scan_over);
+
         }
         //ESP_LOGI(TAG, "scan over %i", scan_over);
 

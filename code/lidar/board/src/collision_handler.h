@@ -8,7 +8,7 @@
 #include "esp_err.h"
 
 #define OBSTACLE_TRIG_DIST_MIN_MM 10 //100
-#define OBSTACLE_TRIG_DIST_STOP_MM 600
+#define OBSTACLE_TRIG_DIST_STOP_MM 500
 
 extern polar_t polar_array[MAX_AMALG_COUNT];
 extern uint16_t nb_cur_amalg;
