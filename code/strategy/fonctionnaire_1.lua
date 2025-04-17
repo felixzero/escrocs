@@ -18,6 +18,7 @@ end
 function on_run()
     move(x_initial, y_initial, theta_initial)
     overwrite_pose(x_initial, y_initial, theta_initial)
+    move(1000, 400, 2.9)
     move_servo(0, 6000)
     sleep(0.2)
     move_servo(0, 4000)

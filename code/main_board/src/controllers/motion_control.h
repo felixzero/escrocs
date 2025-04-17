@@ -36,6 +36,7 @@ typedef struct {
  */
 esp_err_t init_motion_control(bool reversed_side);
 
+esp_err_t set_reversed_side(bool is_reversed);
 /**
  * Set a (x, y, theta) target in (mm, mm, deg)
  */

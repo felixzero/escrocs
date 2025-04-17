@@ -43,14 +43,16 @@ int calc_amalgames(amalgame_finder_tuning_t tuning, raw_lidar_t data, amalgame_t
     for (uint16_t i = 0; i < data.count; i++)
     {
         uint16_t cur_dist = data.distances[i];
-        //if outside nominal point range, outside intensity range, distance too high with previous point
+        //if outside nominal point range, outside intensity range, distance too high with previous point, too many pt in amalg
         if(cur_dist < tuning.min_dist || cur_dist > tuning.max_dist
         || (data.intensities[i] < tuning.min_intensity)
         || (last_dist != 0 && abs(last_dist - cur_dist) > tuning.max_distance_betwn_pts)
+        || ((*cur_amalg).pts->count == tuning.max_pt_per_amalg)
         ) {
 
-            if(last_dist != 0 && ((*cur_amalg).pts->count >= 
-                ((last_dist > FAR_DIST_MM) ? MIN_FAR_AMALG_COUNT : MIN_CLOSE_AMALG_COUNT))
+            if((last_dist != 0 && ((*cur_amalg).pts->count >= 
+                ((last_dist > FAR_DIST_MM) ? MIN_FAR_AMALG_COUNT : MIN_CLOSE_AMALG_COUNT)))
+            || ((*cur_amalg).pts->count == tuning.max_pt_per_amalg)
             ) {  //exclude too small amalgame & reset it
                 (*cur_amalg).avg_angle = small_angle_nb && high_angle_nb ?
                 junction_avg_angle((*cur_amalg).pts->angles, (*cur_amalg).pts->count) :
@@ -66,7 +68,7 @@ int calc_amalgames(amalgame_finder_tuning_t tuning, raw_lidar_t data, amalgame_t
         }
         
         if(last_dist == 0) {
-            if ((*cur_amalg).pts->count == tuning.max_pt_per_amalg || (*cur_amalg).pts->count < MIN_CLOSE_AMALG_COUNT)
+            if ((*cur_amalg).pts->count < MIN_CLOSE_AMALG_COUNT)
             {
                 reset_amalgame(cur_amalg, tuning.max_pt_per_amalg, 1);
             }
@@ -87,7 +89,7 @@ int calc_amalgames(amalgame_finder_tuning_t tuning, raw_lidar_t data, amalgame_t
             if(data.angles[i] < 1000) small_angle_nb = 1;
             if(data.angles[i] > 1000) high_angle_nb = 1;
     
-            last_dist = ((*cur_amalg).pts->count < 20) ? data.distances[i] : 0; //Prevent "amalgame overflow"
+            last_dist = data.distances[i];
         
         }
     }

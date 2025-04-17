@@ -50,6 +50,11 @@ esp_err_t init_motion_control(bool reversed)
     return ESP_OK;
 }
 
+esp_err_t set_reversed_side(bool is_reversed) {
+    reversed_side = is_reversed;
+    return ESP_OK;
+}
+
 pose_t get_current_pose(void)
 {
     motion_status_t status;
@@ -208,6 +213,7 @@ static pose_t apply_reverse_transformation(const pose_t *pose, bool reversed_sid
     if (!reversed_side) {
         reversed_pose = *pose;
     } else {
+        //Symetrie aux 1500
         reversed_pose.x = -pose->x;
         reversed_pose.y = pose->y;
         reversed_pose.theta = fmodf(M_PI - pose->theta, 2.0 * M_PI);

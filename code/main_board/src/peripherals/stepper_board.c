@@ -13,11 +13,11 @@ static float fclampf(float x, float a, float b);
 
 esp_err_t init_stepper_board(void)
 {
-    ESP_LOGI(TAG, "Initializing servo board subsystem.");
+    ESP_LOGI(TAG, "Initializing stepper board subsystem.");
 
     uint8_t info_register_value = read_i2c_register(I2C_PORT_PERIPH, I2C_ADDR, 0x00);
     if (info_register_value != 0x99) {
-        ESP_LOGE(TAG, "Failing to reach servo board");
+        ESP_LOGE(TAG, "Failing to reach stepper board");
         return ESP_FAIL;
     }
 

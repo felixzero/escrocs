@@ -134,7 +134,6 @@ void i2c_slave_task(void *pvParameters) {
             if(cur_ctxt.is_requested) {
 
             ESP_ERROR_CHECK(i2c_slave_write(slave_handle, data_buffer, data_len, &write_len, 1000));
-            ESP_LOGI("I2C PRINTER", "wrote %i", data_buffer[0]);
             }
         }
     }

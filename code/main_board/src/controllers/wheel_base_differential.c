@@ -56,7 +56,7 @@ void motion_control_on_init(motion_control_tuning_t *tuning)
     tuning->max_speed_mps = 0.5f; //0.5
     tuning->acceleration_mps2 = 0.4f; //0.4f
     tuning->emergency_acceleration_mps2 = 0.2;
-    tuning->ultrasonic_detection_angle = 0.8;
+    tuning->ultrasonic_detection_angle = 1.6;
     tuning->ultrasonic_min_detection_distance_mm = 30;
     tuning->ultrasonic_ignore_distance_mm = 400;
     tuning->slow_approach_position_mm = 70; //50
@@ -173,7 +173,7 @@ void motion_control_scanning_angles(
     } else {
         *center_angle = M_PI; // 2;
     }
-    *cone_angle = 2 * data->tuning->ultrasonic_detection_angle;
+    *cone_angle = data->tuning->ultrasonic_detection_angle / 2;
 }
 
 

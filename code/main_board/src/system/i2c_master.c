@@ -75,6 +75,7 @@ void send_to_i2c(int port, uint8_t slave_addr, const void *buffer, size_t length
     ESP_ERROR_CHECK_WITHOUT_ABORT(err);
     if (err != ESP_OK) {
         i2c_reset_tx_fifo(port);
+        i2c_reset_rx_fifo(port);
         ESP_LOGW("I2C", "Error sending to I2C port : %i", port);
     }
     i2c_cmd_link_delete(i2c_handle);

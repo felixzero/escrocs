@@ -7,6 +7,8 @@
         "cstdint": "c",
         "uart_hal.h": "c",
         "esp_heap_caps.h": "c",
-        "loca_lidar.h": "c"
+        "loca_lidar.h": "c",
+        "freertos.h": "c",
+        "stdint.h": "c"
     }
 }

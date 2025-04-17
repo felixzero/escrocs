@@ -37,7 +37,9 @@ uint8_t read_i2c_register(uint8_t reg)
     case I2C_REG_STEPPER##CHANNEL##_PULSE_PERIOD:                 \
         return stepper_configs[CHANNEL].pulse_period;             \
     case I2C_REG_STEPPER##CHANNEL##_MOTION_ON_OFF:                \
-        return is_stepper_in_motion(CHANNEL);
+        return is_stepper_in_motion(CHANNEL);                     \
+    case I2C_REG_STEPPER##CHANNEL##_BUTTON_STATE:                 \
+        return read_button_state(CHANNEL);
 
     CHANNEL_READ_DEFINITION(0)
     CHANNEL_READ_DEFINITION(1)

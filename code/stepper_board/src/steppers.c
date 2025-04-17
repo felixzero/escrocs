@@ -137,6 +137,10 @@ bool is_stepper_in_motion(uint8_t channel)
     return *(ocrxb_registers[channel]);
 }
 
+bool read_button_state(uint8_t channel) {
+    return (PIND & home_switch_channels[channel]) == 0;
+}
+
 ISR(TIMER0_OVF_vect) {
     timer_overflow_interrupt(0);
 }
