@@ -9,6 +9,7 @@
         "esp_heap_caps.h": "c",
         "loca_lidar.h": "c",
         "freertos.h": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "collision_handler.h": "c"
     }
 }

@@ -12,7 +12,8 @@
 #define I2C_REG_CONE   0x03
 #define I2C_REG_BOOL_OBSTACLE 0x10
 #define I2C_REG_MM_OBSTACLE 0x11
-
+#define I2C_REG_BUTTON5 0x25
+#define I2C_REG_BUTTON7 0x27
 
 esp_err_t init_ld06_board(void);
 
@@ -20,3 +21,4 @@ esp_err_t set_cone(float center_angle, float half_cone_width);
 esp_err_t has_obstacle(bool *obstacle);
 esp_err_t closest_obstacle(uint16_t *distance);
 //esp_err_t read_all_distances(float *distances);
+esp_err_t get_button(bool *is_pressed, uint8_t get_button);

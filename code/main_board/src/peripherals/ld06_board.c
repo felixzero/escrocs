@@ -50,3 +50,30 @@ esp_err_t closest_obstacle(uint16_t *distance) {
     }
     return ESP_OK;
 }
+
+esp_err_t get_button(bool *is_pressed, uint8_t get_button) {
+    uint8_t reg = 0;
+    if(get_button != 5 && get_button != 7) {
+        return ESP_ERR_INVALID_ARG;
+    }
+    else if(get_button == 5) {
+        reg = I2C_REG_BUTTON5;
+    }
+    else if(get_button == 7) {
+        reg = I2C_REG_BUTTON7;
+    }
+    uint8_t buffer[1] = {reg};
+    uint8_t result = read_i2c_register(I2C_PORT_PERIPH, LIDAR_I2C_ADDR, reg);
+    switch (result)
+    {
+    case 5:
+        *is_pressed = 1;
+        return ESP_OK;
+    case 4:
+        *is_pressed = 0;
+        return ESP_OK;
+    default:
+        *is_pressed = 0;
+        return ESP_ERR_INVALID_RESPONSE;
+    }
+}

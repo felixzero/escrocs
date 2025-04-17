@@ -3,6 +3,7 @@
 #include "collision_handler.h"
 
 #include "driver/i2c_slave.h"
+#include "driver/gpio.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
@@ -126,13 +127,20 @@ void i2c_slave_task(void *pvParameters) {
                     data_len = 2;
                     QUEUE_STRING(log_queue, "MM_OBS : %i, %i", data_buffer[0], data_buffer[1]);
                     break;
+                case I2C_REG_BUTTON5:
+                    data_buffer[0] = (uint8_t) gpio_get_level(GPIO_NUM_5) + 4;
+                    data_len = 1;
+                    break;
+                case I2C_REG_BUTTON7:
+                    data_buffer[0] = (uint8_t) gpio_get_level(GPIO_NUM_7) + 4;
+                    data_len = 1;
+                    break;
                 default:
                     ESP_LOGE("I2C", "Invalid register %"PRIu8, cur_ctxt.data[0]);
                     break;
                 }
             }
             if(cur_ctxt.is_requested) {
-
             ESP_ERROR_CHECK(i2c_slave_write(slave_handle, data_buffer, data_len, &write_len, 1000));
             }
         }

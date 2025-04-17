@@ -1,6 +1,7 @@
 #include <esp_err.h>
 #include <esp_log.h>
 #include "driver/ledc.h"
+#include "driver/gpio.h"
 
 #include "parser.h"
 #include "collision_handler.h"
@@ -53,6 +54,15 @@ void app_main() {
     ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, duty));
     ESP_ERROR_CHECK(ledc_update_duty(LEDC_MODE, LEDC_CHANNEL));
 
+    //Read GPIO 5 and 7
+    gpio_config_t io_conf = {
+        .pin_bit_mask = (1ULL << GPIO_NUM_5) | (1ULL << GPIO_NUM_7),
+        .mode = GPIO_MODE_INPUT,
+        .pull_up_en = GPIO_PULLUP_ENABLE,
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_DISABLE,
+    };
+    gpio_config(&io_conf);
     
     xTaskCreate(i2c_slave_task, "i2c_slave_task", 4096, NULL, 9, NULL);
     init_uart();
@@ -62,7 +72,7 @@ void app_main() {
     update_dist(500);
     for(;;) {
         vTaskDelay(100 / portTICK_PERIOD_MS);
-        ESP_LOGI(TAG, "closest_dist %i", closest_obstacle_dist());
+        //ESP_LOGI(TAG, "closest_dist %i", closest_obstacle_dist());
     }
 
 
