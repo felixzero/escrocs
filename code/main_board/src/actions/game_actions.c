@@ -6,6 +6,7 @@
 #include "peripherals/display.h"
 #include "peripherals/peripherals.h"
 #include "peripherals/motor_board.h"
+#include "peripherals/ld06_board.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -108,7 +109,7 @@ struct GAME_ACTION_OUTPUT_STRUCT_NAME(get_button) game_action_get_button(struct 
     if (args.channel < CHANNEL_OFFSET) {
         result.status = read_switch(args.channel);
     } else {
-        result.status = read_peripherals_motor_input(args.channel / CHANNEL_OFFSET - 1, args.channel % CHANNEL_OFFSET);
+        ESP_ERROR_CHECK_WITHOUT_ABORT(get_button(&result.status, args.channel % CHANNEL_OFFSET));
     }
     return result;
 }

@@ -7,6 +7,7 @@
 #include "collision_handler.h"
 #include "lidar.h"
 #include "esp_i2c.h"
+#include "task_priority.h"
 
 #include "../loca_lidar/amalgame.h"
 #include "../loca_lidar/loca_lidar.h"
@@ -63,11 +64,11 @@ void app_main() {
         .intr_type = GPIO_INTR_DISABLE,
     };
     gpio_config(&io_conf);
-    
-    xTaskCreate(i2c_slave_task, "i2c_slave_task", 4096, NULL, 9, NULL);
+ 
+    xTaskCreate(i2c_slave_task, "i2c_slave_task", 4096, NULL, I2C_TASK_PRIORITY, NULL);
     init_uart();
-    xTaskCreate(update_amalgames_task, "update_amalgames_task", 2048, NULL, 8, NULL);
-    xTaskCreate(printer_log_task, "printer_log_task", 2048, NULL, 12, NULL); //I2C Doesn't work without this task !
+    xTaskCreate(update_amalgames_task, "update_amalgames_task", 2048, NULL, AMALGAME_TASK_PRIORITY, NULL);
+    xTaskCreate(printer_log_task, "printer_log_task", 2048, NULL, PRINTER_TASK_PRIORITY, NULL); //I2C Doesn't work without this task !
     update_cone(0.0f, 0.7f);
     update_dist(500);
     for(;;) {

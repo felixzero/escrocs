@@ -100,7 +100,7 @@ void i2c_slave_task(void *pvParameters) {
 
     while (true) {
         i2c_slave_rx_done_event_data_t data;
-        if (xQueueReceive(i2c_receive_queue, &cur_ctxt, 10) == pdTRUE) {
+        if (xQueueReceive(i2c_receive_queue, &cur_ctxt, 1) == pdTRUE) { //previous wait 10
             if(!cur_ctxt.is_requested) {
                 switch (cur_ctxt.data[0])
                 {
@@ -141,7 +141,7 @@ void i2c_slave_task(void *pvParameters) {
                 }
             }
             if(cur_ctxt.is_requested) {
-            ESP_ERROR_CHECK(i2c_slave_write(slave_handle, data_buffer, data_len, &write_len, 1000));
+            ESP_ERROR_CHECK(i2c_slave_write(slave_handle, data_buffer, data_len, &write_len, 2)); //from 1000
             }
         }
     }

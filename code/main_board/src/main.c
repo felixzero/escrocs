@@ -47,6 +47,16 @@ void app_main() {
     //display_initialization_status("Peripherals", init_peripherals());
     //display_initialization_status("stepper", init_stepper_board());
 
+    bool is_pre = 0;
+    bool is_new = 0;
+    for(;;) {
+        get_button(&is_new, 7);
+        vTaskDelay(10/portTICK_PERIOD_MS);
+        if(is_pre != is_new) {
+            is_pre = is_new;
+            ESP_LOGI("MAIN", "is new %i", is_new);
+        }
+    }
     char *table_sides[] = { "Left", "Right" };
     int is_reversed = menu_pick_item("Table side", table_sides, 2);
 
