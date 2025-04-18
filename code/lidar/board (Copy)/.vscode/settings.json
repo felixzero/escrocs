@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "amalgame.h": "c",
+        "pose_refinement.h": "c",
+        "parser.h": "c",
+        "compare": "c",
+        "cstdint": "c",
+        "uart_hal.h": "c",
+        "esp_heap_caps.h": "c",
+        "loca_lidar.h": "c",
+        "freertos.h": "c",
+        "stdint.h": "c",
+        "collision_handler.h": "c"
+    }
+}
