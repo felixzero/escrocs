@@ -161,7 +161,7 @@ static uint8_t find_correspondance(uint8_t* correspondances, uint8_t indexs[MAX_
 
     valid_combination_t combinations[MAX_COMBINATIONS];
     //TODO : manage case 2
-    size_t nb_comb = generate_combination(combinations, MAX_COMBINATIONS, indexs, candidates, tuning->max_dist_beacons);
+    size_t nb_comb = generate_combination(combinations, MAX_COMBINATIONS, indexs, candidates, (float) tuning->max_dist_beacons);
     if (nb_comb >= MAX_COMBINATIONS) {
         //TODO ERROR
     }
@@ -310,5 +310,5 @@ static float sq_dist(point_t a, point_t b) {
 }
 
 static bool in_range(float dist, float expected_dist, float err_tolerance) {
-    return abs(dist-expected_dist) < err_tolerance;
+    return fabsf(dist-expected_dist) < err_tolerance;
 } 
