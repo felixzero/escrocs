@@ -6,6 +6,8 @@
 #include <esp_log.h>
 #include <math.h>
 #include <string.h>
+#include "../peripherals/display.h"
+#include <driver/gpio.h>
 
 #define TAG "lidar_control"
 
@@ -62,8 +64,10 @@ static void lidar_board_task(void *parameters)
             }
         }
         vTaskDelay(50 / portTICK_PERIOD_MS);
-        ESP_ERROR_CHECK_WITHOUT_ABORT(has_obstacle(&scan_over));
+        //ESP_ERROR_CHECK_WITHOUT_ABORT(has_obstacle(&scan_over));
         ESP_ERROR_CHECK_WITHOUT_ABORT(closest_obstacle(&dist));
+        //TODO REMOVE GPIO HACK
+        scan_over = !gpio_get_level(GPIO_CHANNEL_SIDE);
         if(dist != last_dist || iteration_since_last > 2) {
             iteration_since_last = 0;
             last_dist = dist;

@@ -56,23 +56,40 @@ void app_main() {
     ESP_ERROR_CHECK(ledc_update_duty(LEDC_MODE, LEDC_CHANNEL));
 
     //Read GPIO 5 and 7
-    gpio_config_t io_conf = {
-        .pin_bit_mask = (1ULL << GPIO_NUM_5) | (1ULL << GPIO_NUM_7),
-        .mode = GPIO_MODE_INPUT,
+    //gpio_config_t io_conf = {
+    //    .pin_bit_mask = (1ULL << GPIO_NUM_7),//(1ULL << GPIO_NUM_5) | (1ULL << GPIO_NUM_7),
+    //    .mode = GPIO_MODE_INPUT,
+    //    .pull_up_en = GPIO_PULLUP_ENABLE,
+    //    .pull_down_en = GPIO_PULLDOWN_DISABLE,
+    //    .intr_type = GPIO_INTR_DISABLE,
+    //};
+    //gpio_config(&io_conf);
+
+    gpio_config_t io_out = {
+        .pin_bit_mask = (1ULL << GPIO_NUM_7),
+        .mode = GPIO_MODE_OUTPUT,
         .pull_up_en = GPIO_PULLUP_ENABLE,
         .pull_down_en = GPIO_PULLDOWN_DISABLE,
         .intr_type = GPIO_INTR_DISABLE,
     };
-    gpio_config(&io_conf);
+    gpio_config(&io_out);
+
+    gpio_set_level(GPIO_NUM_5, 1);
  
     xTaskCreate(i2c_slave_task, "i2c_slave_task", 4096, NULL, I2C_TASK_PRIORITY, NULL);
     init_uart();
     xTaskCreate(update_amalgames_task, "update_amalgames_task", 2048, NULL, AMALGAME_TASK_PRIORITY, NULL);
-    xTaskCreate(printer_log_task, "printer_log_task", 2048, NULL, PRINTER_TASK_PRIORITY, NULL); //I2C Doesn't work without this task !
+    //xTaskCreate(printer_log_task, "printer_log_task", 2048, NULL, PRINTER_TASK_PRIORITY, NULL); //I2C Doesn't work without this task !
     update_cone(0.0f, 0.7f);
     update_dist(500);
     for(;;) {
         vTaskDelay(100 / portTICK_PERIOD_MS);
+        ESP_LOGI("", "obstacle main %i", has_obstacle());
+        if(has_obstacle()) {
+            gpio_set_level(GPIO_NUM_7, 0);
+        }else {
+            gpio_set_level(GPIO_NUM_7, 1);
+        }
         //ESP_LOGI(TAG, "closest_dist %i", closest_obstacle_dist());
     }
 

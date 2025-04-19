@@ -9,7 +9,6 @@
 #include <esp_err.h>
 #include <driver/gpio.h>
 #include <rom/ets_sys.h>
-#include <driver/gpio.h>
 #include <driver/pcnt.h>
 #include <limits.h>
 
@@ -29,9 +28,7 @@
 #define GPIO_CHANNEL_ENCODER_DT     34
 #define GPIO_CHANNEL_ENCODER_CLK    35
 
-#define GPIO_CHANNEL_TRIGGER        13
-#define GPIO_CHANNEL_SIDE           25
-#define GPIO_CHANNEL_STATUS_LED     2
+
 
 static void init_lcd_screen(void);
 static void lcd_write_8bits(uint8_t value, bool rs_enable);

@@ -10,6 +10,18 @@
         "loca_lidar.h": "c",
         "freertos.h": "c",
         "stdint.h": "c",
-        "collision_handler.h": "c"
+        "collision_handler.h": "c",
+        "esp32-hal-i2c-slave.h": "c",
+        "periph_ctrl.h": "c",
+        "array": "c",
+        "deque": "c",
+        "string": "c",
+        "unordered_map": "c",
+        "vector": "c",
+        "string_view": "c",
+        "format": "c",
+        "initializer_list": "c",
+        "span": "c",
+        "text_encoding": "c"
     }
 }

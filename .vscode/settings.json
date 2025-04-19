@@ -1,3 +1,6 @@
 {
-    "cmake.sourceDirectory": "/home/jonathantie/Documents/git/escrocs/code/lidar/desktop/ecal_wrapper"
+    "cmake.sourceDirectory": "/home/jonathan/Documents/escrocs/code/lidar/desktop/ecal_wrapper",
+    "files.associations": {
+        "stdbool.h": "c"
+    }
 }

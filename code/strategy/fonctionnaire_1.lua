@@ -8,7 +8,7 @@ function on_init(side)
 end
 
 function move(x, y, t)
-	set_pose(x, y, t, false)
+	set_pose(x, y, t, true)
     sleep(0.2)
 	while not is_motion_done() do
 		sleep(0.2)
@@ -25,8 +25,13 @@ function on_run()
     move_servo(0, 2000)
     sleep(1.0)
     move(x_initial, 500, theta_initial) -- translation perpendi au mur
-    move(400, 500, 0) -- translation parallele au mur
-    move(400, 1700, theta_initial) --atteinte zone arrivée
+    move(x_initial, 500, 3.14)
+    move(400, 500, 3.14) -- translation parallele au mur
+    move(400, 500, theta_initial)
+end
+
+function on_end()
+    move(400, 1600, theta_initial) --atteinte zone arrivée
 end
 
 function resume_loop()

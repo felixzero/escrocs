@@ -33,6 +33,8 @@ void app_main() {
     init_udp_logger();
     vTaskDelay(1000 / portTICK_PERIOD_MS);
     esp_err_t ld06_board_ret = ESP_FAIL;
+
+    
     while (ld06_board_ret != ESP_OK) //Wait for lidar to boot up and make a full scan
     {
         ld06_board_ret = init_ld06_board();
@@ -44,9 +46,10 @@ void app_main() {
     display_initialization_status("avoidance_controller", init_avoidance_controller());
     display_initialization_status("Motor board", init_motor_board());
     display_initialization_status("Motion ctrl", init_motion_control(false));
-    //display_initialization_status("Peripherals", init_peripherals());
-    //display_initialization_status("stepper", init_stepper_board());
+    display_initialization_status("Peripherals", init_peripherals());
+    display_initialization_status("stepper", init_stepper_board());
 
+    
     char *table_sides[] = { "Left", "Right" };
     int is_reversed = menu_pick_item("Table side", table_sides, 2);
 

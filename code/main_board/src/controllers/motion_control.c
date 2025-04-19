@@ -173,6 +173,7 @@ static void motion_control_task(void *parameters)
         motion_cone.center_angle = center_scanning_angle;
         motion_cone.cone = cone_scanning_angle;
         if (AVOIDANCE_ENABLED && xQueueReceive(scan_over_queue, &has_obstacle, 0)) {
+            ESP_LOGI("TAG", "obstracle %i", has_obstacle);
             //Perform obstacle detection logic
             if (need_detection && has_obstacle && motion_target.perform_detection) {
                 number_of_clear_ultrasonic_iterations_before_movement = NUMBER_OF_CLEAR_ULTRASONIC_SCANS;
