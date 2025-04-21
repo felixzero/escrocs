@@ -16,6 +16,10 @@ static raw_lidar_t empty_lidar = {
     .intensities = NULL
 };
 
+static uint16_t abs_dist_mm(point_t a, point_t b) {
+    return 0;
+}
+
 void init_amalgames(amalgame_finder_tuning_t tuning, amalgame_t* amalgames) {
     for (uint8_t i = 0; i < tuning.max_amalg_count; i++)
     {
@@ -59,6 +63,15 @@ int calc_amalgames(amalgame_finder_tuning_t tuning, raw_lidar_t data, amalgame_t
                 (uint16_t) (avg_angle / (*cur_amalg).pts->count);
                 (*cur_amalg).avg_dist = (uint16_t) (avg_dist / (*cur_amalg).pts->count);
                 (*cur_amalg).avg_dist += OFFSET_AMALG_CENTER;
+                polar_t a = {
+                    .angle = (*cur_amalg).pts->angles[0],
+                    .distance = (*cur_amalg).pts->distances[0]
+                };
+                polar_t b = {
+                    .angle = (*cur_amalg).pts->angles[(*cur_amalg).pts->count],
+                    .distance = (*cur_amalg).pts->distances[(*cur_amalg).pts->count]
+                };
+                //(*cur_amalg).size = 
                 cur_amalg = &amalgames_out[++amalgs_i];
             }
             if(amalgs_i == tuning.max_amalg_count - 1) { // TODO : improve management of too many amalgames

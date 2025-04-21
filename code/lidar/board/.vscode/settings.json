@@ -22,6 +22,9 @@
         "format": "c",
         "initializer_list": "c",
         "span": "c",
-        "text_encoding": "c"
+        "text_encoding": "c",
+        "i2c.h": "c",
+        "i2c_slave.h": "c",
+        "gpio.h": "c"
     }
 }

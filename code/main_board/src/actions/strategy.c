@@ -24,7 +24,7 @@
 #define STRATEGY_PATH_PREFIX        "/storage/"
 #define BLOCK_SIZE                  512
 #define TRIGGER_POLLING_MS          500
-#define MATCH_DURATION_MS           89000
+#define MATCH_DURATION_MS           94000
 #define LUA_ON_INIT_FUNCTION        "on_init"
 #define LUA_ON_RUN_FUNCTION         "on_run"
 #define LUA_RESUME_LOOP_FUNCTION    "resume_loop"

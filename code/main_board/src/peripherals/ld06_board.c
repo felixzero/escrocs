@@ -35,7 +35,6 @@ esp_err_t has_obstacle(bool *obstacle) {
     send_to_i2c(I2C_PORT_PERIPH, LIDAR_I2C_ADDR, &buffer, 1);
     vTaskDelay(1);
     request_from_i2c(I2C_PORT_PERIPH, LIDAR_I2C_ADDR, &buffer, 1);
-    request_from_i2c(I2C_PORT_PERIPH, LIDAR_I2C_ADDR, &buffer, 1);
     *obstacle = (buffer[0] == 5) ? true : false; //O and 1 seems to not work properly
     if(buffer[0] != 4 && buffer[0] != 5) {
         return ESP_ERR_INVALID_RESPONSE;
@@ -46,7 +45,6 @@ esp_err_t closest_obstacle(uint16_t *distance) {
     uint8_t buffer[2] = {I2C_REG_MM_OBSTACLE, 0};
     send_to_i2c(I2C_PORT_PERIPH, LIDAR_I2C_ADDR, &buffer, 1);
     vTaskDelay(1);
-    request_from_i2c(I2C_PORT_PERIPH, LIDAR_I2C_ADDR, &buffer, 2);
     request_from_i2c(I2C_PORT_PERIPH, LIDAR_I2C_ADDR, &buffer, 2);
     *distance = buffer[0] | buffer[1] << 8;
     if(buffer[0] == 0 && buffer[1] == 0) {

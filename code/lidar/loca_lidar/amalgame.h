@@ -51,6 +51,7 @@ typedef struct {
     raw_lidar_t* pts;
     uint16_t avg_angle;
     uint16_t avg_dist;
+    uint16_t size;
 } amalgame_t;
 
 void init_amalgames(amalgame_finder_tuning_t tuning, amalgame_t* amalgames);

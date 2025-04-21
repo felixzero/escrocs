@@ -28,10 +28,14 @@ function on_run()
     move(x_initial, 500, 3.14)
     move(400, 500, 3.14) -- translation parallele au mur
     move(400, 500, theta_initial)
+    move(400, 1400, theta_initial)
+    sleep(75)
+    on_end()
 end
 
 function on_end()
-    move(400, 1600, theta_initial) --atteinte zone arrivée
+    print("ending")
+    move(400, 1550, theta_initial) --atteinte zone arrivée
 end
 
 function resume_loop()
