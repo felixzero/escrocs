@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <math.h>
 
+
 #define MIN_FAR_AMALG_COUNT 1
 #define MIN_CLOSE_AMALG_COUNT 4
 #define FAR_DIST_MM 1000
@@ -16,8 +17,16 @@ static raw_lidar_t empty_lidar = {
     .intensities = NULL
 };
 
-static uint16_t abs_dist_mm(point_t a, point_t b) {
-    return 0;
+static uint16_t abs_dist_mm(polar_t a, polar_t b) {
+    float r1 = (float) a.distance;
+    float r2 = (float) b.distance;
+    float theta1 = a.angle  * (M_PI / 18000.0);
+    float theta2 = b.angle  * (M_PI / 18000.0);
+
+    float delta_theta = theta2 - theta1;
+    float cos_delta_theta = cos(delta_theta);
+    
+    return sqrt(r1 * r1 + r2 * r2 - 2 * r1 * r2 * cos_delta_theta);
 }
 
 void init_amalgames(amalgame_finder_tuning_t tuning, amalgame_t* amalgames) {
@@ -68,10 +77,12 @@ int calc_amalgames(amalgame_finder_tuning_t tuning, raw_lidar_t data, amalgame_t
                     .distance = (*cur_amalg).pts->distances[0]
                 };
                 polar_t b = {
-                    .angle = (*cur_amalg).pts->angles[(*cur_amalg).pts->count],
-                    .distance = (*cur_amalg).pts->distances[(*cur_amalg).pts->count]
+                    .angle = (*cur_amalg).pts->angles[(*cur_amalg).pts->count-1],
+                    .distance = (*cur_amalg).pts->distances[(*cur_amalg).pts->count-1]
                 };
-                //(*cur_amalg).size = 
+                //TODO : Accepter une tolérance à 93mm pour les balises de 80mm
+                //Et expected min size en dessous d'une certaine distance (1m)
+                (*cur_amalg).size = abs_dist_mm(a,b);
                 cur_amalg = &amalgames_out[++amalgs_i];
             }
             if(amalgs_i == tuning.max_amalg_count - 1) { // TODO : improve management of too many amalgames

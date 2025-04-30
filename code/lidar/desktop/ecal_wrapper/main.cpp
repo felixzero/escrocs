@@ -69,7 +69,8 @@ void process_lidar(raw_lidar_t lidar) {
   std::cout << 
   "dist" << sqrt(SQUARE(pts[last_assos[1]].x - pts[last_assos[2]].x) + SQUARE(pts[last_assos[1]].y - pts[last_assos[2]].y))
   <<std::endl;
-  
+  std::cout << "size " << full_amalgames[last_assos[0]].size << " " << full_amalgames[last_assos[1]].size
+  << " "<<full_amalgames[last_assos[2]].size << std::endl;
   
       free((void*)avg_angles);
       free((void*)avg_dists);
