@@ -42,7 +42,8 @@ function on_run()
     move(775, 500, -1.57) -- translation parallele au mur & mise en place planche
 
     -- deplacement vers premiere ensemble
-    move_without_avoidance(750, 410, -1.57) -- translation perpendi au mur
+    move_without_avoidance(750, 390, -1.57) -- translation perpendi au mur
+    --debut seq
     move_servo(1, 2000) --deploiement bras ultraetendu
     move_stepper(2, -200, 0.15) --attrape  2 planches
     sleep(3.0)
@@ -63,7 +64,7 @@ function on_run()
     move_stepper(2, 1300, 0.15) -- attrapage 1 planche
     sleep(1.5)
     move(775, 340, -1.57) -- reculage
-    move_stepper(2, 750, 0.15) -- Depose de haut de 1 planche
+    move_stepper(2, 850, 0.15) -- Depose de haut de 1 planche
     sleep(2.0)
     move_servo(1, 2500) --deploiement bras
     move_stepper(2, 950, 0.15) -- position haute 1 planche
@@ -71,11 +72,16 @@ function on_run()
     move_servo(1, 8000) --retractage bras
     score = score + 8
     print("score  " .. score)
+
+    --A CHOISIR 1er si deuxième ensemble
+    --move(775, 500, -1.57)
     move(775, 500, 3.14) -- translation perpendi au mur
 
 
     -- deplacemetn vers deuxieme ensemble
-
+    --move(700, 1200, 0)
+    --move(1100, 1200, 1.57)
+    --move(1100, 1110, 1.57)
 
     -- zone arrivée
     move(700, 1300, 3.14)

@@ -52,9 +52,9 @@ void motion_control_on_init(motion_control_tuning_t *tuning)
 {
     tuning->wheel_radius_mm = 50.0;
     tuning->robot_diameter_mm = 289;
-    tuning->ultra_min_speed = 0.2f; //Minimum speed when correcting for rotation
-    tuning->min_speed_mps = 0.25f; 
-    tuning->max_speed_mps = 0.25f; //0.5
+    tuning->ultra_min_speed = 0.24f; //Minimum speed when correcting for rotation
+    tuning->min_speed_mps = 0.28f; 
+    tuning->max_speed_mps = 0.30f; //0.5
     tuning->acceleration_mps2 = 0.4f; //0.4f
     tuning->emergency_acceleration_mps2 = 0.2;
     tuning->ultrasonic_detection_angle = 1.6;
@@ -64,10 +64,10 @@ void motion_control_on_init(motion_control_tuning_t *tuning)
     tuning->allowed_error_mm = 5; //3 For "is_xy_close", x2 of this value
     tuning->allowed_angle_error_rad = 0.06f; //about 3 deg
     tuning->deceleration_factor = 0.7;
-    tuning->left_right_balance = 0.0; //0.05;
-    tuning->angle_feedback_p = 8.0; //8.0
+    tuning->left_right_balance = 0.05; //0.05;
+    tuning->angle_feedback_p =  20.0; //8.5 //8.0
     tuning->angle_feedback_i = 1.0;//1.0
-    tuning->angle_feedback_d = 24.0; //24.0
+    tuning->angle_feedback_d = 0.0; //32.0 //24.0
     tuning->angle_max_slew_rate = 0.1;
     tuning->position_feedback_p = 0.02;
 }
@@ -269,6 +269,12 @@ static bool handle_translation(void *data, const pose_t *current_pose)
     state->sum_angle_err += angle_error;
     state->last_angle_err = angle_error;
 
+    //avoid integral windup
+    if (fabsf(angle_error) < 0.02f) {
+        state->sum_angle_err = 0;
+    }
+    
+
 
     //Limit max integral_angle
     float integral_angle = tuning->angle_feedback_i * state->sum_angle_err;
@@ -324,7 +330,7 @@ static bool handle_translation(void *data, const pose_t *current_pose)
         wheel2 = -tuning->ultra_min_speed;
     }
 
-    ESP_LOGI(TAG, "wheel1 : %f, wheel2 : %f, waytogo %f, poseX %f", wheel1, wheel2, fabs(way_to_go), current_pose->x);
+    //ESP_LOGI(TAG, "wheel1 : %f, wheel2 : %f, waytogo %f, poseX %f", wheel1, wheel2, fabs(way_to_go), current_pose->x);
 
     if (fabs(way_to_go) < tuning->allowed_error_mm) {
         write_motor_speed_raw(0.0, 0.0, 0.0);

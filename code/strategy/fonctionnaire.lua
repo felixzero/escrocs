@@ -31,6 +31,7 @@ function on_run()
     sleep(0.2)
     move_servo(0, 2000)
     sleep(1.0)
+    print("score  20")
     move(x_initial, 500, theta_initial) -- translation perpendi au mur
     move(x_initial, 500, 3.14)
     move(400, 500, 3.14) -- translation parallele au mur
@@ -39,7 +40,7 @@ function on_run()
 end
 
 function on_end()
-    print("ending")
+    print("score  30")
     move(400, 1550, theta_initial) --atteinte zone arrivée
 end
 

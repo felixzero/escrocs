@@ -42,7 +42,7 @@ function on_run()
     -- deplacement vers premiere ensemble
     set_pose(x_initial, 300, theta_initial, false) -- translation perpendi au mur
     local iter = 0
-    while get_button(25) == false and iter < 50 do
+    while get_button(25) == false and iter < 150 do
         sleep(0.02)
         iter = iter + 1
     end
@@ -66,7 +66,7 @@ function on_run()
     sleep(1.5)
     move_servo(1, 8000) --retractage bras
     sleep(0.5)
-    move_stepper(2, 1300, 0.15) -- attrapage 1 planche
+    move_stepper(2, 1500, 0.15) -- attrapage 1 planche
     sleep(1.5)
     move(x_initial, 350, theta_initial, false) -- reculage
     move_stepper(2, 750, 0.15) -- Depose de haut de 1 planche
