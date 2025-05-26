@@ -39,12 +39,22 @@ function on_run()
     
     move(x_initial, 500, theta_initial) -- translation perpendi au mur
     move(x_initial, 500, 3.14)
-    move(775, 500, -1.57) -- translation parallele au mur & mise en place planche
+    local x_axis_asm = 755
+    move(x_axis_asm, 500, -1.57) -- translation parallele au mur & mise en place planche
 
     -- deplacement vers premiere ensemble
-    move_without_avoidance(750, 390, -1.57) -- translation perpendi au mur
+    move_without_avoidance(x_axis_asm, 390, -1.57) -- translation perpendi au mur
+    local iter = 0
+    while get_button(25) == false and iter < 150 do
+        sleep(0.02)
+        iter = iter + 1
+    end
+    sleep(0.05) -- Ensure contact with planche
+    stop_motion()
+    sleep(0.1)
     --debut seq
     move_servo(1, 2000) --deploiement bras ultraetendu
+    sleep(0.8)
     move_stepper(2, -200, 0.15) --attrape  2 planches
     sleep(3.0)
     move_servo(1, 8000) --retractage bras
@@ -52,7 +62,7 @@ function on_run()
     move_stepper(2, 625, 0.15) -- transport planches
     sleep(2.0)
     
-    move_without_avoidance(775, 220, -1.57) -- translation jusqu'au mur
+    move_without_avoidance(x_axis_asm, 220, -1.57) -- translation jusqu'au mur
     
     -- construction
     move_servo(1, 2000) --deploiement bras
@@ -61,21 +71,21 @@ function on_run()
     sleep(1.5)
     move_servo(1, 8000) --retractage bras
     sleep(0.5)
-    move_stepper(2, 1300, 0.15) -- attrapage 1 planche
+    move_stepper(2, 1500, 0.15) -- attrapage 1 planche
     sleep(1.5)
-    move(775, 340, -1.57) -- reculage
-    move_stepper(2, 850, 0.15) -- Depose de haut de 1 planche
+    move(x_axis_asm, 340, -1.57) -- reculage
+    move_stepper(2, 800, 0.15) -- Depose de haut de 1 planche
     sleep(2.0)
     move_servo(1, 2500) --deploiement bras
     move_stepper(2, 950, 0.15) -- position haute 1 planche
-    sleep(1.0)
+    sleep(2.0)
     move_servo(1, 8000) --retractage bras
     score = score + 8
     print("score  " .. score)
 
     --A CHOISIR 1er si deuxième ensemble
     --move(775, 500, -1.57)
-    move(775, 500, 3.14) -- translation perpendi au mur
+    move(x_axis_asm, 500, 3.14) -- translation perpendi au mur
 
 
     -- deplacemetn vers deuxieme ensemble

@@ -46,9 +46,11 @@ function on_run()
         sleep(0.02)
         iter = iter + 1
     end
+    sleep(0.05) -- Ensure contact with planche
     stop_motion()
     sleep(0.1)
     move_servo(1, 2000) --deploiement bras ultraetendu
+    sleep(0.8)
     move_stepper(2, -200, 0.15) --attrape  2 planches
     sleep(3.0)
     move_servo(1, 8000) --retractage bras
@@ -69,11 +71,11 @@ function on_run()
     move_stepper(2, 1500, 0.15) -- attrapage 1 planche
     sleep(1.5)
     move(x_initial, 350, theta_initial, false) -- reculage
-    move_stepper(2, 750, 0.15) -- Depose de haut de 1 planche
+    move_stepper(2, 800, 0.15) -- Depose de haut de 1 planche
     sleep(2.0)
     move_servo(1, 2500) --deploiement bras
     move_stepper(2, 950, 0.15) -- position haute 1 planche
-    sleep(1.0)
+    sleep(2.0)
     move_servo(1, 8000) --retractage bras
     move(x_initial, 250, theta_initial, false) -- translation perpendi au mur
     score = score + 8
