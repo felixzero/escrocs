@@ -6,6 +6,7 @@
 typedef struct {
     float wheel_radius_mm;
     float robot_diameter_mm;
+    float ultra_min_speed;
     float min_speed_mps;
     float max_speed_mps;
     float acceleration_mps2;

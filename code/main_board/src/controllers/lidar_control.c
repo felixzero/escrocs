@@ -54,6 +54,7 @@ static void lidar_board_task(void *parameters)
     uint16_t dist = 0, last_dist = 0;
     float last_center = 0, last_cone = 0;
     uint8_t iteration_since_last = 0;
+    uint16_t iteration_same_dist = 0;
     while (true) {
         if (xQueueReceive(motion_cone_queue, &motion_cone, 0) == pdTRUE) {
             if(motion_cone.center_angle != last_center || motion_cone.cone != last_cone) {
@@ -66,8 +67,15 @@ static void lidar_board_task(void *parameters)
         vTaskDelay(50 / portTICK_PERIOD_MS);
         //ESP_ERROR_CHECK_WITHOUT_ABORT(has_obstacle(&scan_over));
         ESP_ERROR_CHECK_WITHOUT_ABORT(closest_obstacle(&dist));
-        //TODO REMOVE GPIO HACK
-        scan_over = !gpio_get_level(GPIO_CHANNEL_SIDE);
+        scan_over = dist < 500; //!gpio_get_level(GPIO_CHANNEL_SIDE);
+
+                //LOGIC FOR EMERGENCY BUTTON
+        //if(dist == last_dist) {
+        //    iteration_same_dist++;
+        //}
+        //if(iteration_same_dist > 10) {
+        //    scan_over = gpio_get_level(GPIO_CHANNEL_SIDE);
+        //}
         if(dist != last_dist || iteration_since_last > 2) {
             iteration_since_last = 0;
             last_dist = dist;
@@ -77,6 +85,9 @@ static void lidar_board_task(void *parameters)
         else {
             iteration_since_last++;
         }
+
+
+
         //ESP_LOGI(TAG, "scan over %i", scan_over);
 
     }

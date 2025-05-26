@@ -24,7 +24,8 @@
 #define STRATEGY_PATH_PREFIX        "/storage/"
 #define BLOCK_SIZE                  512
 #define TRIGGER_POLLING_MS          500
-#define MATCH_DURATION_MS           94000
+#define MATCH_DURATION_MS           99000
+#define ENDING_DELAY_BEFORE_MS     4000
 #define LUA_ON_INIT_FUNCTION        "on_init"
 #define LUA_ON_RUN_FUNCTION         "on_run"
 #define LUA_RESUME_LOOP_FUNCTION    "resume_loop"
@@ -106,23 +107,10 @@ static void lua_executor_task(void *is_reversed)
             ESP_LOGW(TAG, "Missing on_run function in Lua strategy.");
         }
 
-        TickType_t iteration_time = xTaskGetTickCount();
-        while (xQueuePeek(on_end_queue, &queue_buffer, 0) == pdFALSE)
-        {
-            lua_getglobal(L, LUA_RESUME_LOOP_FUNCTION);
-            lua_pushinteger(L, pdTICKS_TO_MS(xTaskGetTickCount()));
-            //arg is the timestamp in ms, receive the sleep time to wait before calling the coroutine again
-            if(lua_pcall(L, 1, 1, 0) != LUA_OK) { //It either returns an error message or the sleep time
-                ESP_LOGE(TAG, "Lua error resume_loop: %s", lua_tostring(L, -1));
-                lcd_printf(1, "Lua error on main_loop");
-            }
-            else {
-                lua_Integer sleep_time = lua_tointeger(L, -1);
-                if (sleep_time == -1) {
-                    break;
-                }
-                xTaskDelayUntil(&iteration_time, pdMS_TO_TICKS(sleep_time));
-            }
+        xQueueReceive(on_end_queue, &queue_buffer, portMAX_DELAY);
+        lua_getglobal(L, LUA_ON_END_FUNCTION);
+        if (lua_pcall(L, 0, 0, 0) != LUA_OK) {
+            ESP_LOGW(TAG, "Missing on_end function in Lua strategy.");
         }
 
         free(filename);
@@ -153,17 +141,22 @@ static void trigger_timer_task(void *parameters)
     //enable_motors_and_set_timer();
 
     int queue_buffer = 1;
+    int second_queue_buff = 1;
     xQueueOverwrite(on_run_queue, &queue_buffer);
     TickType_t match_start_time = xTaskGetTickCount();
-    while (pdTICKS_TO_MS(xTaskGetTickCount() - match_start_time) < (MATCH_DURATION_MS - 1000)) {
+    while (pdTICKS_TO_MS(xTaskGetTickCount() - match_start_time) < (MATCH_DURATION_MS)) {
         int elapsed_seconds = pdTICKS_TO_MS(xTaskGetTickCount() - match_start_time) / 1000;
         lcd_printf(0, "%02d:%02d", elapsed_seconds / 60, elapsed_seconds % 60);
         vTaskDelay(pdMS_TO_TICKS(1000));
+        if(pdTICKS_TO_MS(xTaskGetTickCount() - match_start_time) > (MATCH_DURATION_MS - ENDING_DELAY_BEFORE_MS)) {
+            xQueueOverwrite(on_end_queue, &second_queue_buff);
+        }
     }
-    vTaskDelayUntil(&match_start_time, MATCH_DURATION_MS / portTICK_PERIOD_MS);
+    vTaskDelayUntil(&match_start_time, MATCH_DURATION_MS  / portTICK_PERIOD_MS);
 
     while (true) {
         end_match();
+        stop_motion();
         vTaskDelay(pdMS_TO_TICKS(100));
     }
 }
@@ -171,8 +164,6 @@ static void trigger_timer_task(void *parameters)
 static void end_match(void)
 {
     ESP_LOGI(TAG, "Match ended after %d ms", MATCH_DURATION_MS);
-    int queue_buffer = 1;
-    xQueueOverwrite(on_end_queue, &queue_buffer);
     vTaskDelay(pdMS_TO_TICKS(TRIGGER_POLLING_MS));
     disable_motors();
     lcd_printf(0, "Done");

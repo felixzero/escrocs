@@ -51,7 +51,6 @@ bool has_obstacle() {
     return false;
 }
 
-#include "esp_log.h"
 uint16_t closest_obstacle_dist() {
     uint16_t min_dist = 0xFFFF;
     uint16_t angle = 0;

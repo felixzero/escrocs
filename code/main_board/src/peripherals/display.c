@@ -11,10 +11,7 @@
 #include <rom/ets_sys.h>
 #include <driver/pcnt.h>
 #include <limits.h>
-
-#define NUMBER_OF_COLUMNS           16
-#define LINE_OFFSET                 40
-#define GLITCH_FILTER_NS            10000
+#include <string.h>
 
 #define GPIO_CHANNEL_LCD_BIT_4      26
 #define GPIO_CHANNEL_LCD_BIT_5      27
@@ -28,7 +25,7 @@
 #define GPIO_CHANNEL_ENCODER_DT     34
 #define GPIO_CHANNEL_ENCODER_CLK    35
 
-
+char last_printed[NUMBER_OF_COLUMNS+1];
 
 static void init_lcd_screen(void);
 static void lcd_write_8bits(uint8_t value, bool rs_enable);
@@ -57,6 +54,10 @@ void lcd_printf(int row, const char *format_str, ...)
 
     int message_length = vsnprintf(buffer, NUMBER_OF_COLUMNS + 1, format_str, args);
     va_end(args);
+
+    if(row == 1) {
+        strncpy(last_printed, buffer, NUMBER_OF_COLUMNS);
+    }
 
     xSemaphoreTake(lcd_mutex, portMAX_DELAY);
 

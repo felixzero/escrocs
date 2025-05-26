@@ -16,8 +16,11 @@
 
 #define CLAMP_ABS(x, clamp) ((fabsf(x) > (clamp)) ? (clamp) * (x) / fabsf(x) : (x))
 
+static bool is_active = false;
+
 esp_err_t init_motor_board(void) {
     encoder_measurement_t measurement;
+    is_active = true;
     if (read_encoder_increment(&measurement) == ESP_OK) {
         return ESP_OK;
     }
@@ -45,6 +48,11 @@ esp_err_t read_encoder_increment(encoder_measurement_t *measurement) {
 esp_err_t write_motor_speed_raw(float speed1, float speed2, float speed3) {
     int8_t buffer[7];
     buffer[0] = I2C_REG_MOTOR_PWM_0L;
+    if(!is_active) {
+        speed1 = 0;
+        speed2 = 0;
+        speed3 = 0;
+    }
     *((int16_t*)&buffer[1]) = 160 * CLAMP_ABS(speed1, 1.0); //160 instead of 255 due to 18V battery
     *((int16_t*)&buffer[3]) = 160 * CLAMP_ABS(speed2, 1.0);
     *((int16_t*)&buffer[5]) = 160 * CLAMP_ABS(speed3, 1.0);
@@ -60,9 +68,12 @@ esp_err_t write_motor_speed_rad_s(float speed1, float speed2, float speed3) {
  * This can be used to save battery during long idling times.
  */
 esp_err_t enable_motors(void) {
+    is_active = true;
     return ESP_OK;
 }
 esp_err_t disable_motors(void) {
+    write_motor_speed_raw(0, 0, 0);
+    is_active = false;
     return ESP_OK;
 }
 

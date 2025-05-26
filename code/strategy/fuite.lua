@@ -1,5 +1,6 @@
 pi_half = 1.57079
-x_initial, y_initial, theta_initial = 1200, 120, 1.57
+x_initial, y_initial, theta_initial = 1150, 120, 1.57
+score = 0
 
 function on_init(side)
     overwrite_pose(x_initial, y_initial, theta_initial)
@@ -30,16 +31,21 @@ function on_run()
     move_servo(0, 4000)
     sleep(0.2)
     move_servo(0, 2000)
+    score = score + 20
+    print("score  " .. score)
     sleep(1.0)
     move(x_initial, 500, theta_initial) -- translation perpendi au mur
-    move(x_initial, 500, 3.14)
-    move(400, 500, 3.14) -- translation parallele au mur
-    move(400, 500, theta_initial)
+    move(1500, 800, 1.57) -- milieu
+    move(1500, 1300, 3.14) -- milieu bis
+        --TODO : attrapage
+    --move(1100, 1300, -1.57) -- prépa attrapage
+
     move(400, 1400, theta_initial)
 end
 
 function on_end()
-    print("ending")
+    score = score + 10
+    print("score  " .. score)
     move(400, 1550, theta_initial) --atteinte zone arrivée
 end
 
