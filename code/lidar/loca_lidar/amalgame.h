@@ -62,8 +62,7 @@ static void reset_amalgame(amalgame_t* item, uint8_t nb_pts, uint8_t need_free);
 static void reset_raw_lidar(raw_lidar_t *item, uint8_t nb_pts, uint8_t need_free);
 bool are_poses_equal(const pose_t* a, const pose_t* b);
 bool copy_amalgames_avg(polar_t *polar_out, int nb_amalg, amalgame_t* last_amalg);
+
 static int8_t combine_amalg(amalgame_t* dest, amalgame_t* add, uint16_t max_count);
 static uint16_t junction_avg_angle(uint16_t* angles, uint8_t count); //manage edge case when both angles overlap 360°/0°
-
-
 

@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include "esp_log.h"
+
 
 #define MIN_FAR_AMALG_COUNT 1
 #define MIN_CLOSE_AMALG_COUNT 4
@@ -51,10 +53,18 @@ int calc_amalgames(amalgame_finder_tuning_t tuning, raw_lidar_t data, amalgame_t
     uint8_t small_angle_nb = 0, high_angle_nb = 0;
     amalgame_t* cur_amalg = &amalgames_out[0];
     //reset_amalgame(cur_amalg, tuning.max_pt_per_amalg, 1);
-
+    //bool is_increasing = data.angles[1] > data.angles[0];
+    //bool has_crossed = false;
 
     for (uint16_t i = 0; i < data.count; i++)
     {
+        //prevent weird bug if over 360°
+        //if(!has_crossed && is_increasing ? data.angles[i] < data.angles[i-1] : data.angles[i] > data.angles[i-1]) {
+        //    has_crossed = true;
+        //}
+        //if(has_crossed && is_increasing ? data.angles[i] > data.angles[0] : data.angles[i] < data.angles[0]) {
+        //    break;
+        //}
         uint16_t cur_dist = data.distances[i];
         //if outside nominal point range, outside intensity range, distance too high with previous point, too many pt in amalg
         if(cur_dist < tuning.min_dist || cur_dist > tuning.max_dist
@@ -188,10 +198,19 @@ static void reset_amalgame(amalgame_t* item, uint8_t nb_pts, uint8_t need_free) 
     
 }
 static void reset_raw_lidar(raw_lidar_t *item, uint8_t nb_pts, uint8_t need_free) {
-    if(need_free) {
-        free((void *)item->angles);
-        free((void *)item->distances);
-        free((void *)item->intensities);
+    if (need_free) {
+        if (item->angles != NULL) {
+            free((void *)item->angles);
+            item->angles = NULL;
+        }
+        if (item->distances != NULL) {
+            free((void *)item->distances);
+            item->distances = NULL;
+        }
+        if (item->intensities != NULL) {
+            free((void *)item->intensities);
+            item->intensities = NULL;
+        }
     }
 
     item->count = 0;

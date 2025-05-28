@@ -2,7 +2,7 @@
 #include "loca_lidar.h"
 
 amalgame_finder_tuning_t amalgame_finder_tuning =  {
-    .min_intensity = 5,
+    .min_intensity = 50,
     .min_dist = 100, //mm //TODO : voir pour inhiber moins 
     .max_dist = 3800,//3800,
     .max_distance_betwn_pts = 100,

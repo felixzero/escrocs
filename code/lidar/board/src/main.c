@@ -8,6 +8,7 @@
 #include "lidar.h"
 #include "esp_i2c.h"
 #include "task_priority.h"
+#include "wifi.h"
 
 #include "../loca_lidar/amalgame.h"
 #include "../loca_lidar/loca_lidar.h"
@@ -82,6 +83,9 @@ void app_main() {
     //xTaskCreate(printer_log_task, "printer_log_task", 2048, NULL, PRINTER_TASK_PRIORITY, NULL); //I2C Doesn't work without this task !
     update_cone(0.0f, 0.7f);
     update_dist(500);
+
+    wifi_init_sta();
+
     for(;;) {
         vTaskDelay(100 / portTICK_PERIOD_MS);
         ESP_LOGI("", "obstacle main %i", has_obstacle());
