@@ -155,12 +155,6 @@ static void motion_control_task(void *parameters)
             motion_control_update_pose(&motion_data, &current_pose, &encoder_increment);
         }
 
-        if (iteration % 10 == 0) {
-            ESP_LOGI(TAG, "Encoders: %f %f %f", encoder_increment.channel1, encoder_increment.channel2, encoder_increment.channel3);
-            ESP_LOGI(TAG, "Pose: %f %f %f", current_pose.x, current_pose.y, current_pose.theta);
-
-        }
-
         bool has_obstacle = false;
         //Calculates a cone to scan to send to US board
         float center_scanning_angle, cone_scanning_angle;
@@ -173,7 +167,6 @@ static void motion_control_task(void *parameters)
         motion_cone.center_angle = center_scanning_angle;
         motion_cone.cone = cone_scanning_angle;
         if (AVOIDANCE_ENABLED && xQueueReceive(scan_over_queue, &has_obstacle, 0)) {
-            ESP_LOGI("TAG", "obstracle %i", has_obstacle);
             //Perform obstacle detection logic
             if (need_detection && has_obstacle && motion_target.perform_detection) {
                 number_of_clear_ultrasonic_iterations_before_movement = NUMBER_OF_CLEAR_ULTRASONIC_SCANS;
@@ -205,6 +198,11 @@ static void motion_control_task(void *parameters)
         status.pose = current_pose;
         status.motion_step = motion_target.motion_step;
         xQueueOverwrite(output_status_queue, &status);
+
+        if (iteration % 10 == 0) {
+            ESP_LOGI(TAG, "Encoders: %f %f %f", encoder_increment.channel1, encoder_increment.channel2, encoder_increment.channel3);
+            ESP_LOGI(TAG, "Pose: %f %f %f", current_pose.x, current_pose.y, current_pose.theta);
+        }
     }
 }
 

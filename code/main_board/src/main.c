@@ -39,6 +39,7 @@ void app_main() {
     {
         ld06_board_ret = init_ld06_board();
         ESP_LOGI("main", "ld06 state : %s", esp_err_to_name(ld06_board_ret));
+        display_initialization_status("LD06", ld06_board_ret);
         vTaskDelay(200/portTICK_PERIOD_MS);
     }
     
@@ -48,7 +49,6 @@ void app_main() {
     display_initialization_status("Motion ctrl", init_motion_control(false));
     display_initialization_status("Peripherals", init_peripherals());
     display_initialization_status("stepper", init_stepper_board());
-
     
     char *table_sides[] = { "Left", "Right" };
     int is_reversed = menu_pick_item("Table side", table_sides, 2);

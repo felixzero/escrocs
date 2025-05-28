@@ -9,6 +9,7 @@
 #include "esp_i2c.h"
 #include "task_priority.h"
 #include "wifi.h"
+#include "led_handler.h"
 
 #include "../loca_lidar/amalgame.h"
 #include "../loca_lidar/loca_lidar.h"
@@ -21,6 +22,7 @@
 #define TAG "MAIN"
 #define SPEED_LIDAR_PRCNT 40
 
+
 #define LEDC_TIMER              LEDC_TIMER_0
 #define LEDC_MODE               LEDC_LOW_SPEED_MODE
 #define LEDC_OUTPUT_IO          21
@@ -28,6 +30,8 @@
 #define LEDC_DUTY_RES           LEDC_TIMER_8_BIT
 #define LEDC_DUTY               256
 #define LEDC_FREQUENCY          30000
+
+
 
 void app_main() {
     // Configuration du timer LEDC
@@ -56,15 +60,14 @@ void app_main() {
     ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, duty));
     ESP_ERROR_CHECK(ledc_update_duty(LEDC_MODE, LEDC_CHANNEL));
 
-    //Read GPIO 5 and 7
-    //gpio_config_t io_conf = {
-    //    .pin_bit_mask = (1ULL << GPIO_NUM_7),//(1ULL << GPIO_NUM_5) | (1ULL << GPIO_NUM_7),
-    //    .mode = GPIO_MODE_INPUT,
-    //    .pull_up_en = GPIO_PULLUP_ENABLE,
-    //    .pull_down_en = GPIO_PULLDOWN_DISABLE,
-    //    .intr_type = GPIO_INTR_DISABLE,
-    //};
-    //gpio_config(&io_conf);
+    gpio_config_t io_conf = {
+        .pin_bit_mask = (1ULL << GPIO_NUM_5),//(1ULL << GPIO_NUM_5) | (1ULL << GPIO_NUM_7),
+        .mode = GPIO_MODE_INPUT,
+        .pull_up_en = GPIO_PULLUP_ENABLE,
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_DISABLE,
+    };
+    gpio_config(&io_conf);
 
     gpio_config_t io_out = {
         .pin_bit_mask = (1ULL << GPIO_NUM_7),
@@ -76,7 +79,7 @@ void app_main() {
     gpio_config(&io_out);
 
     gpio_set_level(GPIO_NUM_5, 1);
- 
+
     xTaskCreate(i2c_slave_task, "i2c_slave_task", 4096, NULL, I2C_TASK_PRIORITY, NULL);
     init_uart();
     xTaskCreate(update_amalgames_task, "update_amalgames_task", 2048, NULL, AMALGAME_TASK_PRIORITY, NULL);
@@ -88,14 +91,16 @@ void app_main() {
 
     for(;;) {
         vTaskDelay(100 / portTICK_PERIOD_MS);
-        ESP_LOGI("", "obstacle main %i", has_obstacle());
+        //ESP_LOGI("MAIN", "BUTTON %i", gpio_get_level(GPIO_NUM_5));
+        //ESP_LOGI("", "obstacle main %i", has_obstacle());
         if(has_obstacle()) {
             gpio_set_level(GPIO_NUM_7, 0);
         }else {
             gpio_set_level(GPIO_NUM_7, 1);
         }
-        //ESP_LOGI(TAG, "closest_dist %i", closest_obstacle_dist());
     }
+
+    
 
 
 
